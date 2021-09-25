@@ -10,6 +10,7 @@
                 "<all_urls>"
             ],
             "js": [
+                "js/jquery-3.6.0.min.js",
                 "js/content.js"
             ]
         }
@@ -20,10 +21,15 @@
     },
     "background": {
         "scripts": [
+            "js/jquery-3.6.0.min.js",
             "js/background.js"
         ]
     },
+    "minimum_chrome_version": "10.0",
     "permissions": [
-        "tabs"
+        "storage",
+        "tabs",
+        "activeTab",
+        "<all_urls>"
     ]
 }
