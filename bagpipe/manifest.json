@@ -1,7 +1,7 @@
 {
     "name": "bagpipe",
     "version": "1.0",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "description": "Scraping extension with beautiful UI",
     "author": "MillionCloud",
     "content_scripts": [
@@ -11,25 +11,34 @@
             ],
             "js": [
                 "js/jquery-3.6.0.min.js",
-                "js/content.js"
+                "js/content.js",
+                "js/inject.js",
+                "js/element-selector.js"
             ]
         }
     ],
-    "browser_action": {
+    "action": {
         "default_icon": "Bagpipe_icon.png",
         "default_popup": "html/dashboard.html"
     },
     "background": {
-        "scripts": [
-            "js/jquery-3.6.0.min.js",
-            "js/background.js"
-        ]
+        "service_worker": "js/background.js"
     },
     "minimum_chrome_version": "10.0",
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "html/navigator.html"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
     "permissions": [
         "storage",
         "tabs",
         "activeTab",
-        "<all_urls>"
+        "scripting"
     ]
 }

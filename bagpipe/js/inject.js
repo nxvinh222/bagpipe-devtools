@@ -1,28 +1,16 @@
-$(document).ready(function () {
-
-    // fetch(fileUrl)
-    //     .then(r => r.text())
-    //     .then(t => $('body').prepend(t))
-    // $.ajax({
-    //     url: "/html/navigator.html",
-    //     success: function (result) {
-    //         $('body').prepend(result)
-    //         alert(result)
-    //         alert("test")
-    //     }
-    // });
-    // $('body').prepend(`
-    //     <div id="fb-root">
-    //         hell3
-    //     </div>
-    //     `
-    // );
-    // var inject_html = localStorage.getItem('inject_html')
-    // $('body').prepend(inject_html);
-    $('body').prepend(localStorage.getItem("inject-html"));
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action == "inject-dashboard") {
+        $(document).ready(function () {
+            $('body').prepend(localStorage.getItem("inject-html"));
+            document.querySelector('.select-button').addEventListener('click', () => {
+                $("*").not("body, html").hover(function (e) {
+                    $(this).css("border", "1px solid #000");
+                    e.stopPropagation();
+                }, function (e) {
+                    $(this).css("border", "0px");
+                    e.stopPropagation();
+                });
+            }, false)
+        });
+    }
 });
-// $.ajax({
-//     url: "html/navigator.html",
-//     success: function (data) { $('body').prepend(data); },
-//     dataType: 'html'
-// });
