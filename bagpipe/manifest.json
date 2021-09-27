@@ -14,6 +14,9 @@
                 "js/content.js",
                 "js/inject.js",
                 "js/element-selector.js"
+            ],
+            "css": [
+                "css/element-selector.css"
             ]
         }
     ],

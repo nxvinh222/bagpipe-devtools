@@ -3,13 +3,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         $(document).ready(function () {
             $('body').prepend(localStorage.getItem("inject-html"));
             document.querySelector('.select-button').addEventListener('click', () => {
-                $("*").not("body, html").hover(function (e) {
-                    $(this).css("border", "1px solid #000");
-                    e.stopPropagation();
-                }, function (e) {
-                    $(this).css("border", "0px");
-                    e.stopPropagation();
+                // $('body').children().mouseover(function (e) {
+                //     $(".hova").removeClass("hova");
+                //     $(e.target).addClass("hova");
+                //     return false;
+                // }).mouseout(function (e) {
+                //     $(this).removeClass("hova");
+                // });
+                $('body').children().bind("mouseover.selectElement", function (e) {
+                    $(".hova").removeClass("hova");
+                    $(e.target).addClass("hova");
+                    return false;
+                }).mouseout(function (e) {
+                    $(this).removeClass("hova");
                 });
+
+            }, false)
+
+            document.querySelector('.finish-button').addEventListener('click', () => {
+                $('body').children().unbind("mouseover.selectElement");
             }, false)
         });
     }
