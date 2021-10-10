@@ -1,0 +1,13 @@
+.hova {
+    background-color: pink;
+}
+
+.navigator-container{
+    position: fixed;
+    z-index: 999999 !important;
+    background: #fff;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+}

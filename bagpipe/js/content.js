@@ -9,8 +9,8 @@
 //     testValue: 9
 // })
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action == "add-dashboard") {
-        localStorage.setItem("inject-html", request.inject_html)
-    }
-});
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     if (request.action == "add-dashboard") {
+//         localStorage.setItem("inject-html", request.inject_html)
+//     }
+// });
