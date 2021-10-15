@@ -11,3 +11,15 @@
     display: flex;
     justify-content: center;
 }
+
+.attr-outer, #attr-con {
+    /* display: flex; */
+    align-items: center;    
+    height: 100%;
+}
+
+#attr-con {
+    justify-content: start;
+    /* overflow-x: auto; */
+    overflow-y: auto;
+}

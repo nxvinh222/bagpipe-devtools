@@ -26,9 +26,9 @@ chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tab) {
             //             inject_html: response
             //         });
             // })
-            chrome.storage.sync.set({ "injectHtml": response }, function (html) {
+            chrome.storage.sync.set({ "injectHtml": response }, function () {
                 //  A data saved callback omg so fancy
-                console.log(html)
+                console.log(response)
             });
         })
     // $.ajax({
