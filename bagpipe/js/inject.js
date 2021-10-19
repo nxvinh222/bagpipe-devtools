@@ -25,10 +25,23 @@ function injectHtml(html) {
             $(this).removeClass("hova");
         });
 
+        $('body').children().bind("click.selectElement", function (event) {
+            event.preventDefault()
+            $(".hova").removeClass("hova");
+            $(".click-hova").removeClass("click-hova");
+            event = event || window.event;
+            var target = event.target || event.srcElement,
+                text = target.textContent || target.innerText;
+
+            $(".selected-attr").html(target.className);
+            $("[class='" + event.target.className + "']").addClass("click-hova");
+        });
     }, false)
 
     document.querySelector('.finish-button').addEventListener('click', () => {
         $('body').children().unbind("mouseover.selectElement");
+        $('body').children().unbind("click.selectElement");
+        $(".click-hova").removeClass("click-hova");
     }, false)
 
     //add data field
