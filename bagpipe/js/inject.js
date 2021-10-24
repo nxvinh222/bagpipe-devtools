@@ -46,8 +46,35 @@ function injectHtml(html) {
 
     //add data field
     document.querySelector('.add-button').addEventListener('click', () => {
-        // document.getElementById('attr-con').insertAdjacentHTML("beforeend", "<input type='text' id='tst" + x++ + "'>")
-        $("<input type='text' id='tst" + x++ + "'>").insertBefore($('.add-button'))
-        console.log("added")
+        addAttr()
     }, false)
+
+    //confirm attr
+    document.querySelector('.confirm-button').addEventListener('click', () => {
+        confirmAttr()
+    }, false)
+
+    //view result
+    document.querySelector('.result-button').addEventListener('click', () => {
+        viewResult()
+    }, false)
+}
+
+function addAttr() {
+    // document.getElementById('attr-con').insertAdjacentHTML("beforeend", "<input type='text' id='tst" + x++ + "'>")
+    $("<input type='text' id='attr" + x++ + "'>").insertBefore($('.add-button'))
+    $(".add-button").css("display", "none");
+    $(".confirm-button").css("display", "inline-block");
+}
+
+function confirmAttr() {
+    $(".add-button").css("display", "inline-block");
+    $(".confirm-button").css("display", "none");
+}
+
+function viewResult() {
+    chrome.runtime.sendMessage({
+        action: "view-result",
+        status: true
+    });
 }

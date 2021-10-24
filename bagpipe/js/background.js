@@ -1,4 +1,8 @@
-// importScripts('jquery-3.6.0.min.js')
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.action == "view-result") {
+        chrome.tabs.create({ url: '../html/popup.html' })
+    }
+})
 
 // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 //     window.dashboard = request.dashboard
