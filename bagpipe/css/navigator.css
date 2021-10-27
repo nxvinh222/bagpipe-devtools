@@ -37,3 +37,7 @@
 .attr-outer {
     display: block;
 }
+
+.attr-input {
+    margin: 1px;
+}
