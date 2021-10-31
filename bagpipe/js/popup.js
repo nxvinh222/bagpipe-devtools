@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-
+    chrome.storage.sync.get("resultDemo", function (result) {
+        console.log(result.resultDemo)
+        $(".result-json").html(JSON.stringify(result.resultDemo, undefined, 2));
+    });
     // const bg = chrome.extension.getBackgroundPage()
     // Object.keys(bg.bears).forEach(function (url) {
     //     const div = document.createElement('div')
