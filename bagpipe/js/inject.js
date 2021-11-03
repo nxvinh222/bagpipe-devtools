@@ -2,7 +2,7 @@ var attr_index = 1
 var current_attr_index = attr_index
 var current_element
 var result_demo = {}
-var extension_element = ["navigator-container", "attr-input"]
+var extension_element = ["navigator-container", "attr-input", "bp-add-button", "bp-confirm-button"]
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action == "inject-dashboard") {
@@ -19,41 +19,42 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function injectHtml(html) {
     $('body').prepend(html.injectHtml)
 
-    document.querySelector('.select-button').addEventListener('click', () => {
-        addSelector()
-    }, false)
+    // document.querySelector('.select-button').addEventListener('click', () => {
+    //     addSelector()
+    // }, false)
 
-    document.querySelector('.finish-button').addEventListener('click', () => {
-        removeSelector()
-    }, false)
+    // document.querySelector('.finish-button').addEventListener('click', () => {
+    //     removeSelector()
+    // }, false)
 
     //add data field
-    document.querySelector('.add-button').addEventListener('click', () => {
+    document.querySelector('.bp-add-button').addEventListener('click', () => {
         addAttr()
     }, false)
 
     //confirm attr
-    document.querySelector('.confirm-button').addEventListener('click', () => {
+    document.querySelector('.bp-confirm-button').addEventListener('click', () => {
         confirmAttr()
     }, false)
 
     //view result
-    document.querySelector('.result-button').addEventListener('click', () => {
+    document.querySelector('.bp-result-button').addEventListener('click', () => {
         viewResult()
     }, false)
 }
 
 function addAttr() {
     // document.getElementById('attr-con').insertAdjacentHTML("beforeend", "<input type='text' id='tst" + x++ + "'>")
-    $("<input class='attr-input' type='text' id='attr" + attr_index++ + "'>").insertBefore($('.add-button'))
-    $(".add-button").css("display", "none");
-    $(".confirm-button").css("display", "inline-block");
+    $("<input class='attr-input' placeholder='Attribute name' type='text' id='attr" + attr_index++ + "'>").insertBefore($('.bp-add-button'))
+    $(".bp-add-button").css("display", "none");
+    $(".bp-confirm-button").css("display", "inline-block");
+    $(".bp-guide").css("display", "none");
     addSelector()
 }
 
 function confirmAttr() {
-    $(".add-button").css("display", "inline-block");
-    $(".confirm-button").css("display", "none");
+    $(".bp-add-button").css("display", "inline-block");
+    $(".bp-confirm-button").css("display", "none");
     removeSelector()
     current_attr_index = attr_index - 1
     let attr_id = '#attr' + current_attr_index
@@ -61,10 +62,10 @@ function confirmAttr() {
     console.log(attr_name)
     console.log(attr_id)
     result_demo[attr_name] = []
-    $(current_element).each(function (index) {
-        result_demo[attr_name].push($(this).text())
-        console.log(index + ": " + $(this).text());
-        if (index == 9) return
+    console.log("current element:" + current_element)
+    $(current_element).slice(0, 9).each(function (index) {
+        result_demo[attr_name].push($(this).text().replace(/\n/g, '').trim())
+        console.log(index + ": " + $(this).text().replace(/\n/g, '').trim())
     })
     chrome.storage.sync.set({ "resultDemo": result_demo }, function () {
         console.log(result_demo)
@@ -98,7 +99,7 @@ function addSelector() {
         var target = event.target || event.srcElement,
             text = target.textContent || target.innerText;
 
-        current_element = "." + target.className
+        current_element = "." + target.className.split(' ').join(',.')
         $(".selected-attr").html(target.className);
         $("[class='" + event.target.className + "']").addClass("click-hova");
     });
