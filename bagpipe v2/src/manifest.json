@@ -42,5 +42,11 @@
         "<all_urls>"
       ]
     }
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting"
   ]
 }
