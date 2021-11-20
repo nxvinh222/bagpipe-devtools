@@ -73,7 +73,6 @@ function confirmAttr() {
 
 function viewResult() {
     console.log("result clicked")
-    chrome.tabs.create({ url: 'options.html' })
     chrome.runtime.sendMessage({
         action: "view-result",
         data: result_demo

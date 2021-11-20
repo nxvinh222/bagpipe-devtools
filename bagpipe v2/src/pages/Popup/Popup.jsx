@@ -8,6 +8,14 @@ const Popup = () => {
       chrome.tabs.create({ url: 'options.html' })
     }, false)
 
+    // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    //   console.log("result viewing background from popup file")
+    //   if (request.action == "view-result") {
+    //     chrome.tabs.create({ url: 'options.html' })
+    //   }
+
+    //   sendResponse();
+    // })
   });
 
   const injectTool = () => {
