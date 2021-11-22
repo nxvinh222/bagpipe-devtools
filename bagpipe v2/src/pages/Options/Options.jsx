@@ -6,6 +6,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import SideNav from './components/SideNav'
 import Preview from './components/Preview'
+import NewRecipe from './components/NewRecipe';
 
 import { Layout, Menu, Breadcrumb, Typography } from 'antd';
 
@@ -43,7 +44,7 @@ const Options = () => {
             <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
               <Routes>
                 <Route path="/options.html" element={<Preview />} />
-                <Route path="about" element={<div>ok</div>} />
+                <Route path="/about" element={<NewRecipe />} />
               </Routes>
             </div>
           </Content>
