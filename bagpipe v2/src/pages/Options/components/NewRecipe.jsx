@@ -34,17 +34,20 @@ const NewRecipe = () => {
             layout="horizontal"
             size={componentSize}
         >
-            <Form.Item label="Form Size" name="size">
-            </Form.Item>
-            <Form.Item label="Input">
+            <h1>Save Recipe</h1>
+            {/* <Form.Item label="Form Size" name="size">
+            </Form.Item> */}
+            <Form.Item label="Recipe Name">
                 <Input />
             </Form.Item>
-            <Form.Item label="Select">
+            <Form.Item label="Recipe URL">
                 <Select>
                     <Select.Option value="demo">Demo</Select.Option>
                 </Select>
             </Form.Item>
-            <Form.Item label="TreeSelect">
+            <Form.Item label="Attributes list">
+            </Form.Item>
+            {/* <Form.Item label="TreeSelect">
                 <TreeSelect
                     treeData={[
                         {
@@ -75,18 +78,21 @@ const NewRecipe = () => {
                         },
                     ]}
                 />
-            </Form.Item>
-            <Form.Item label="DatePicker">
+            </Form.Item> */}
+            {/* <Form.Item label="DatePicker">
                 <DatePicker />
-            </Form.Item>
-            <Form.Item label="InputNumber">
+            </Form.Item> */}
+            <Form.Item label="Number of pages">
                 <InputNumber />
             </Form.Item>
-            <Form.Item label="Switch" valuePropName="checked">
+            <Form.Item label="Use javascript" valuePropName="checked">
                 <Switch />
             </Form.Item>
-            <Form.Item label="Button">
-                <Button>Button</Button>
+            <Form.Item label="Cookies">
+                <Input />
+            </Form.Item>
+            <Form.Item label="">
+                <Button>Create Recipe</Button>
             </Form.Item>
         </Form>
     );

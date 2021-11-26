@@ -24,6 +24,10 @@ const Popup = () => {
         action: "inject-dashboard",
         status: true
       });
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "scrape-test",
+        status: true
+      });
     });
   }
 

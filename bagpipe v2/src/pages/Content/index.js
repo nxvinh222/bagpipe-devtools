@@ -11,9 +11,19 @@ console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 printLine("Using the 'printLine' function from the Print Module");
 
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action == "scrape") {
+        alert("Scraping!!!");
+    }
+
+    if (request.action == "scrape-test") {
+        alert("Tool injected!");
+    }
+
     if (request.action == "inject-dashboard") {
         // document.addEventListener("DOMContentLoaded", function () {
+
         $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             injectHtml(data)
         });
