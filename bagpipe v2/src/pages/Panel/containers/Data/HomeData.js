@@ -3,73 +3,73 @@ import { Tag, Space } from 'antd';
 
 export const columns = [
     {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
         render: text => <a>{text}</a>,
     },
     {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: 'Domain',
+        dataIndex: 'domain',
+        key: 'domain',
     },
     {
-        title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
+        title: 'Comment',
+        dataIndex: 'comment',
+        key: 'comment',
     },
-    {
-        title: 'Tags',
-        key: 'tags',
-        dataIndex: 'tags',
-        render: tags => (
-            <>
-                {tags.map(tag => {
-                    let color = tag.length > 5 ? 'geekblue' : 'green';
-                    if (tag === 'loser') {
-                        color = 'volcano';
-                    }
-                    return (
-                        <Tag color={color} key={tag}>
-                            {tag.toUpperCase()}
-                        </Tag>
-                    );
-                })}
-            </>
-        ),
-    },
-    {
-        title: 'Action',
-        key: 'action',
-        render: (text, record) => (
-            <Space size="middle">
-                <a>Invite {record.name}</a>
-                <a>Delete</a>
-            </Space>
-        ),
-    },
+    // {
+    //     title: 'Tags',
+    //     key: 'tags',
+    //     dataIndex: 'tags',
+    //     render: tags => (
+    //         <>
+    //             {tags.map(tag => {
+    //                 let color = tag.length > 5 ? 'geekblue' : 'green';
+    //                 if (tag === 'loser') {
+    //                     color = 'volcano';
+    //                 }
+    //                 return (
+    //                     <Tag color={color} key={tag}>
+    //                         {tag.toUpperCase()}
+    //                     </Tag>
+    //                 );
+    //             })}
+    //         </>
+    //     ),
+    // },
+    // {
+    //     title: 'Action',
+    //     key: 'action',
+    //     render: (text, record) => (
+    //         <Space size="middle">
+    //             <a>Invite {record.name}</a>
+    //             <a>Delete</a>
+    //         </Space>
+    //     ),
+    // },
 ];
 
 export const data = [
     {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-        tags: ['nice', 'developer'],
+        id: 'abc',
+        domain: 'vnexpress.net',
+        comment: "Thong tin vne",
+        // address: 'New York No. 1 Lake Park',
+        // tags: ['nice', 'developer'],
     },
     {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-        tags: ['loser'],
+        id: 'def',
+        domain: 'dantri.net',
+        comment: "Điểm báo hàng ngày tại dân trí",
+        // address: 'London No. 1 Lake Park',
+        // tags: ['loser'],
     },
     {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sidney No. 1 Lake Park',
-        tags: ['cool', 'teacher'],
+        id: 'ghk',
+        domain: 'baomoi.net',
+        comment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        // address: 'Sidney No. 1 Lake Park',
+        // tags: ['cool', 'teacher'],
     },
 ];

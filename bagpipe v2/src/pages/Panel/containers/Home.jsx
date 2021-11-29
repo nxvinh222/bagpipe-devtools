@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
+import './Home.css';
 
-import { Table, Tag, Space } from 'antd';
+import { Table, Button } from 'antd';
+import { Link } from "react-router-dom";
 import { columns, data } from './Data/HomeData'
 
-const Home = () => {
+const Home = (props) => {
+
+    const [recipes, setRecipes] = useState(data);
 
     useEffect(() => {
         console.log(data)
@@ -13,7 +17,10 @@ const Home = () => {
 
     return (
         <div className="home">
-            <Table dataSource={data} columns={columns} />;
+            <Button type="primary">
+                <Link to={props.basePath + "/new"}>Add Recipe</Link>
+            </Button>
+            <Table dataSource={recipes} columns={columns} />;
         </div>
     )
 }

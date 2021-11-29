@@ -2,11 +2,17 @@ import React from 'react';
 import './Panel.css';
 import { Routes, Route, Link } from "react-router-dom";
 import useBreadcrumbs from 'use-react-router-breadcrumbs';
+// import { createStore } from "redux"
+// import reducer from "./reducers";
 
 import Home from './containers/Home';
+import New from './containers/New';
 
 const Panel = () => {
+  // const initialState = { basePath: "/panel.html" };
+  // const store = createStore(reducer, initialState);
   const basePath = "/panel.html"
+
   const Breadcrumbs = () => {
     const breadcrumbs = useBreadcrumbs();
 
@@ -20,10 +26,9 @@ const Panel = () => {
   return (
     <div>
       <Breadcrumbs />
-      {/* <Link to={basePath + "/selector"}>Save Recipe</Link> */}
       <Routes>
-        <Route path={basePath} element={<Home />} />
-        <Route path={basePath + "/selector"} element={<h1>Selector</h1>} />
+        <Route path={basePath} element={<Home basePath={basePath} />} />
+        <Route path={basePath + "/new"} element={<New />} />
       </Routes>
     </div>
   );
