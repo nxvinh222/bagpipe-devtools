@@ -1,25 +1,19 @@
 import { printLine } from './modules/print';
 import $ from 'jquery';
 
+
 var attr_index = 1
 var current_attr_index = attr_index
 var current_element
 var result_demo = {}
 var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button"]
 
-console.log('Content script works!');
+console.log('Content script works!!');
 console.log('Must reload extension for modifications to take effect.');
 printLine("Using the 'printLine' function from the Print Module");
 
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action == "scrape") {
-        alert("Scraping!!!");
-    }
-
-    if (request.action == "scrape-test") {
-        alert("Tool injected!");
-    }
 
     if (request.action == "inject-dashboard") {
         // document.addEventListener("DOMContentLoaded", function () {
