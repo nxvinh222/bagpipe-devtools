@@ -5,7 +5,7 @@ const scrapeText = require('./utils/scrapeText.js')
 
 const app = express(); // Initializing Express
 
-app.use(timeout('300s'));
+app.use(timeout('30s'));
 app.use(haltOnTimedout);
 app.use(express.json())
 
