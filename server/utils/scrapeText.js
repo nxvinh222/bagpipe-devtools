@@ -16,6 +16,7 @@ async function scrape(request) {
     //         }
     //     ]
     // }
+    console.log("Handling Text Scraping Request!");
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let crawlResult = []
