@@ -3,19 +3,22 @@ import './Panel.css';
 import { Routes, Route } from "react-router-dom";
 import { render } from "react-dom";
 import useBreadcrumbs from 'use-react-router-breadcrumbs';
+import * as myConsts from './containers/constants'
 // import { createStore } from "redux"
 // import reducer from "./reducers";
 
 import Home from './containers/Home';
 import New from './containers/New';
 import Show from './containers/Show';
+import NewAttr from './containers/NewAttr';
 
 const Panel = () => {
   // const initialState = { basePath: "/panel.html" };
   // const store = createStore(reducer, initialState);
-  const basePath = "/panel.html"
-  const newRecipePath = basePath + "/new"
-  const showRecipePath = basePath + "/show/:recipeId"
+  const basePath = myConsts.basePath
+  const newRecipePath = myConsts.newRecipePath
+  const showRecipePath = myConsts.showRecipePath
+  const newAttrPath = myConsts.newAttrPath
 
   const Breadcrumbs = () => {
     const breadcrumbs = useBreadcrumbs();
@@ -33,15 +36,19 @@ const Panel = () => {
       <Routes>
         <Route
           path={basePath}
-          element={<Home basePath={basePath} />}
+          element={<Home />}
         />
         <Route
           path={newRecipePath}
-          element={<New basePath={basePath} />}
+          element={<New />}
         />
         <Route
           path={showRecipePath}
-          element={<Show basePath={basePath} />}
+          element={<Show />}
+        />
+        <Route
+          path={newAttrPath}
+          element={<NewAttr />}
         />
       </Routes>
     </div>

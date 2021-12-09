@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './Home.css';
+import { newRecipePath } from './constants'
 
 import { Table, Button } from 'antd';
 import { Link } from "react-router-dom";
@@ -18,7 +19,7 @@ const Home = (props) => {
     return (
         <div className="home">
             <Button type="primary">
-                <Link to={props.basePath + "/new"}>Add Recipe</Link>
+                <Link to={newRecipePath}>Add Recipe</Link>
             </Button>
             <Table dataSource={recipes} columns={columns} />;
         </div>

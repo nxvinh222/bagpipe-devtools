@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { basePath } from './constants'
 
 import 'antd/dist/antd.css';
 import { Form, Input, Button } from 'antd';
 
 const New = (props) => {
-    const basePath = "/panel.html"
     const showRecipePath = basePath + "/show/vne"
     const navigate = useNavigate();
 
     const onFinish = (values) => {
         console.log('Success:', values);
-        console.log('basepath: ', props.basePath)
         navigate(showRecipePath)
     };
 

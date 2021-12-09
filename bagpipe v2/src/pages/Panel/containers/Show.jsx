@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './Show.css';
+import { newAttrPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
@@ -11,7 +12,10 @@ import { columns, data } from './Data/ShowData'
 
 const Show = (props) => {
     let { recipeId } = useParams();
-    const [recipes, setRecipes] = useState(data);
+    const [selectors, setSelectors] = useState(data);
+    const newAttrPathWithQuery = newAttrPath + "?" + new URLSearchParams({
+        recipeId: recipeId
+    }).toString()
     useEffect(() => {
         console.log(recipeId)
     });
@@ -53,8 +57,6 @@ const Show = (props) => {
             //2nd
             .then(response => {
                 if (response.status === 200) {
-                    // filename = response.headers.get("content-disposition");
-                    // filename = filename.match(/(?<=")(?:\\.|[^"\\])*(?=")/)[0];
                     return response.blob();
                 } else {
                     return;
@@ -72,9 +74,9 @@ const Show = (props) => {
     return (
         <div className="show">
             <Button type="primary">
-                <Link to={props.basePath}>New Attribute</Link>
+                <Link to={newAttrPathWithQuery}>New Selector</Link>
             </Button>
-            <Table dataSource={recipes} columns={columns} />
+            <Table dataSource={selectors} columns={columns} />
             <Button type="primary" onClick={scrape}>
                 Start Scrapring!
             </Button>
