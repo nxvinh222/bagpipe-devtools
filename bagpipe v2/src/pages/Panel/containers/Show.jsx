@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
-import './Show.css';
+import './css/Show.css';
 import { newAttrPath } from './constants'
 
 import downloadjs from "downloadjs";

@@ -31,7 +31,7 @@ const Panel = () => {
   }
 
   return (
-    <div>
+    <div className='bagpipe-root'>
       <Breadcrumbs />
       <Routes>
         <Route
