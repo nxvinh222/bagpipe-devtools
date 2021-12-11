@@ -12,8 +12,36 @@ const NewAttr = () => {
     const [element, setElement] = useState("null")
 
     const selectElementScript = function () {
-        alert("from panel")
+        var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish"]
+        var current_element = "null"
+
+        $('body').children().on("mouseover.selectElement", function (e) {
+            if (extension_element.includes(e.target.className)) return false
+
+            $(".hova").removeClass("hova");
+            $(e.target).addClass("hova");
+            return false;
+        }).mouseout(function (e) {
+            $(this).removeClass("hova");
+        });
+
+        $('body').children().on("click.selectElement", function (event) {
+            if (extension_element.includes(event.target.className)) return false
+            event.preventDefault()
+            $(".hova").removeClass("hova");
+            $(".click-hova").removeClass("click-hova");
+            $(event.target).addClass("click-hova");
+            current_element = event.target.className
+        });
+
+        $('.bagpipe-finish').on('click', () => {
+            chrome.storage.sync.set({ "elements": current_element }, function () {
+                alert("Done");
+                console.log(current_element);
+            });
+        })
         return 123
+
     }
 
     const getElement = () => {
@@ -22,7 +50,7 @@ const NewAttr = () => {
         let script = selectElementScript.toString() + "()"
         console.log(script);
         chrome.devtools.inspectedWindow.eval(
-            "(" + selectElementScript.toString() + ")()",
+            `(${selectElementScript.toString()})()`,
             function (result, isException) {
                 if (isException) {
                     console.log("Result not received");
@@ -31,6 +59,14 @@ const NewAttr = () => {
                     setElement(result)
                 }
             });
+        chrome.storage.onChanged.addListener(function (changes, namespace) {
+            for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+                console.log(
+                    `Storage key "${key}" in namespace "${namespace}" changed.`,
+                    `Old value was "${oldValue}", new value is "${newValue}".`
+                );
+            }
+        });
     }
 
     return (

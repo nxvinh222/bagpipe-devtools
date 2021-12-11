@@ -6,6 +6,19 @@
     background-color: pink;
 }
 
+
+.select-panel {
+    background: transparent;
+    background-color: white !important;
+    border: none;
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    height: 50px;
+    width: 620px;
+}
+
+
 .navigator-container{
     position: fixed;
     top:0;
