@@ -23,6 +23,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             console.log("[bagpipe] finish select element");
         });
         turn_on = false;
+        removeSelector();
     })
 
     $('.bagpipe-scrape-inject').on('click', () => {
@@ -151,7 +152,8 @@ function addSelector() {
 }
 
 function removeSelector() {
-    $('body').children().unbind("mouseover.selectElement");
-    $('body').children().unbind("click.selectElement");
+    // $('body').children().unbind("mouseover.selectElement");
+    // $('body').children().unbind("click.selectElement");
     $(".click-hova").removeClass("click-hova");
+    $(".hova").removeClass("hova");
 }
