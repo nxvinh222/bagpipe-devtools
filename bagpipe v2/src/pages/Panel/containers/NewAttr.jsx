@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
 import { useLocation } from 'react-router-dom';
 
@@ -11,42 +11,22 @@ const NewAttr = () => {
     const recipeId = query.get('recipeId')
     const [element, setElement] = useState("null")
 
+    useEffect(() => {
+        chrome.storage.onChanged.addListener(function (changes, namespace) {
+            if ("elements" in changes) {
+                setElement(changes.elements.newValue);
+            }
+        });
+    });
+
     const selectElementScript = function () {
         var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish"]
         var current_element = "null"
-
-        $('body').children().on("mouseover.selectElement", function (e) {
-            if (extension_element.includes(e.target.className)) return false
-
-            $(".hova").removeClass("hova");
-            $(e.target).addClass("hova");
-            return false;
-        }).mouseout(function (e) {
-            $(this).removeClass("hova");
-        });
-
-        $('body').children().on("click.selectElement", function (event) {
-            if (extension_element.includes(event.target.className)) return false
-            event.preventDefault()
-            $(".hova").removeClass("hova");
-            $(".click-hova").removeClass("click-hova");
-            $(event.target).addClass("click-hova");
-            current_element = event.target.className
-        });
-
-        $('.bagpipe-finish').on('click', () => {
-            chrome.storage.sync.set({ "elements": current_element }, function () {
-                alert("Done");
-                console.log(current_element);
-            });
-        })
-        return 123
-
+        $(".bagpipe-scrape-inject").trigger('click');
+        return "Selecting......."
     }
 
     const getElement = () => {
-        setElement("clicked")
-
         let script = selectElementScript.toString() + "()"
         console.log(script);
         chrome.devtools.inspectedWindow.eval(
@@ -59,13 +39,10 @@ const NewAttr = () => {
                     setElement(result)
                 }
             });
-        chrome.storage.onChanged.addListener(function (changes, namespace) {
-            for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-                console.log(
-                    `Storage key "${key}" in namespace "${namespace}" changed.`,
-                    `Old value was "${oldValue}", new value is "${newValue}".`
-                );
-            }
+
+        chrome.storage.sync.get("elements", function (res) {
+            console.log("storage: ", res.elements)
+            setElement(res.elements)
         });
     }
 

@@ -4,19 +4,55 @@ import $ from 'jquery';
 
 var attr_index = 1
 var current_attr_index = attr_index
-var current_element
+var current_element = "null"
 var result_demo = {}
-var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button"]
+var turn_on = false;
+var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish"]
 
 console.log('Content script works!!');
 console.log('Must reload extension for modifications to take effect.');
 printLine("Using the 'printLine' function from the Print Module");
 
-
 $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     $(data).appendTo('body');
     console.log('injected')
+
+    $('.bagpipe-finish').on('click', () => {
+        if (!turn_on) return false;
+        chrome.storage.sync.set({ "elements": current_element }, function () {
+            console.log("[bagpipe] finish select element");
+        });
+        turn_on = false;
+    })
+
+    $('.bagpipe-scrape-inject').on('click', () => {
+        turn_on = true;
+        console.log("turned on");
+    })
 });
+
+$('body').children().on("mouseover.selectElement", function (e) {
+    if (!turn_on) return false;
+    if (extension_element.includes(e.target.className)) return false
+
+    $(".hova").removeClass("hova");
+    $(e.target).addClass("hova");
+    return false;
+}).mouseout(function (e) {
+    $(this).removeClass("hova");
+});
+
+$('body').children().on("click.selectElement", function (event) {
+    if (!turn_on) return false;
+    if (extension_element.includes(event.target.className)) return false
+    event.preventDefault()
+    $(".hova").removeClass("hova");
+    $(".click-hova").removeClass("click-hova");
+    $(event.target).addClass("click-hova");
+    current_element = event.target.className
+});
+
+
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 

@@ -18,6 +18,10 @@
     width: 620px;
 }
 
+.bagpipe-scrape-inject{
+    display: none;
+}
+
 
 .navigator-container{
     position: fixed;
