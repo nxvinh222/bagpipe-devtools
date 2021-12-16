@@ -1,13 +1,17 @@
 import { printLine } from './modules/print';
+import getCssSelector from './modules/selector-gen/index';
 import $ from 'jquery';
 
 
 var attr_index = 1
+var selected_element = []
 var current_attr_index = attr_index
 var current_element = "null"
 var result_demo = {}
-var turn_on = false;
-var extension_element = ["navigator-container", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish"]
+var extension_element = ["select-panel", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish", "bagpipe-scrape-inject"]
+var css_selector_option = {
+    combineBetweenSelector: true
+}
 
 console.log('Content script works!!');
 console.log('Must reload extension for modifications to take effect.');
@@ -18,42 +22,43 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     console.log('injected')
 
     $('.bagpipe-finish').on('click', () => {
-        if (!turn_on) return false;
         chrome.storage.sync.set({ "elements": current_element }, function () {
             console.log("[bagpipe] finish select element");
         });
-        turn_on = false;
         removeSelector();
     })
 
     $('.bagpipe-scrape-inject').on('click', () => {
-        turn_on = true;
+        $('body').children().on("mouseover.selectElement", function (e) {
+            if (extension_element.includes(e.target.className)) return false
+            $(".hova").removeClass("hova");
+            $(e.target).addClass("hova");
+            return false;
+        }).mouseout(function (e) {
+            $(this).removeClass("hova");
+        });
+
+        $('body').children().on("click.selectElement", function (event) {
+            if (extension_element.includes(event.target.className)) return false
+            event.preventDefault()
+            console.log("prevent default");
+            $(".hova").removeClass("hova");
+            $(".click-hova").removeClass("click-hova");
+            // console.log(getCssSelector(event.target));
+            if (selected_element.length == 2) {
+                selected_element = []
+            }
+            selected_element.push(event.target)
+            current_element = String(getCssSelector(
+                selected_element,
+                css_selector_option)
+            )
+            console.log(current_element);
+            $(current_element).addClass("click-hova");
+        });
         console.log("turned on");
     })
 });
-
-$('body').children().on("mouseover.selectElement", function (e) {
-    if (!turn_on) return false;
-    if (extension_element.includes(e.target.className)) return false
-
-    $(".hova").removeClass("hova");
-    $(e.target).addClass("hova");
-    return false;
-}).mouseout(function (e) {
-    $(this).removeClass("hova");
-});
-
-$('body').children().on("click.selectElement", function (event) {
-    if (!turn_on) return false;
-    if (extension_element.includes(event.target.className)) return false
-    event.preventDefault()
-    $(".hova").removeClass("hova");
-    $(".click-hova").removeClass("click-hova");
-    $(event.target).addClass("click-hova");
-    current_element = event.target.className
-});
-
-
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
@@ -152,8 +157,9 @@ function addSelector() {
 }
 
 function removeSelector() {
-    // $('body').children().unbind("mouseover.selectElement");
-    // $('body').children().unbind("click.selectElement");
+    selected_element = []
+    $('body').children().off("mouseover.selectElement");
+    $('body').children().off("click.selectElement");
     $(".click-hova").removeClass("click-hova");
     $(".hova").removeClass("hova");
 }
