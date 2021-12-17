@@ -13,6 +13,7 @@ import { columns, data } from './Data/ShowData'
 const Show = (props) => {
     let { recipeId } = useParams();
     const [selectors, setSelectors] = useState(data);
+    // new recipe path: /show/newattr?recipeId=vne
     const newAttrPathWithQuery = newAttrPath + "?" + new URLSearchParams({
         recipeId: recipeId
     }).toString()

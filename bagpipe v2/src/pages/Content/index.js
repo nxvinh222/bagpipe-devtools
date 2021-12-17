@@ -23,10 +23,14 @@ printLine("Using the 'printLine' function from the Print Module");
 $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     $(data).appendTo('body');
     console.log('injected')
+    chrome.storage.sync.set({ "elements": "Selecting........." }, function () {
+        console.log("[bagpipe] Selecting element");
+    });
 
     $('.bagpipe-finish').on('click', () => {
+        console.log("FINAL element: ", final_element);
         chrome.storage.sync.set({ "elements": final_element }, function () {
-            console.log("[bagpipe] finish select element");
+            console.log("[bagpipe] Finish select element");
         });
         removeSelector();
     })
@@ -69,8 +73,6 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
 
 function getSimilarElement() {
     if (selected_element.length < 2) return;
-    console.log("first e class: ", selected_element[0].className);
-    console.log("second e class: ", selected_element[1].className);
 
     let first_father = selected_element[0];
     let second_father = selected_element[1];
@@ -97,9 +99,8 @@ function getSimilarElement() {
             final_classlist.push(first_classlist[i]);
     }
     let final_child = selected_element[0].nodeName + "." + final_classlist.join(".")
-    console.log("FINAL e child class: ", final_child);
     let final_selector = final_father + " " + final_child
-    // console.log("FINAL e selector: ", final_selector);
+    console.log("FINAL e selector: ", final_selector);
     return final_selector
 }
 
