@@ -10,7 +10,9 @@ var current_element = "null"
 var result_demo = {}
 var extension_element = ["select-panel", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish", "bagpipe-scrape-inject"]
 var css_selector_option = {
-    combineBetweenSelector: true
+    combineBetweenSelector: true,
+    maxCombinations: 2,
+    maxCandidates: 2
 }
 
 console.log('Content script works!!');
@@ -45,20 +47,69 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             $(".hova").removeClass("hova");
             $(".click-hova").removeClass("click-hova");
             // console.log(getCssSelector(event.target));
-            if (selected_element.length == 2) {
+            if (selected_element.length == 2)
                 selected_element = []
-            }
+
             selected_element.push(event.target)
             current_element = String(getCssSelector(
                 selected_element,
                 css_selector_option)
             )
-            console.log(current_element);
-            $(current_element).addClass("click-hova");
+            // console.log("current element: ", current_element);
+            // getSimilarElement()
+            if (selected_element.length < 2)
+                $(current_element).addClass("click-hova");
+            else
+                $(getSimilarElement()).addClass("click-hova");
         });
         console.log("turned on");
     })
 });
+
+
+function getSimilarElement() {
+    if (selected_element.length < 2) return;
+    console.log("first e class: ", selected_element[0].className);
+    console.log("second e class: ", selected_element[1].className);
+
+    let first_father = selected_element[0];
+    let second_father = selected_element[1];
+    let first_classlist
+    let second_classlist
+    let final_classlist = []
+    while (true) {
+        first_father = first_father.parentElement;
+        second_father = second_father.parentElement;
+        if (first_father.isSameNode(second_father)) break;
+        if (first_father == undefined || second_father == undefined) {
+            console.log("Can't find father element");
+            break;
+        }
+    }
+
+    let final_father = first_father.nodeName + "." + first_father.className.split(" ").join(".");
+    console.log("FINAL e father selector: ", final_father);
+
+    first_classlist = selected_element[0].className.split(" ")
+    second_classlist = selected_element[1].className.split(" ")
+    for (var i = 0; i < first_classlist.length; i++) {
+        if (first_classlist[i] == second_classlist[i])
+            final_classlist.push(first_classlist[i]);
+    }
+    let final_child = selected_element[0].nodeName + "." + final_classlist.join(".")
+    console.log("FINAL e child class: ", final_child);
+    let final_selector = final_father + " " + final_child
+    // console.log("FINAL e selector: ", final_selector);
+    return final_selector
+}
+
+function removeSelector() {
+    selected_element = []
+    $('body').children().off("mouseover.selectElement");
+    $('body').children().off("click.selectElement");
+    $(".click-hova").removeClass("click-hova");
+    $(".hova").removeClass("hova");
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
@@ -154,12 +205,4 @@ function addSelector() {
         $(".selected-attr").html(target.className);
         $("[class='" + event.target.className + "']").addClass("click-hova");
     });
-}
-
-function removeSelector() {
-    selected_element = []
-    $('body').children().off("mouseover.selectElement");
-    $('body').children().off("click.selectElement");
-    $(".click-hova").removeClass("click-hova");
-    $(".hova").removeClass("hova");
 }
