@@ -7,6 +7,7 @@ var attr_index = 1
 var selected_element = []
 var current_attr_index = attr_index
 var current_element = "null"
+var final_element = "null"
 var result_demo = {}
 var extension_element = ["select-panel", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish", "bagpipe-scrape-inject"]
 var css_selector_option = {
@@ -24,7 +25,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     console.log('injected')
 
     $('.bagpipe-finish').on('click', () => {
-        chrome.storage.sync.set({ "elements": current_element }, function () {
+        chrome.storage.sync.set({ "elements": final_element }, function () {
             console.log("[bagpipe] finish select element");
         });
         removeSelector();
@@ -48,19 +49,18 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             $(".click-hova").removeClass("click-hova");
             // console.log(getCssSelector(event.target));
             if (selected_element.length == 2)
-                selected_element = []
+                selected_element = [];
 
             selected_element.push(event.target)
             current_element = String(getCssSelector(
                 selected_element,
                 css_selector_option)
             )
-            // console.log("current element: ", current_element);
-            // getSimilarElement()
+            final_element = getSimilarElement()
             if (selected_element.length < 2)
                 $(current_element).addClass("click-hova");
             else
-                $(getSimilarElement()).addClass("click-hova");
+                $(final_element).addClass("click-hova");
         });
         console.log("turned on");
     })
@@ -74,9 +74,9 @@ function getSimilarElement() {
 
     let first_father = selected_element[0];
     let second_father = selected_element[1];
-    let first_classlist
-    let second_classlist
-    let final_classlist = []
+    let first_classlist;
+    let second_classlist;
+    let final_classlist = [];
     while (true) {
         first_father = first_father.parentElement;
         second_father = second_father.parentElement;
