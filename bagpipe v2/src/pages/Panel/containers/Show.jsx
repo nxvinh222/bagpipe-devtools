@@ -78,13 +78,9 @@ const Show = (props) => {
 
     useEffect(() => {
         chrome.storage.sync.get("recipes", function (res) {
-            if (selectors == res.recipes[`${recipeId}`]) return;
-            setSelectors(res.recipes[`${recipeId}`])
+            if (selectors.length == res.recipes[`${recipeId}`].length) return;
+            setSelectors(res.recipes[`${recipeId}`]);
         });
-    });
-
-    useEffect(() => {
-        console.log(recipeId)
     });
 
     const elementBody = {
