@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Panel.css';
 import { Routes, Route } from "react-router-dom";
 import { render } from "react-dom";
@@ -19,6 +19,8 @@ const Panel = () => {
   const newRecipePath = myConsts.newRecipePath
   const showRecipePath = myConsts.showRecipePath
   const newAttrPath = myConsts.newAttrPath
+
+  const [selectors, setSelectors] = useState([]);
 
   const Breadcrumbs = () => {
     const breadcrumbs = useBreadcrumbs();
@@ -44,6 +46,8 @@ const Panel = () => {
         />
         <Route
           path={showRecipePath}
+          selectors={selectors}
+          setSelectors={setSelectors}
           element={<Show />}
         />
         <Route

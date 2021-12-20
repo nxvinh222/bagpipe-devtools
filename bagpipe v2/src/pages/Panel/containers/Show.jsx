@@ -5,18 +5,84 @@ import { newAttrPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
-import { Table, Button } from 'antd';
+import { Table, Button, Tag } from 'antd';
 import { Link } from "react-router-dom";
 
-import { columns, data } from './Data/ShowData'
+import { data } from './Data/ShowData'
 
 const Show = (props) => {
     let { recipeId } = useParams();
     const [selectors, setSelectors] = useState(data);
+    const columns = [
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+            render: text => <a>{text}</a>,
+        },
+        {
+            title: 'Selector',
+            dataIndex: 'selector',
+            key: 'selector',
+        },
+        {
+            title: 'Type',
+            dataIndex: 'type',
+            key: 'type',
+        },
+        {
+            title: 'Multitple',
+            key: 'multitple',
+            dataIndex: 'multitple',
+            render: multiple => (
+                <Tag color={multiple == "yes" ? 'green' : 'red'} key={multiple}>
+                    {multiple.toUpperCase()}
+                </Tag>
+            ),
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+                <Button onClick={() => {
+                    var tempSelectors = selectors;
+                    tempSelectors = tempSelectors.filter((selector) => {
+                        return selector.name != record.name
+                    })
+                    console.log("new temp selector: ", {
+                        name: record.name,
+                        tempSelectors: tempSelectors
+                    });
+
+
+                    chrome.storage.sync.get("recipes", function (res) {
+                        let tempRecipes = res.recipes;
+
+                        tempRecipes[`${recipeId}`] = tempSelectors;
+                        chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
+                            console.log("delete attr success, new recipe setted: ", tempRecipes);
+                        });
+                        setSelectors(tempSelectors)
+                    });
+                }}>
+                    <a>Delete</a>
+                </Button>
+            ),
+        }
+    ];
+
     // new recipe path: /show/newattr?recipeId=vne
     const newAttrPathWithQuery = newAttrPath + "?" + new URLSearchParams({
         recipeId: recipeId
     }).toString()
+
+    useEffect(() => {
+        chrome.storage.sync.get("recipes", function (res) {
+            if (selectors == res.recipes[`${recipeId}`]) return;
+            setSelectors(res.recipes[`${recipeId}`])
+        });
+    });
+
     useEffect(() => {
         console.log(recipeId)
     });
@@ -75,7 +141,15 @@ const Show = (props) => {
     return (
         <div className="show">
             <Button type="primary">
-                <Link to={newAttrPathWithQuery}>New Selector</Link>
+                <Link to={{
+                    pathname: newAttrPathWithQuery,
+                    state: {
+                        setSelectors: setSelectors
+                    }
+                }}
+                >
+                    New Selector
+                </Link>
             </Button>
             <Table dataSource={selectors} columns={columns} />
             <Button type="primary" onClick={scrape}>
