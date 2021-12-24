@@ -6,12 +6,27 @@ import 'antd/dist/antd.css';
 import { Form, Input, Button } from 'antd';
 
 const New = (props) => {
-    const showRecipePath = basePath + "/show/vne"
+    var showRecipePath = basePath + "/show/"
     const navigate = useNavigate();
 
     const onFinish = (values) => {
-        console.log('Success:', values);
-        navigate(showRecipePath)
+        chrome.storage.sync.get("crawlers", function (res) {
+            showRecipePath += values.id;
+            let tempCrawlers = res.crawlers || {};
+            console.log("old crawlers: ", res.crawlers);
+
+            tempCrawlers[`${values.id}`] = {};
+            tempCrawlers[`${values.id}`] = {
+                id: values.id,
+                domain: values.domain,
+                comment: values.comment,
+            };
+            console.log("new crawlers: ", tempCrawlers);
+            chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
+                console.log("new crawlers setted: ", tempCrawlers);
+                navigate(showRecipePath)
+            });
+        });
     };
 
     const onFinishFailed = (errorInfo) => {

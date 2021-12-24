@@ -39,24 +39,6 @@ const NewAttr = (props) => {
         });
     }
 
-    const setNewSelector = () => {
-        chrome.storage.sync.get("recipes", function (res) {
-            let tempRecipes = res.recipes
-            console.log("old recipe: ", res.recipes);
-
-            tempRecipes[`${recipeId}`].push({
-                name: 'title',
-                selector: element,
-                type: "Text",
-                multitple: "yes",
-            })
-            chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                console.log("new recipe setted: ", tempRecipes);
-            });
-        });
-
-    }
-
     const onFinish = (values) => {
         // console.log('Success:', values);
         chrome.storage.sync.get("recipes", function (res) {
