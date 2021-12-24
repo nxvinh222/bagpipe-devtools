@@ -9,9 +9,12 @@ import { Table, Button, Tag } from 'antd';
 import { Link } from "react-router-dom";
 
 import { data } from './Data/ShowData'
+import { buildBody } from './Utils/bodyBuilder';
+import { CRAWL_URL } from './env';
 
 const Show = (props) => {
     let { recipeId } = useParams();
+    const [loadings, setLoadings] = useState([]);
     const [selectors, setSelectors] = useState(data);
     const columns = [
         {
@@ -83,24 +86,18 @@ const Show = (props) => {
         });
     });
 
-    const elementBody = {
-        url: "https://vnexpress.net/",
-        elements: [
-            {
-                name: "title",
-                selector: "article:nth-of-type(n+7) .title-news a",
-                type: ""
-            },
-            {
-                name: "content",
-                selector: "article:nth-of-type(n+2) .description a[data-thumb='1']",
-                type: ""
-            }
-        ]
-    }
+    const enterLoading = (status, index = 0) => {
+        let newLoadings = [...loadings];
+        newLoadings[index] = status;
+        setLoadings(newLoadings)
+    };
+
+    const elementBody = buildBody(selectors);
     const scrape = () => {
         console.log("Scraping!");
-        fetch("http://localhost:7000/", {
+        console.log("Calling ", CRAWL_URL);
+        enterLoading(true);
+        fetch(CRAWL_URL, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -127,6 +124,7 @@ const Show = (props) => {
             })
             .then(body => {
                 downloadjs(body, "data.json", "application/octet-stream");
+                enterLoading(false);
             })
             .catch(e => {
                 //json is invalid and other e
@@ -148,7 +146,7 @@ const Show = (props) => {
                 </Link>
             </Button>
             <Table dataSource={selectors} columns={columns} />
-            <Button type="primary" onClick={scrape}>
+            <Button type="primary" loading={loadings[0]} onClick={scrape}>
                 Start Scrapring!
             </Button>
         </div>

@@ -1,0 +1,1 @@
+export const CRAWL_URL = "http://localhost:7000/";
