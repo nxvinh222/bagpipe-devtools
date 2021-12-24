@@ -20,7 +20,7 @@ async function scrape(request) {
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let crawlResult = []
-    await page.goto(request.url, { waitUtil: "networkkidle0", timeout: 60000 })
+    await page.goto(request.url, { waitUtil: "networkkidle0", timeout: 120000 })
 
     await Promise.all(request.elements.map(async (element) => {
         let crawledElementsContent = await page.evaluate((element) => {
@@ -38,6 +38,8 @@ async function scrape(request) {
         crawlResult.push(crawledElementsContent)
     }
     ))
+
+
 
     // console.log(crawlResult);
     await browser.close()
