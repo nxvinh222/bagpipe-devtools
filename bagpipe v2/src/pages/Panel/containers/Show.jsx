@@ -81,7 +81,8 @@ const Show = (props) => {
 
     useEffect(() => {
         chrome.storage.sync.get("recipes", function (res) {
-            if (selectors.length == res.recipes[`${recipeId}`].length) return;
+            if (res.recipes[`${recipeId}`].length != null)
+                if (selectors.length == res.recipes[`${recipeId}`].length) return;
             setSelectors(res.recipes[`${recipeId}`]);
         });
     });
@@ -145,7 +146,10 @@ const Show = (props) => {
                     New Selector
                 </Link>
             </Button>
-            <Table dataSource={selectors} columns={columns} />
+            <Table
+                rowKey={row => row.name}
+                dataSource={selectors}
+                columns={columns} />
             <Button type="primary" loading={loadings[0]} onClick={scrape}>
                 Start Scrapring!
             </Button>
