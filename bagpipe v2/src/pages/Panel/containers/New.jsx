@@ -12,15 +12,14 @@ const New = (props) => {
     const onFinish = (values) => {
         chrome.storage.sync.get("crawlers", function (res) {
             showRecipePath += values.id;
-            let tempCrawlers = res.crawlers || {};
+            let tempCrawlers = res.crawlers || [];
             console.log("old crawlers: ", res.crawlers);
 
-            tempCrawlers[`${values.id}`] = {};
-            tempCrawlers[`${values.id}`] = {
+            tempCrawlers.push({
                 id: values.id,
                 domain: values.domain,
                 comment: values.comment,
-            };
+            });
             console.log("new crawlers: ", tempCrawlers);
             chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
                 console.log("new crawlers setted: ", tempCrawlers);
