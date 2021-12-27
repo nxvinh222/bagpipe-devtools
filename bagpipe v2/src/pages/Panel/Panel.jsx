@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Panel.css';
-import { Routes, Route } from "react-router-dom";
-import { render } from "react-dom";
-import useBreadcrumbs from 'use-react-router-breadcrumbs';
+import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Breadcrumb } from 'antd';
 import * as myConsts from './containers/constants'
-// import { createStore } from "redux"
-// import reducer from "./reducers";
 
 import Home from './containers/Home';
 import New from './containers/New';
@@ -13,28 +10,51 @@ import Show from './containers/Show';
 import NewAttr from './containers/NewAttr';
 
 const Panel = () => {
-  // const initialState = { basePath: "/panel.html" };
-  // const store = createStore(reducer, initialState);
-  const basePath = myConsts.basePath
-  const newRecipePath = myConsts.newRecipePath
-  const showRecipePath = myConsts.showRecipePath
-  const newAttrPath = myConsts.newAttrPath
+  const basePath = myConsts.basePath;
+  const newRecipePath = myConsts.newRecipePath;
+  const showRecipePath = myConsts.showRecipePath;
+  const newAttrPath = myConsts.newAttrPath;
+  const showRecipeBasicPath = myConsts.showRecipeBasicPath;
 
-  const [selectors, setSelectors] = useState([]);
+  const location = useLocation();
 
-  const Breadcrumbs = () => {
-    const breadcrumbs = useBreadcrumbs();
-
+  const [breadcrumbNameMap, setBreadcrumb] = useState({
+    [basePath]: "Home",
+    [newRecipePath]: "New Recipe",
+    [showRecipeBasicPath.slice(0, -1)]: "Recipes",
+  })
+  const pathSnippets = location.pathname.split('/').filter(i => i);
+  const extraBreadcrumbItems = pathSnippets.map((_, index) => {
+    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+    var alterPathForHome = url;
+    if (url == showRecipeBasicPath.slice(0, -1))
+      alterPathForHome = basePath;
+    // console.log(url);
     return (
-      <React.Fragment>
-        {breadcrumbs.map(({ breadcrumb }) => breadcrumb)}
-      </React.Fragment>
+      <Breadcrumb.Item key={url}>
+        <Link to={alterPathForHome}>{breadcrumbNameMap[url]}</Link>
+      </Breadcrumb.Item>
     );
-  }
+  });
+  const breadcrumbItems = [].concat(extraBreadcrumbItems);
+
+  useEffect(() => {
+    let newBreadcrumbNameMap = breadcrumbNameMap;
+    chrome.storage.sync.get("crawlers", function (res) {
+      res.crawlers.forEach(item => {
+        newBreadcrumbNameMap[showRecipeBasicPath + item.id] = item.id
+      });
+      setBreadcrumb(newBreadcrumbNameMap)
+      console.log("new breadcrumb: ", newBreadcrumbNameMap);
+    });
+  })
 
   return (
     <div className='bagpipe-root'>
-      <Breadcrumbs />
+      <div className="nav">
+        <Link to={basePath}>Home</Link>
+      </div>
+      <Breadcrumb>{breadcrumbItems}</Breadcrumb>
       <Routes>
         <Route
           path={basePath}
@@ -46,8 +66,6 @@ const Panel = () => {
         />
         <Route
           path={showRecipePath}
-          selectors={selectors}
-          setSelectors={setSelectors}
           element={<Show />}
         />
         <Route

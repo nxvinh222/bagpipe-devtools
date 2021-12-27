@@ -15,7 +15,7 @@ import { CRAWL_URL } from './env';
 const Show = (props) => {
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
-    const [selectors, setSelectors] = useState(data);
+    const [selectors, setSelectors] = useState([]);
     const columns = [
         {
             title: 'Name',
@@ -81,8 +81,11 @@ const Show = (props) => {
 
     useEffect(() => {
         chrome.storage.sync.get("recipes", function (res) {
-            if (res.recipes[`${recipeId}`].length != null)
-                if (selectors.length == res.recipes[`${recipeId}`].length) return;
+            if (selectors.length == res.recipes[`${recipeId}`].length) return;
+            // if (res.recipes[`${recipeId}`] == null) {
+            //     setSelectors([]);
+            //     return;
+            // }
             setSelectors(res.recipes[`${recipeId}`]);
         });
     });

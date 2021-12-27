@@ -15,7 +15,7 @@ const New = (props) => {
             let tempCrawlers = res.crawlers || [];
             console.log("old crawlers: ", res.crawlers);
 
-            tempCrawlers.push({
+            tempCrawlers.unshift({
                 id: values.id,
                 domain: values.domain,
                 comment: values.comment,
@@ -23,8 +23,19 @@ const New = (props) => {
             console.log("new crawlers: ", tempCrawlers);
             chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
                 console.log("new crawlers setted: ", tempCrawlers);
-                navigate(showRecipePath)
+
+                //create blank recipe in storage
+                chrome.storage.sync.get("recipes", function (res) {
+                    let tempRecipes = res.recipes;
+                    tempRecipes[`${values.id}`] = [];
+                    chrome.storage.sync.set({ "recipes": tempRecipes }, () => {
+                        navigate(basePath)
+                    });
+                });
+
             });
+
+
         });
     };
 
