@@ -5,7 +5,7 @@ import { newAttrPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
-import { Table, Button, Tag } from 'antd';
+import { Table, Button, Tag, Modal, Form, Input } from 'antd';
 import { Link } from "react-router-dom";
 
 import { data } from './Data/ShowData'
@@ -16,6 +16,20 @@ const Show = (props) => {
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
     const [selectors, setSelectors] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
     const columns = [
         {
             title: 'Name',
@@ -96,6 +110,13 @@ const Show = (props) => {
         setLoadings(newLoadings)
     };
 
+    const onFinishConfigCrawler = (values) => {
+        console.log('Success:', values);
+    };
+
+    const onFinishFailedConfigCrawler = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
     const elementBody = buildBody(selectors);
     const scrape = () => {
         console.log("Scraping!");
@@ -153,9 +174,53 @@ const Show = (props) => {
                 rowKey={row => row.name}
                 dataSource={selectors}
                 columns={columns} />
-            <Button type="primary" loading={loadings[0]} onClick={scrape}>
+            <Button type="primary" loading={loadings[0]} onClick={showModal}>
                 Start Scrapring!
             </Button>
+            <Modal title="Config Crawler" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+                <Form
+                    name="basic"
+                    labelCol={{
+                        span: 8,
+                    }}
+                    wrapperCol={{
+                        span: 16,
+                    }}
+                    initialValues={{
+                        remember: true,
+                    }}
+                    onFinish={onFinishConfigCrawler}
+                    onFinishFailed={onFinishFailedConfigCrawler}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        label="Request interval (ms)"
+                        name="request-interval"
+                        rules={[]}
+                    >
+                        <Input placeholder="Leave it blank if you want to use default value" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Page load delay (ms)"
+                        name="load-delay"
+                        rules={[]}
+                    >
+                        <Input placeholder="Leave it blank if you want to use default value" />
+                    </Form.Item>
+
+                    <Form.Item
+                        wrapperCol={{
+                            offset: 8,
+                            span: 16,
+                        }}
+                    >
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     )
 }

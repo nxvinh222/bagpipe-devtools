@@ -18,8 +18,39 @@
     width: 620px;
 }
 
-.bagpipe-scrape-inject{
-    /* display: none; */
+.select-panel{
+    display: none;
+}
+
+/* CSS */
+.bagpipe-finish, .bagpipe-scrape-inject {
+  align-items: center;
+  appearance: button;
+  background-color: #0276FF;
+  border-radius: 8px;
+  border-style: none;
+  box-shadow: rgba(255, 255, 255, 0.26) 0 1px 2px inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  font-family: "RM Neue",sans-serif;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  padding: 10px 21px;
+  text-align: center;
+  text-transform: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.bagpipe-finish:active, .bagpipe-scrape-inject:active {
+  background-color: #006AE8;
+}
+
+.bagpipe-finish:hover, .bagpipe-scrape-inject:hover {
+  background-color: #1C84FF;
 }
 
 

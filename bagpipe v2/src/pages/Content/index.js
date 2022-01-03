@@ -32,6 +32,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     })
 
     $('.bagpipe-scrape-inject').on('click', () => {
+        $(".select-panel").css("display", "block");
         $('body').children().on("mouseover.selectElement", function (e) {
             if (extension_element.includes(e.target.className)) return false
             $(".hova").removeClass("hova");
@@ -69,4 +70,5 @@ function removeSelector() {
     $('body').children().off("click.selectElement");
     $(".click-hova").removeClass("click-hova");
     $(".hova").removeClass("hova");
+    $(".select-panel").css("display", "none");
 }
