@@ -11,6 +11,9 @@ export function getSimilarElement(selected_element) {
     let second_classlist;
     // list of similar class betweeb first and second element
     let final_classlist = [];
+    // flag to mark if there is no similar class
+    // check outer class
+    let no_class_flag = false;
 
     let attr_data_list = [];
     let final_attr = "";
@@ -48,6 +51,7 @@ export function getSimilarElement(selected_element) {
     }
     // if final classlist blank, check for outer element
     if (final_classlist[0].length == 0) {
+        no_class_flag = true;
         final_classlist.pop();
         first_classlist = selected_element[0].parentElement.className.split(" ");
         second_classlist = selected_element[1].parentElement.className.split(" ");
@@ -72,16 +76,21 @@ export function getSimilarElement(selected_element) {
         }
     }
 
-    // combile nodename, class and attr if they not blank
-    // Final Father + Child + Child nodename + Child first similar atrribute
-    final_child = selected_element[0].nodeName;
-    // check classlist blank
-    if (final_classlist[0].length != 0)
-        final_child = "." + final_classlist.join(".") + " " + final_child;
+    // If selected element dont have similar classname
+    // final child = Parent nodename + Parent class + Element nodename + Element Attr
+    if (no_class_flag) {
+        // outer nodename and classname
+        final_child = selected_element[0].parentElement.nodeName + "." + final_classlist.join(".");
+        final_child += " " + selected_element[0].nodeName + final_attr;
+    }
+    // else
+    // final child = Element nodename + Element class
+    else {
+        final_child = selected_element[0].nodeName + "." + final_classlist.join(".");
+    }
+
+    // Combine Father and Child(Element)
     final_selector = final_father + " " + final_child;
-    // check attr blank
-    if (final_attr.length != 0)
-        final_selector += final_attr;
 
     console.log("FINAL e selector: ", final_selector);
     return final_selector
