@@ -75,7 +75,7 @@ var options = {
       },
       {
         test: new RegExp('.(' + fileExtensions.join('|') + ')$'),
-        loader: 'file-loader',
+        loader: 'asset/resource',
         options: {
           name: '[name].[ext]',
         },

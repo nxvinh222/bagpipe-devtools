@@ -51,9 +51,9 @@ const Panel = () => {
 
   return (
     <div className='bagpipe-root'>
-      <div className="nav">
+      {/* <div className="nav">
         <Link to={basePath}>Home</Link>
-      </div>
+      </div> */}
       <Breadcrumb>{breadcrumbItems}</Breadcrumb>
       <Routes>
         <Route
