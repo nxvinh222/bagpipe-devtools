@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './css/Show.css';
-import { newAttrPath } from './constants'
+import { basePath, newAttrPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
-import { Table, Button, Tag, Modal, Form, Input } from 'antd';
+import { Table, Button, Tag, Modal, Form, Input, Breadcrumb } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 
 import { data } from './Data/ShowData'
@@ -159,6 +160,12 @@ const Show = (props) => {
 
     return (
         <div className="show">
+            <Breadcrumb separator=">">
+                <Breadcrumb.Item href={basePath}>
+                    <HomeOutlined />
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
+            </Breadcrumb>
             <Button type="primary">
                 <Link to={{
                     pathname: newAttrPathWithQuery,

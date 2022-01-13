@@ -62,8 +62,13 @@ const NewAttr = (props) => {
         console.log('Failed:', errorInfo);
     };
 
+    const onCancel = () => {
+        navigate(showRecipePath);
+    };
+
     return (
         <div>
+            <div>Select a new Attribute by clicking "Select Element"</div>
             <Form
                 name="basic"
                 labelCol={{
@@ -116,6 +121,9 @@ const NewAttr = (props) => {
                 >
                     <Button type="primary" htmlType="submit">
                         Finish
+                    </Button>
+                    <Button type="danger" htmlType="button" onClick={onCancel}>
+                        Cancel
                     </Button>
                 </Form.Item>
             </Form>

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { basePath } from './constants'
 
 import 'antd/dist/antd.css';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Breadcrumb } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 
 const New = (props) => {
     var showRecipePath = basePath + "/show/"
@@ -45,6 +46,12 @@ const New = (props) => {
 
     return (
         <div className="new-recipe">
+            <Breadcrumb separator=">">
+                <Breadcrumb.Item href={basePath}>
+                    <HomeOutlined />
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>New Recipe</Breadcrumb.Item>
+            </Breadcrumb>
             <Form
                 name="basic"
                 labelCol={{
