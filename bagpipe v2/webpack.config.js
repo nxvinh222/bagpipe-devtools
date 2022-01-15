@@ -37,7 +37,7 @@ var options = {
   entry: {
     // newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
     // options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
-    popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
+    // popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
     devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.js'),
@@ -65,12 +65,12 @@ var options = {
           {
             loader: 'css-loader',
           },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
-            },
-          },
+          // {
+          //   loader: 'sass-loader',
+          //   options: {
+          //     sourceMap: true,
+          //   },
+          // },
         ],
       },
       {
@@ -94,7 +94,7 @@ var options = {
             loader: 'source-map-loader',
           },
           {
-            loader: 'babel-loader',
+            loader: 'babel-loader?cacheDirectory',
           },
         ],
         exclude: /node_modules/,
@@ -175,35 +175,35 @@ var options = {
         },
       ],
     }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
-      filename: 'newtab.html',
-      chunks: ['newtab'],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),
-      filename: 'options.html',
-      chunks: ['options'],
-      cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
-      filename: 'popup.html',
-      chunks: ['popup'],
-      cache: false,
-    }),
+    // new HtmlWebpackPlugin({
+    //   template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
+    //   filename: 'newtab.html',
+    //   chunks: ['newtab'],
+    //   cache: false,
+    // }),
+    // new HtmlWebpackPlugin({
+    //   template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),
+    //   filename: 'options.html',
+    //   chunks: ['options'],
+    //   cache: false,
+    // }),
+    // new HtmlWebpackPlugin({
+    //   template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
+    //   filename: 'popup.html',
+    //   chunks: ['popup'],
+    //   cache: false,
+    // }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.html'),
       filename: 'devtools.html',
       chunks: ['devtools'],
-      cache: false,
+      cache: true,
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'pages', 'Panel', 'index.html'),
       filename: 'panel.html',
       chunks: ['panel'],
-      cache: false,
+      cache: true,
     }),
   ],
   infrastructureLogging: {
