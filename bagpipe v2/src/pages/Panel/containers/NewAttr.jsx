@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { showRecipeBasicPath } from './constants'
 
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Select } from 'antd';
 
 const NewAttr = (props) => {
     const navigate = useNavigate();
@@ -93,11 +93,31 @@ const NewAttr = (props) => {
                             message: 'Please input your name!!',
                         },
                     ]}
-                    wrapperCol={{
-                        span: 14,
-                    }}
                 >
                     <Input />
+                </Form.Item>
+
+                <Form.Item
+                    name="type"
+                    label="Type"
+                    rules={[
+                        {
+                            required: true,
+                        },
+                    ]}
+                >
+                    <Select
+                        placeholder="Select type of data you want to scrape"
+
+                        allowClear
+                    >
+                        <Option value="text">Text</Option>
+                        <Option value="link">Link</Option>
+                        <Option value="popup-link">Popup Link</Option>
+                        <Option value="table">Table</Option>
+                        <Option value="html">Html</Option>
+                        <Option value="attribute">Attribute Tag</Option>
+                    </Select>
                 </Form.Item>
 
                 <Form.Item
