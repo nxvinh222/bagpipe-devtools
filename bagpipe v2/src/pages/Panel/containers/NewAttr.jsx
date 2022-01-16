@@ -11,7 +11,7 @@ const NewAttr = (props) => {
     let query = useQuery();
 
     const recipeId = query.get('recipeId')
-    const [element, setElement] = useState()
+    const [element, setElement] = useState('Element haven\'t selected yet!')
 
     const showRecipePath = showRecipeBasicPath + recipeId
 
@@ -37,6 +37,21 @@ const NewAttr = (props) => {
         chrome.storage.sync.get("elements", function (res) {
             setElement(res.elements)
         });
+    }
+
+    const previewElement = () => {
+        document.querySelector('.preview').style.display = "none";
+        document.querySelector('.remove-preview').style.display = "inline-block";
+        chrome.devtools.inspectedWindow.eval(
+            `$("${element}").addClass("click-hova");`
+        );
+    }
+    const removePreview = () => {
+        document.querySelector('.preview').style.display = "inline-block";
+        document.querySelector('.remove-preview').style.display = "none";
+        chrome.devtools.inspectedWindow.eval(
+            `$("${element}").removeClass("click-hova");`
+        );
     }
 
     const onFinish = (values) => {
@@ -123,14 +138,26 @@ const NewAttr = (props) => {
                 <Form.Item
                     wrapperCol={{
                         offset: 3,
-                        span: 9,
+                        span: 16,
                     }}
                 >
-                    <div>recipe id: {recipeId}</div>
                     <Button type="primary" onClick={getElement}>
-                        Select element!
+                        Select Element!
                     </Button>
-                    <div>element: {element}</div>
+                    <span className='preview'>
+                        <Button type="ghost" danger onClick={previewElement}>
+                            Preview Element
+                        </Button>
+                    </span>
+                    <span className='remove-preview'>
+                        <Button type="ghost" danger onClick={removePreview}>
+                            Remove Preview
+                        </Button>
+                    </span>
+
+                    <div>Element:
+                        <div style={{ color: 'crimson' }}>{element}</div>
+                    </div>
                 </Form.Item>
 
                 <Form.Item

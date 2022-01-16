@@ -22,6 +22,10 @@
     display: none;
 }
 
+.bagpipe-scrape-inject{
+  display: none;
+}
+
 /* CSS */
 .bagpipe-finish, .bagpipe-scrape-inject {
   align-items: center;
