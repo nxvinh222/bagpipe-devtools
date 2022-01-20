@@ -113,6 +113,7 @@ const Show = (props) => {
 
     const onFinishConfigCrawler = (values) => {
         console.log('Success:', values);
+        scrape();
     };
 
     const onFinishFailedConfigCrawler = (errorInfo) => {
