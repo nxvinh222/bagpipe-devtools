@@ -1,5 +1,5 @@
 # bagpipe-devtools
-Crawl website extension using developer tool.
+Crawl data from website extension using developer tool.
 ## Install
 - Run `cd bagpipe-v2`.
 - Run `npm build`.
