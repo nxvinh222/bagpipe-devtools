@@ -9,3 +9,6 @@ Crawl data from website extension using developer tool.
 - Run `cd ../server`
 - Run `npm install`.
 - Run `npm run dev` in `server` folder.
+- Open a website.
+- Open Developer tool (F12).
+- Navigate to `bagpipe-devtool` panel.
