@@ -95,6 +95,9 @@ const Show = (props) => {
     }).toString()
 
     useEffect(() => {
+        var url = new URL(window.location.href);
+        console.log(url.searchParams.get('domain'));
+
         chrome.storage.sync.get("recipes", function (res) {
             if (selectors.length == res.recipes[`${recipeId}`].length) return;
             // if (res.recipes[`${recipeId}`] == null) {
@@ -214,7 +217,7 @@ const Show = (props) => {
                         name="load-delay"
                         rules={[]}
                     >
-                        <Input placeholder="Leave it blank if you want to use default value" />
+                        <Input placeholder="Leave it blank if you want to use default value (1000ms)" />
                     </Form.Item>
 
                     <Form.Item

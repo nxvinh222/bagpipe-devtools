@@ -9,13 +9,28 @@ import { Link } from "react-router-dom";
 import { data } from './Data/HomeData'
 
 const Home = (props) => {
+    // crawlers = [
+    //     {
+    //         comment: 'vne', 
+    //         domain: 'https://vnexpress.net/', 
+    //         id: 'vnexpress'
+    //     },
+    // ]
+    const [crawlers, setCrawlers] = useState([]);
+
     const columns = [
         {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: text =>
-                <Link to={showRecipeBasicPath + text}>{text}</Link>,
+            render: (text, record) => {
+                let urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('domain', record.domain);
+                let path = showRecipeBasicPath + text + "?" + urlParams.toString();
+                console.log(path);
+                return <Link to={path}>{text}</Link>
+            }
+            ,
         },
         {
             title: 'Domain',
@@ -47,8 +62,6 @@ const Home = (props) => {
             ),
         }
     ]
-
-    const [crawlers, setCrawlers] = useState([]);
 
     useEffect(() => {
         chrome.storage.sync.get("crawlers", function (res) {
