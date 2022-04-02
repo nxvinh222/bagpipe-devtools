@@ -15,11 +15,21 @@ const NewAttr = (props) => {
 
     const showRecipePath = showRecipeBasicPath + recipeId
 
+    // Create a connection to the background page
+    var backgroundPageConnection = chrome.runtime.connect({
+        name: "panel"
+    });
+
+    backgroundPageConnection.postMessage({
+        name: 'init',
+        tabId: chrome.devtools.inspectedWindow.tabId
+    });
+
     useEffect(() => {
-        chrome.storage.onChanged.addListener(function (changes, namespace) {
-            if ("elements" in changes) {
-                setElement(changes.elements.newValue);
-            }
+        // get data from content script through background
+        backgroundPageConnection.onMessage.addListener(function (request, sender, sendResponse) {
+            if (request.action == "set-selected-element")
+                setElement(request.data);
         });
     });
 

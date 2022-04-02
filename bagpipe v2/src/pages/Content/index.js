@@ -25,8 +25,10 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
 
     $('.bagpipe-finish').on('click', () => {
         console.log("FINAL element: ", final_element);
-        chrome.storage.sync.set({ "elements": final_element }, function () {
-            console.log("[bagpipe] Finish select element");
+        // send through background to devtool
+        chrome.runtime.sendMessage({
+            action: "set-selected-element",
+            data: final_element
         });
         removeSelector();
     })
