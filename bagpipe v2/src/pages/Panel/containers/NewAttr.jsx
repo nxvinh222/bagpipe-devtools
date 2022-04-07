@@ -5,6 +5,8 @@ import { showRecipeBasicPath } from './constants'
 
 import { Form, Input, Button, Select } from 'antd';
 
+import axios from './axios';
+
 const NewAttr = (props) => {
     const navigate = useNavigate();
     const useQuery = () => new URLSearchParams(useLocation().search);
@@ -66,21 +68,37 @@ const NewAttr = (props) => {
 
     const onFinish = (values) => {
         // console.log('Success:', values);
-        chrome.storage.sync.get("recipes", function (res) {
-            let tempRecipes = res.recipes
-            console.log("old recipe: ", res.recipes);
+        // chrome.storage.sync.get("recipes", function (res) {
+        //     let tempRecipes = res.recipes
+        //     console.log("old recipe: ", res.recipes);
 
-            tempRecipes[`${recipeId}`].push({
-                name: values.name,
-                selector: element,
-                type: "Text",
-                multitple: "yes",
-            })
-            chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                console.log("new recipe setted: ", tempRecipes);
+        //     tempRecipes[`${recipeId}`].push({
+        //         name: values.name,
+        //         selector: element,
+        //         type: "Text",
+        //         multitple: "yes",
+        //     })
+        //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
+        //         console.log("new recipe setted: ", tempRecipes);
+        //         navigate(showRecipePath)
+        //     });
+        // });
+        axios.
+            post(`/api/v1/recipes/${recipeId}/elements`, {
+                elements: [
+                    {
+                        name: values.name,
+                        selector: element,
+                        type: values.type,
+                        multitple: "yes",
+                    }
+                ]
+            }).
+            then(response => {
+                console.log(response);
                 navigate(showRecipePath)
-            });
-        });
+            })
+            .catch(err => console.log(err))
     };
 
     const onFinishFailed = (errorInfo) => {

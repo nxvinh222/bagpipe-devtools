@@ -11,9 +11,15 @@ import { Link } from "react-router-dom";
 
 import { data } from './Data/ShowData'
 import { buildBody } from './Utils/bodyBuilder';
-import { CRAWL_URL } from './env';
+import env from './env';
+import axios from './axios';
 
 const Show = (props) => {
+    const idColumn = "id"
+    const nameColumn = "name"
+    const selectorColumn = "selector"
+    const typeColumn = "type"
+
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
     const [selectors, setSelectors] = useState([]);
@@ -31,57 +37,84 @@ const Show = (props) => {
         setIsModalVisible(false);
     };
 
+
+    const getData = () => {
+        axios.
+            get(`/api/v1/recipes/${recipeId}/elements`).
+            then(response => {
+                // console.log(response.data.data);
+                let selectors = response.data.data.map(recipe => ({
+                    [idColumn]: recipe.id,
+                    [nameColumn]: recipe.name,
+                    [selectorColumn]: recipe.selector,
+                    [typeColumn]: recipe.type
+                })
+                )
+                console.log("selectors: " + selectors);
+                setSelectors(selectors)
+            })
+            .catch(err => console.log(err))
+    }
+
     const columns = [
         {
             title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: nameColumn,
+            key: nameColumn,
             render: text => <a>{text}</a>,
         },
         {
             title: 'Selector',
-            dataIndex: 'selector',
-            key: 'selector',
+            dataIndex: selectorColumn,
+            key: selectorColumn,
         },
         {
             title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
+            dataIndex: typeColumn,
+            key: typeColumn,
         },
-        {
-            title: 'Multitple',
-            key: 'multitple',
-            dataIndex: 'multitple',
-            render: multiple => (
-                <Tag color={multiple == "yes" ? 'green' : 'red'} key={multiple}>
-                    {multiple.toUpperCase()}
-                </Tag>
-            ),
-        },
+        // {
+        //     title: 'Multitple',
+        //     key: 'multitple',
+        //     dataIndex: 'multitple',
+        //     render: multiple => (
+        //         <Tag color={multiple == "yes" ? 'green' : 'red'} key={multiple}>
+        //             {multiple.toUpperCase()}
+        //         </Tag>
+        //     ),
+        // },
         {
             title: 'Action',
             key: 'action',
             render: (text, record) => (
                 <Button onClick={() => {
-                    var tempSelectors = selectors;
-                    tempSelectors = tempSelectors.filter((selector) => {
-                        return selector.name != record.name
-                    })
-                    console.log("new temp selector: ", {
-                        name: record.name,
-                        tempSelectors: tempSelectors
-                    });
+                    axios.
+                        delete(`/api/v1/elements/${record[idColumn]}`).
+                        then(
+                            r => {
+                                console.log(r);
+                                getData();
+                            }
+                        ).catch(e => console.log(e))
+                    // var tempSelectors = selectors;
+                    // tempSelectors = tempSelectors.filter((selector) => {
+                    //     return selector.name != record.name
+                    // })
+                    // console.log("new temp selector: ", {
+                    //     name: record.name,
+                    //     tempSelectors: tempSelectors
+                    // });
 
 
-                    chrome.storage.sync.get("recipes", function (res) {
-                        let tempRecipes = res.recipes;
+                    // chrome.storage.sync.get("recipes", function (res) {
+                    //     let tempRecipes = res.recipes;
 
-                        tempRecipes[`${recipeId}`] = tempSelectors;
-                        chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                            console.log("delete attr success, new recipe setted: ", tempRecipes);
-                        });
-                        setSelectors(tempSelectors)
-                    });
+                    //     tempRecipes[`${recipeId}`] = tempSelectors;
+                    //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
+                    //         console.log("delete attr success, new recipe setted: ", tempRecipes);
+                    //     });
+                    //     setSelectors(tempSelectors)
+                    // });
                 }}>
                     <a>Delete</a>
                 </Button>
@@ -89,7 +122,7 @@ const Show = (props) => {
         }
     ];
 
-    // new recipe path: /show/newattr?recipeId=vne
+    // new recipe path: /show/newattr?recipeId=1
     const newAttrPathWithQuery = newAttrPath + "?" + new URLSearchParams({
         recipeId: recipeId
     }).toString()
@@ -98,15 +131,27 @@ const Show = (props) => {
         var url = new URL(window.location.href);
         console.log(url.searchParams.get('domain'));
 
-        chrome.storage.sync.get("recipes", function (res) {
-            if (selectors.length == res.recipes[`${recipeId}`].length) return;
-            // if (res.recipes[`${recipeId}`] == null) {
-            //     setSelectors([]);
-            //     return;
-            // }
-            setSelectors(res.recipes[`${recipeId}`]);
-        });
-    });
+        axios.
+            get(`/api/v1/recipes/${recipeId}/elements`).
+            then(response => {
+                // console.log(response.data.data);
+                let selectors = response.data.data.map(recipe => ({
+                    [idColumn]: recipe.id,
+                    [nameColumn]: recipe.name,
+                    [selectorColumn]: recipe.selector,
+                    [typeColumn]: recipe.type
+                })
+                )
+                console.log("selectors: " + selectors);
+                setSelectors(selectors)
+            })
+            .catch(err => console.log(err))
+
+        // chrome.storage.sync.get("recipes", function (res) {
+        //     if (selectors.length == res.recipes[`${recipeId}`].length) return;
+        //     setSelectors(res.recipes[`${recipeId}`]);
+        // });
+    }, []);
 
     const enterLoading = (status, index = 0) => {
         let newLoadings = [...loadings];
@@ -125,7 +170,7 @@ const Show = (props) => {
     const elementBody = buildBody(selectors);
     const scrape = () => {
         console.log("Scraping!");
-        console.log("Calling ", CRAWL_URL);
+        console.log("Calling ", env.CRAWL_URL);
         enterLoading(true);
         fetch(CRAWL_URL, {
             method: 'POST',
@@ -169,13 +214,14 @@ const Show = (props) => {
                     <HomeOutlined />
                 </Breadcrumb.Item>
                 <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
+                <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
             </Breadcrumb>
             <Button type="primary">
                 <Link to={{
                     pathname: newAttrPathWithQuery,
-                    state: {
-                        setSelectors: setSelectors
-                    }
+                    // state: {
+                    //     setSelectors: setSelectors
+                    // }
                 }}
                 >
                     New Selector
@@ -235,5 +281,6 @@ const Show = (props) => {
         </div>
     )
 }
+
 
 export default Show;

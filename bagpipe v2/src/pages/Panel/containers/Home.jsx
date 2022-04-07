@@ -7,6 +7,7 @@ import { Table, Button, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import { data } from './Data/HomeData'
+import axios from './axios';
 
 const Home = (props) => {
     // crawlers = [
@@ -17,16 +18,21 @@ const Home = (props) => {
     //     },
     // ]
     const [crawlers, setCrawlers] = useState([]);
+    const idNameColumn = "id"
+    const nameColumn = "name"
+    const urlColumn = "domain"
+    const commentColumn = "comment"
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'Name',
+            dataIndex: nameColumn,
+            key: nameColumn,
             render: (text, record) => {
                 let urlParams = new URLSearchParams(window.location.search);
                 urlParams.set('domain', record.domain);
-                let path = showRecipeBasicPath + text + "?" + urlParams.toString();
+                // let path = showRecipeBasicPath + text + "?" + urlParams.toString();
+                let path = showRecipeBasicPath + record.id
                 console.log(path);
                 return <Link to={path}>{text}</Link>
             }
@@ -34,13 +40,13 @@ const Home = (props) => {
         },
         {
             title: 'Domain',
-            dataIndex: 'domain',
-            key: 'domain',
+            dataIndex: urlColumn,
+            key: urlColumn,
         },
         {
             title: 'Comment',
-            dataIndex: 'comment',
-            key: 'comment',
+            dataIndex: commentColumn,
+            key: commentColumn,
         },
         {
             title: 'Action',
@@ -54,7 +60,7 @@ const Home = (props) => {
 
                     chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
                         console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
-                        setCrawlers(tempCrawlers)
+                        // setCrawlers(tempCrawlers)
                     });
                 }}>
                     <a>Delete</a>
@@ -64,12 +70,28 @@ const Home = (props) => {
     ]
 
     useEffect(() => {
-        chrome.storage.sync.get("crawlers", function (res) {
-            if (res.crawlers.length != null)
-                if (crawlers.length == res.crawlers.length) return;
-            setCrawlers(res.crawlers);
-        });
-    });
+        axios.
+            get("/api/v1/recipes").
+            then(response => {
+                // console.log(response.data.data);
+                let recipes = response.data.data.map(recipe => ({
+                    [idNameColumn]: recipe.id,
+                    [nameColumn]: recipe.name,
+                    [urlColumn]: recipe.start_url,
+                    [commentColumn]: recipe.note
+                })
+                )
+                console.log("recipes: " + recipes);
+                setCrawlers(recipes)
+            })
+            .catch(err => console.log(err))
+
+        // chrome.storage.sync.get("crawlers", function (res) {
+        //     if (res.crawlers.length != null)
+        //         if (crawlers.length == res.crawlers.length) return;
+        //     setCrawlers(res.crawlers);
+        // });
+    }, []);
 
     return (
         <div className="home">
