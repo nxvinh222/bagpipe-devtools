@@ -20,8 +20,26 @@ const Home = (props) => {
     const [crawlers, setCrawlers] = useState([]);
     const idNameColumn = "id"
     const nameColumn = "name"
-    const urlColumn = "domain"
-    const commentColumn = "comment"
+    const urlColumn = "start_url"
+    const commentColumn = "note"
+
+    const getData = () => {
+        axios.
+            get("/api/v1/recipes").
+            then(response => {
+                // console.log(response.data.data);
+                let recipes = response.data.data.map(recipe => ({
+                    [idNameColumn]: recipe[idNameColumn],
+                    [nameColumn]: recipe[nameColumn],
+                    [urlColumn]: recipe[urlColumn],
+                    [commentColumn]: recipe[commentColumn]
+                })
+                )
+                console.log("recipes: " + recipes);
+                setCrawlers(recipes)
+            })
+            .catch(err => console.log(err))
+    }
 
     const columns = [
         {
@@ -29,8 +47,8 @@ const Home = (props) => {
             dataIndex: nameColumn,
             key: nameColumn,
             render: (text, record) => {
-                let urlParams = new URLSearchParams(window.location.search);
-                urlParams.set('domain', record.domain);
+                // let urlParams = new URLSearchParams(window.location.search);
+                // urlParams.set('domain', record.domain);
                 // let path = showRecipeBasicPath + text + "?" + urlParams.toString();
                 let path = showRecipeBasicPath + record.id
                 console.log(path);
@@ -39,12 +57,12 @@ const Home = (props) => {
             ,
         },
         {
-            title: 'Domain',
+            title: 'Start Url',
             dataIndex: urlColumn,
             key: urlColumn,
         },
         {
-            title: 'Comment',
+            title: 'Note',
             dataIndex: commentColumn,
             key: commentColumn,
         },
@@ -53,15 +71,23 @@ const Home = (props) => {
             key: 'action',
             render: (text, record) => (
                 <Button onClick={() => {
-                    var tempCrawlers = crawlers;
-                    tempCrawlers = tempCrawlers.filter((crawler) => {
-                        return crawler.id != record.id
-                    })
+                    axios.
+                        delete(`/api/v1/recipes/${record[idNameColumn]}`).
+                        then(
+                            r => {
+                                console.log(r);
+                                getData();
+                            }
+                        ).catch(e => console.log(e))
+                    // var tempCrawlers = crawlers;
+                    // tempCrawlers = tempCrawlers.filter((crawler) => {
+                    //     return crawler.id != record.id
+                    // })
 
-                    chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
-                        console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
-                        // setCrawlers(tempCrawlers)
-                    });
+                    // chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
+                    //     console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
+                    //     // setCrawlers(tempCrawlers)
+                    // });
                 }}>
                     <a>Delete</a>
                 </Button>
@@ -70,27 +96,7 @@ const Home = (props) => {
     ]
 
     useEffect(() => {
-        axios.
-            get("/api/v1/recipes").
-            then(response => {
-                // console.log(response.data.data);
-                let recipes = response.data.data.map(recipe => ({
-                    [idNameColumn]: recipe.id,
-                    [nameColumn]: recipe.name,
-                    [urlColumn]: recipe.start_url,
-                    [commentColumn]: recipe.note
-                })
-                )
-                console.log("recipes: " + recipes);
-                setCrawlers(recipes)
-            })
-            .catch(err => console.log(err))
-
-        // chrome.storage.sync.get("crawlers", function (res) {
-        //     if (res.crawlers.length != null)
-        //         if (crawlers.length == res.crawlers.length) return;
-        //     setCrawlers(res.crawlers);
-        // });
+        getData()
     }, []);
 
     return (
