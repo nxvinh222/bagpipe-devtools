@@ -47,20 +47,22 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
         $('body').children().on("click.selectElement", function (event) {
             if (extension_element.includes(event.target.className)) return false
             event.preventDefault()
-            console.log("prevent default");
             $(".hova").removeClass("hova");
             $(".click-hova").removeClass("click-hova");
-            // console.log(getCssSelector(event.target));
+            // console.log("alo: ", getCssSelector(event.target));
             if (selected_element.length == 2)
                 selected_element = [];
 
             selected_element.push(event.target)
             current_element = String(getCssSelector(selected_element))
-            final_element = getSimilarElement(selected_element)
-            if (selected_element.length < 2)
-                $(current_element).addClass("click-hova");
-            else
+            if (selected_element.length >= 2) {
+                final_element = getSimilarElement(selected_element)
                 $(final_element).addClass("click-hova");
+            }
+            else {
+                final_element = getCssSelector(event.target)
+                $(current_element).addClass("click-hova");
+            }
         });
         console.log("turned on");
     })
