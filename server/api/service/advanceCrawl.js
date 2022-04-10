@@ -5,12 +5,19 @@ const crawlSinglePage = async (request, element) => {
     let result = []
     let crawlResult = {}
     let keyList = []
-    let browser = await puppeteer.launch({ headless: true })
+    let browser = await puppeteer.launch()
     let page = await browser.newPage()
     let i = 0
     await page.goto(request.url, { waitUtil: "networkkidle0", timeout: 120000 })
     await Promise.all(element.child_elements.map(async (childElement) => {
         keyList.push(childElement.name)
+
+        if (childElement.type == "object") {
+            childObjectResult = await crawlSinglePage(request, childElement)
+            crawlResult[childElement.name] = childObjectResult
+            return
+        }
+
 
         var crawledChildElementsContent = await page.evaluate((childElement) => {
             let crawledElementsContent = []
@@ -25,13 +32,6 @@ const crawlSinglePage = async (request, element) => {
             }
         }, childElement)
 
-
-        // console.log(typeof crawledChildElementsContent);
-        // console.log(crawledChildElementsContent);
-        // crawledChildElementsContent.crawledElementsContent.forEach((value, index, array) => {
-        //     crawlResult[index] = {[childElement.name]: value}
-        // })
-        // crawlResult.push({ [element.name]: crawledChildElementsContent })
         crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
     }))
     await browser.close()
@@ -46,7 +46,7 @@ const crawlSinglePage = async (request, element) => {
         result.push(obj)
     })
 
-
+    // console.log("done handling: ", element.name);
     return result
 }
 
