@@ -6,6 +6,8 @@ const fs = require('fs');
 const simpleCrawlTransport = require('./api/transport/simpleCrawl.js');
 const advanceCrawlTransport = require('./api/transport/advanceCrawl.js');
 
+process.setMaxListeners(Infinity);
+
 const app = express(); // Initializing Express
 
 app.use(timeout('120s'));
