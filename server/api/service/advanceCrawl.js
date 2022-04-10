@@ -1,12 +1,11 @@
 const puppeteer = require("puppeteer");
 
 
-const crawlSinglePage = async (url, element) => {
+const crawlSinglePage = async (browser, url, element) => {
     console.log("crawling: ", url);
     let result = []
     let crawlResult = {}
     let keyList = []
-    let browser = await puppeteer.launch()
     let page = await browser.newPage()
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
     await Promise.all(element.child_elements.map(async (childElement) => {
@@ -15,7 +14,7 @@ const crawlSinglePage = async (url, element) => {
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
-                childObjectResult = await crawlSinglePage(url, childElement)
+                childObjectResult = await crawlSinglePage(browser, url, childElement)
                 crawlResult[childElement.name] = childObjectResult
                 return
             case "text":
@@ -53,7 +52,7 @@ const crawlSinglePage = async (url, element) => {
                 // Treat this the same as an object type
                 let crawledGotoResult = []
                 await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                    childObjectResult = await crawlSinglePage(crawledElement, childElement)
+                    childObjectResult = await crawlSinglePage(browser, crawledElement, childElement)
                     // Must use element because crawl function will return in correct order
                     crawledGotoResult[index] = childObjectResult
                 }))
@@ -62,7 +61,7 @@ const crawlSinglePage = async (url, element) => {
             default:
         }
     }))
-    await browser.close()
+    await page.close()
 
     // console.log(keyList);
     let i
@@ -114,12 +113,16 @@ async function advanceCrawlService(request) {
 
     let crawlResult = {}
 
+    let browser = await puppeteer.launch()
+
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
-            crawlResult[element.name] = await crawlSinglePage(request.url, element);
+            crawlResult[element.name] = await crawlSinglePage(browser, request.url, element);
         }
 
     }))
+
+    await browser.close()
 
     return crawlResult
 }
