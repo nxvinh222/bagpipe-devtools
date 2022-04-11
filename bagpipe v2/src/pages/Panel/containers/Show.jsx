@@ -22,7 +22,7 @@ const Show = (props) => {
 
     const useQuery = () => new URLSearchParams(useLocation().search);
     let query = useQuery();
-    const fatherIdQuery = 'father_id'
+    const fatherIdQuery = 'fatherId'
     const fatherId = query.get(fatherIdQuery)
     console.log("father element id: ", fatherId);
 
@@ -47,7 +47,7 @@ const Show = (props) => {
     const getData = () => {
         let url = `/api/v1/recipes/${recipeId}/elements`
         if (fatherId != null) {
-            url = url + `father_id=${fatherId}`
+            url = url + `?father_id=${fatherId}`
         }
         axios.
             get(url).

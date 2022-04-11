@@ -12,6 +12,8 @@ const NewAttr = (props) => {
     const useQuery = () => new URLSearchParams(useLocation().search);
     let query = useQuery();
 
+    const fatherIdQuery = 'fatherId'
+    const fatherId = query.get(fatherIdQuery)
     const recipeId = query.get('recipeId')
     const [element, setElement] = useState('')
 
@@ -83,20 +85,29 @@ const NewAttr = (props) => {
         //         navigate(showRecipePath)
         //     });
         // });
+        let requestBody = {
+            element_id: parseInt(fatherId),
+            name: values.name,
+            selector: element,
+            type: values.type,
+            multitple: "yes",
+        }
+        if (requestBody.element_id == "null") {
+            delete requestBody.element_id
+        }
         axios.
             post(`/api/v1/recipes/${recipeId}/elements`, {
                 elements: [
-                    {
-                        name: values.name,
-                        selector: element,
-                        type: values.type,
-                        multitple: "yes",
-                    }
+                    requestBody
                 ]
             }).
             then(response => {
                 console.log(response);
-                navigate(showRecipePath)
+
+                let urlParams = new URLSearchParams(window.location.search);
+                urlParams.set(fatherIdQuery, fatherId);
+                let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                navigate(path)
             })
             .catch(err => console.log(err))
     };
