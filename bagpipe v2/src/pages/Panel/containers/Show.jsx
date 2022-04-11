@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './css/Show.css';
-import { basePath, newAttrPath } from './constants'
+import { basePath, newAttrPath, showRecipeBasicPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
 import { Table, Button, Tag, Modal, Form, Input, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { data } from './Data/ShowData'
 import { buildBody } from './Utils/bodyBuilder';
@@ -19,6 +19,12 @@ const Show = (props) => {
     const nameColumn = "name"
     const selectorColumn = "selector"
     const typeColumn = "type"
+
+    const useQuery = () => new URLSearchParams(useLocation().search);
+    let query = useQuery();
+    const fatherIdQuery = 'father_id'
+    const fatherId = query.get(fatherIdQuery)
+    console.log("father element id: ", fatherId);
 
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
@@ -39,8 +45,12 @@ const Show = (props) => {
 
 
     const getData = () => {
+        let url = `/api/v1/recipes/${recipeId}/elements`
+        if (fatherId != null) {
+            url = url + `father_id=${fatherId}`
+        }
         axios.
-            get(`/api/v1/recipes/${recipeId}/elements`).
+            get(url).
             then(response => {
                 // console.log(response.data.data);
                 let selectors = response.data.data.map(recipe => ({
@@ -61,7 +71,30 @@ const Show = (props) => {
             title: 'Name',
             dataIndex: nameColumn,
             key: nameColumn,
-            render: text => <a>{text}</a>,
+            render: (text, record) => {
+                let urlParams = new URLSearchParams(window.location.search);
+                urlParams.set(fatherIdQuery, record[idColumn]);
+                let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                return <Link
+                    to={{ pathname: path }}
+                    onClick={() => {
+                        axios.
+                            get(`/api/v1/recipes/${recipeId}/elements?father_id=${record[idColumn]}`).
+                            then(response => {
+                                // console.log(response.data.data);
+                                let selectors = response.data.data.map(recipe => ({
+                                    [idColumn]: recipe.id,
+                                    [nameColumn]: recipe.name,
+                                    [selectorColumn]: recipe.selector,
+                                    [typeColumn]: recipe.type
+                                })
+                                )
+                                console.log("selectors: " + selectors);
+                                setSelectors(selectors)
+                            })
+                            .catch(err => console.log(err))
+                    }}>{text}</Link>
+            },
         },
         {
             title: 'Selector',
@@ -123,29 +156,13 @@ const Show = (props) => {
     ];
 
     // new recipe path: /show/newattr?recipeId=1
-    const newAttrPathWithQuery = newAttrPath + "?" + new URLSearchParams({
-        recipeId: recipeId
-    }).toString()
+    let urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('recipeId', recipeId);
+    urlParams.set(fatherIdQuery, fatherId);
+    const newAttrPathWithQuery = newAttrPath + "?" + urlParams.toString()
 
     useEffect(() => {
-        var url = new URL(window.location.href);
-        console.log(url.searchParams.get('domain'));
-
-        axios.
-            get(`/api/v1/recipes/${recipeId}/elements`).
-            then(response => {
-                // console.log(response.data.data);
-                let selectors = response.data.data.map(recipe => ({
-                    [idColumn]: recipe.id,
-                    [nameColumn]: recipe.name,
-                    [selectorColumn]: recipe.selector,
-                    [typeColumn]: recipe.type
-                })
-                )
-                console.log("selectors: " + selectors);
-                setSelectors(selectors)
-            })
-            .catch(err => console.log(err))
+        getData()
 
         // chrome.storage.sync.get("recipes", function (res) {
         //     if (selectors.length == res.recipes[`${recipeId}`].length) return;

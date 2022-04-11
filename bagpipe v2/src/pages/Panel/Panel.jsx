@@ -13,7 +13,6 @@ const Panel = () => {
   const newRecipePath = myConsts.newRecipePath;
   const showRecipePath = myConsts.showRecipePath;
   const newAttrPath = myConsts.newAttrPath;
-  const showRecipeBasicPath = myConsts.showRecipeBasicPath;
 
   return (
     <div className='bagpipe-root'>

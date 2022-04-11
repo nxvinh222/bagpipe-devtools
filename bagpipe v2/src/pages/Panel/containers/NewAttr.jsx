@@ -13,7 +13,7 @@ const NewAttr = (props) => {
     let query = useQuery();
 
     const recipeId = query.get('recipeId')
-    const [element, setElement] = useState('Element haven\'t selected yet!')
+    const [element, setElement] = useState('')
 
     const showRecipePath = showRecipeBasicPath + recipeId
 
@@ -154,12 +154,13 @@ const NewAttr = (props) => {
 
                         allowClear
                     >
+                        <Option value="object">Object</Option>
                         <Option value="text">Text</Option>
                         <Option value="link">Link</Option>
-                        <Option value="popup-link">Popup Link</Option>
+                        {/* <Option value="popup-link">Popup Link</Option>
                         <Option value="table">Table</Option>
                         <Option value="html">Html</Option>
-                        <Option value="attribute">Attribute Tag</Option>
+                        <Option value="attribute">Attribute Tag</Option> */}
                     </Select>
                 </Form.Item>
 
