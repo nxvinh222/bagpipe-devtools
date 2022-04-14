@@ -1,9 +1,9 @@
-export const buildBody = (selectors) => {
+export const buildBody = (url, selectors) => {
     var body = {
         url: "",
         elements: []
     };
-    body.url = "https://vnexpress.net/";
+    body.url = url;
     body.elements = selectors;
     return body;
     return {

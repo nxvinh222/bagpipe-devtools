@@ -185,44 +185,49 @@ const Show = (props) => {
     const onFinishFailedConfigCrawler = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
-    const elementBody = buildBody(selectors);
     const scrape = () => {
         console.log("Scraping!");
         console.log("Calling ", env.CRAWL_URL);
         enterLoading(true);
-        fetch(CRAWL_URL, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(elementBody),
-        })
-            //1st solution
-            // .then(res =>
-            //     res.blob()
-            // )
-            // .then(blob => {
-            //     var file = window.URL.createObjectURL(blob);
-            //     window.location.assign(file);
-            // })
-            //2nd
-            .then(response => {
-                if (response.status === 200) {
-                    return response.blob();
-                } else {
-                    return;
-                }
+        axios.
+            get(`/api/v1/recipes/${recipeId}`).
+            then(response => {
+                const elementBody = buildBody(response.data.data.start_url, response.data.data.elements);
+
+                fetch(env.CRAWL_URL, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(elementBody),
+                })
+                    //1st solution
+                    // .then(res =>
+                    //     res.blob()
+                    // )
+                    // .then(blob => {
+                    //     var file = window.URL.createObjectURL(blob);
+                    //     window.location.assign(file);
+                    // })
+                    //2nd
+                    .then(response => {
+                        if (response.status === 200) {
+                            return response.blob();
+                        } else {
+                            return;
+                        }
+                    })
+                    .then(body => {
+                        downloadjs(body, "data.json", "application/octet-stream");
+                        enterLoading(false);
+                    })
+                    .catch(e => {
+                        //json is invalid and other e
+                        console.log(e);
+                    });
             })
-            .then(body => {
-                downloadjs(body, "data.json", "application/octet-stream");
-                enterLoading(false);
-            })
-            .catch(e => {
-                //json is invalid and other e
-                console.log(e);
-            });
     }
 
     return (
