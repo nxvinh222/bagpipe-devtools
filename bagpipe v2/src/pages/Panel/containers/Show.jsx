@@ -46,7 +46,8 @@ const Show = (props) => {
 
     const getData = () => {
         let url = `/api/v1/recipes/${recipeId}/elements`
-        if (fatherId != null) {
+        console.log(fatherId);
+        if (fatherId != "null" && fatherId != null && fatherId.length > 0) {
             url = url + `?father_id=${fatherId}`
         }
         axios.
