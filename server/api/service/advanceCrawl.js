@@ -6,23 +6,27 @@ const crawlSinglePage = async (browser, url, element) => {
     let result = []
     let crawlResult = {}
     let keyList = []
+    let resultKey
+    let resultValue
     let page = await browser.newPage()
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
     await Promise.all(element.child_elements.map(async (childElement) => {
-
-
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
                 childObjectResult = await crawlSinglePage(browser, url, childElement)
-                crawlResult[childElement.name] = childObjectResult
-                return
+                resultKey = childElement.name
+                resultValue = childObjectResult
+                // crawlResult[childElement.name] = childObjectResult
+                // return
+                break;
             case "text":
                 keyList.push(childElement.name)
                 var crawledChildElementsContent = await page.evaluate((childElement) => {
                     let crawledElementsContent = []
 
                     let crawledElements = document.querySelectorAll(childElement.selector)
+                    console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
                         crawledElementsContent.push(crawledElement.innerText)
                     })
@@ -31,8 +35,11 @@ const crawlSinglePage = async (browser, url, element) => {
                         [childElement.name]: crawledElementsContent
                     }
                 }, childElement)
-                crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
-                return
+                resultKey = childElement.name
+                resultValue = crawledChildElementsContent[childElement.name]
+                // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
+                // return
+                break;
             case "link":
                 keyList.push(childElement.name)
                 // Get all href link from selector
@@ -56,18 +63,29 @@ const crawlSinglePage = async (browser, url, element) => {
                     // Must use element because crawl function will return in correct order
                     crawledGotoResult[index] = childObjectResult
                 }))
-                crawlResult[childElement.name] = crawledGotoResult
-                return
+                resultKey = childElement.name
+                resultValue = crawledGotoResult
+                // crawlResult[childElement.name] = crawledGotoResult
+                // return
+                break;
             default:
         }
+        // console.log(childElement.selector);
+        // console.log(resultKey);
+        // console.log(resultValue);
+        if (resultValue.length == 1) {
+            resultValue = resultValue[0]
+        }
+        crawlResult[resultKey] = resultValue
     }))
     await page.close()
 
+    // console.log("result: ", crawlResult);
     // console.log(keyList);
     let i
     for (i = 0; i <= keyList.length; i++) {
         if (i == keyList.length) break;
-        if (crawlResult[keyList[i]].length > 1)
+        if (crawlResult[keyList[i]].length > 1 && Array.isArray(crawlResult[keyList[i]]))
             break;
     }
 
@@ -113,7 +131,9 @@ async function advanceCrawlService(request) {
 
     let crawlResult = {}
 
-    let browser = await puppeteer.launch()
+    let browser = await puppeteer.launch({
+        headless: true,
+    })
 
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
