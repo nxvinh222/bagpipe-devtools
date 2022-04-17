@@ -148,7 +148,7 @@ async function advanceCrawlService(request) {
     })
 
     let nextLink
-    let size = 31
+    let size = 51
 
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
