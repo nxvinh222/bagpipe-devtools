@@ -11,7 +11,6 @@ const crawlSinglePage = async (browser, url, element) => {
     let nextLink
     let page = await browser.newPage()
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
-    console.log(element);
     await Promise.all(element.child_elements.map(async (childElement) => {
         switch (childElement.type) {
             case "object":
@@ -128,6 +127,9 @@ const crawlSinglePage = async (browser, url, element) => {
         result.push(obj)
     })
 
+
+    // if (element.type == "object")
+    //     console.log(crawlResult);
     // console.log("done handling: ", element.name);
     return [result, nextLink]
 }
@@ -141,10 +143,12 @@ async function advanceCrawlService(request) {
 
     let browser = await puppeteer.launch({
         headless: true,
+        devtools: true,
+        defaultViewport: null,
     })
 
     let nextLink
-    let size = 50
+    let size = 31
 
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
