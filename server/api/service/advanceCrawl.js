@@ -8,13 +8,15 @@ const crawlSinglePage = async (browser, url, element) => {
     let keyList = []
     let resultKey
     let resultValue
+    let nextLink
     let page = await browser.newPage()
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
+    console.log(element);
     await Promise.all(element.child_elements.map(async (childElement) => {
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
-                childObjectResult = await crawlSinglePage(browser, url, childElement)
+                childObjectResult = (await crawlSinglePage(browser, url, childElement))[0]
                 resultKey = childElement.name
                 resultValue = childObjectResult
                 // crawlResult[childElement.name] = childObjectResult
@@ -40,6 +42,13 @@ const crawlSinglePage = async (browser, url, element) => {
                 // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
                 // return
                 break;
+            case "click":
+                nextLink = await page.evaluate((childElement) => {
+                    console.log(childElement);
+                    let crawledElements = document.querySelector(childElement.selector)
+                    return crawledElements.href
+                }, childElement)
+                return;
             case "link":
                 keyList.push(childElement.name)
                 // Get all href link from selector
@@ -59,7 +68,7 @@ const crawlSinglePage = async (browser, url, element) => {
                 // Treat this the same as an object type
                 let crawledGotoResult = []
                 await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                    childObjectResult = await crawlSinglePage(browser, crawledElement, childElement)
+                    childObjectResult = (await crawlSinglePage(browser, crawledElement, childElement))[0]
                     // Must use element because crawl function will return in correct order
                     crawledGotoResult[index] = childObjectResult
                 }))
@@ -69,10 +78,9 @@ const crawlSinglePage = async (browser, url, element) => {
                 // return
                 break;
             default:
+                return;
         }
-        // console.log(childElement.selector);
-        // console.log(resultKey);
-        // console.log(resultValue);
+
         if (resultValue.length == 1) {
             resultValue = resultValue[0]
         }
@@ -80,8 +88,6 @@ const crawlSinglePage = async (browser, url, element) => {
     }))
     await page.close()
 
-    // console.log("result: ", crawlResult);
-    // console.log(keyList);
     let i
     for (i = 0; i <= keyList.length; i++) {
         if (i == keyList.length) break;
@@ -123,8 +129,10 @@ const crawlSinglePage = async (browser, url, element) => {
     })
 
     // console.log("done handling: ", element.name);
-    return result
+    return [result, nextLink]
 }
+
+
 
 async function advanceCrawlService(request) {
     console.log("Handling Text Scraping Request!");
@@ -135,9 +143,30 @@ async function advanceCrawlService(request) {
         headless: true,
     })
 
+    let nextLink
+    let size = 50
+
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
-            crawlResult[element.name] = await crawlSinglePage(browser, request.url, element);
+            [crawlResult[element.name], nextLink] = await crawlSinglePage(
+                browser,
+                request.url,
+                element
+            );
+
+            if (nextLink) {
+                while (crawlResult[element.name].length <= 50) {
+                    let result
+                    [result, nextLink] = await crawlSinglePage(
+                        browser,
+                        nextLink,
+                        element
+                    );
+                    crawlResult[element.name] = crawlResult[element.name].concat(result)
+                }
+                crawlResult[element.name] = crawlResult[element.name].slice(0, size)
+                console.log(crawlResult[element.name].length);
+            }
         }
 
     }))
