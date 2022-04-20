@@ -93,6 +93,9 @@ const Show = (props) => {
             dataIndex: nameColumn,
             key: nameColumn,
             render: (text, record) => {
+                //  check if this attribute an object
+                if (record[typeColumn] != "object" && record[typeColumn] != "link") return <div>{text}</div>
+
                 let urlParams = new URLSearchParams(window.location.search);
                 urlParams.set(fatherIdQuery, record[idColumn]);
                 let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
