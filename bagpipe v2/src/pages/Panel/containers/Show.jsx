@@ -24,11 +24,13 @@ const Show = (props) => {
     let query = useQuery();
     const fatherIdQuery = 'fatherId'
     const fatherId = query.get(fatherIdQuery)
-    console.log("father element id: ", fatherId);
+    // console.log("father element id: ", fatherId);
 
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
     const [selectors, setSelectors] = useState([]);
+    const [breadCrumbList, setBreadCrumbList] = useState([]);
+    const [recipeName, setRecipeName] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const showModal = () => {
@@ -44,12 +46,13 @@ const Show = (props) => {
     };
 
 
-    const getData = () => {
+    const getData = (fatherId) => {
         let url = `/api/v1/recipes/${recipeId}/elements`
-        console.log(fatherId);
-        if (fatherId != "null" && fatherId != null && fatherId.length > 0) {
-            url = url + `?father_id=${fatherId}`
+        // console.log(fatherId);
+        if (fatherId != "null" && fatherId != null) {
+            url = `/api/v1/recipes/${recipeId}/elements?father_id=${fatherId}`
         }
+        console.log("url: ", url);
         axios.
             get(url).
             then(response => {
@@ -67,6 +70,23 @@ const Show = (props) => {
             .catch(err => console.log(err))
     }
 
+    const getBreadCrumbData = (id) => {
+        // get breadcrumb data
+        let graphUrl = `/api/v1/elements/graph/${id}`
+        console.log("alo");
+        console.log(id);
+        if (id != null) {
+            console.log("alo");
+            axios.
+                get(graphUrl).
+                then(response => {
+                    console.log("bc: ", response.data.data);
+                    setBreadCrumbList(response.data.data.reverse())
+                })
+                .catch(err => console.log(err))
+        }
+    }
+
     const columns = [
         {
             title: 'Name',
@@ -79,22 +99,11 @@ const Show = (props) => {
                 return <Link
                     to={{ pathname: path }}
                     onClick={() => {
-                        axios.
-                            get(`/api/v1/recipes/${recipeId}/elements?father_id=${record[idColumn]}`).
-                            then(response => {
-                                // console.log(response.data.data);
-                                let selectors = response.data.data.map(recipe => ({
-                                    [idColumn]: recipe.id,
-                                    [nameColumn]: recipe.name,
-                                    [selectorColumn]: recipe.selector,
-                                    [typeColumn]: recipe.type
-                                })
-                                )
-                                console.log("selectors: " + selectors);
-                                setSelectors(selectors)
-                            })
-                            .catch(err => console.log(err))
-                    }}>{text}</Link>
+                        getData(record[idColumn]);
+                        getBreadCrumbData(record[idColumn]);
+                    }}>
+                    {text}
+                </Link>
             },
         },
         {
@@ -127,7 +136,7 @@ const Show = (props) => {
                         then(
                             r => {
                                 console.log(r);
-                                getData();
+                                getData(fatherId);
                             }
                         ).catch(e => console.log(e))
                     // var tempSelectors = selectors;
@@ -163,12 +172,16 @@ const Show = (props) => {
     const newAttrPathWithQuery = newAttrPath + "?" + urlParams.toString()
 
     useEffect(() => {
-        getData()
-
-        // chrome.storage.sync.get("recipes", function (res) {
-        //     if (selectors.length == res.recipes[`${recipeId}`].length) return;
-        //     setSelectors(res.recipes[`${recipeId}`]);
-        // });
+        getData(fatherId);
+        getBreadCrumbData(fatherId);
+        // get recipe name
+        axios.
+            get(`/api/v1/recipes/${recipeId}?simple=1`).
+            then(
+                r => {
+                    setRecipeName(r.data.data.name)
+                }
+            ).catch(e => console.log(e))
     }, []);
 
     const enterLoading = (status, index = 0) => {
@@ -236,20 +249,55 @@ const Show = (props) => {
             })
     }
 
+    const threedot = function () {
+        if (fatherId != null)
+            return (<Breadcrumb.Item>...</Breadcrumb.Item>)
+    }()
+
+    const testbread = breadCrumbList.map((item) => {
+        return (
+            <Breadcrumb.Item>
+                <Link
+                    to={{ pathname: showRecipeBasicPath + `${recipeId}?fatherId=${item.id}` }}
+                    onClick={() => {
+                        getData(item.id);
+                        getBreadCrumbData(item.id);
+                    }}>
+                    {item.name}
+                </Link>
+            </Breadcrumb.Item>
+        )
+    })
+
     return (
         <div className="show">
-            <Breadcrumb separator=">">
-                <Breadcrumb.Item href={basePath}>
-                    <HomeOutlined />
-                </Breadcrumb.Item>
-                <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
-            </Breadcrumb>
+            <div className="bagpipe-breadcrumb">
+                <Breadcrumb separator=">">
+                    <Breadcrumb.Item href={basePath}>
+                        <HomeOutlined />
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item>
+                        <Link
+                            to={{
+                                pathname: showRecipeBasicPath + recipeId,
+                            }}
+                            onClick={() => {
+                                getData(null);
+                                setBreadCrumbList([])
+                            }}
+                        >
+                            <b>Recipe: </b>{recipeName}
+                        </Link>
+                        {/* <a href={showRecipeBasicPath + recipeId}>
+                            Recipe: {recipeName}
+                        </a> */}
+                    </Breadcrumb.Item>
+                    {testbread}
+                </Breadcrumb>
+            </div>
             <Button type="primary">
                 <Link to={{
                     pathname: newAttrPathWithQuery,
-                    // state: {
-                    //     setSelectors: setSelectors
-                    // }
                 }}
                 >
                     New Selector
