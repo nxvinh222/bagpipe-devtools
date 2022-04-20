@@ -5,7 +5,7 @@ import { basePath, newAttrPath, showRecipeBasicPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
-import { Table, Button, Tag, Modal, Form, Input, Breadcrumb } from 'antd';
+import { Table, Button, Tag, Modal, Form, Input, InputNumber, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { Link, useLocation } from "react-router-dom";
 
@@ -179,20 +179,26 @@ const Show = (props) => {
 
     const onFinishConfigCrawler = (values) => {
         console.log('Success:', values);
-        scrape();
+        setIsModalVisible(false)
+        scrape(values);
     };
 
     const onFinishFailedConfigCrawler = (errorInfo) => {
         console.log('Failed:', errorInfo);
+        setIsModalVisible(false)
     };
-    const scrape = () => {
+    const scrape = (config) => {
         console.log("Scraping!");
         console.log("Calling ", env.CRAWL_URL);
         enterLoading(true);
         axios.
             get(`/api/v1/recipes/${recipeId}`).
             then(response => {
-                const elementBody = buildBody(response.data.data.start_url, response.data.data.elements);
+                const elementBody = buildBody(
+                    response.data.data.start_url,
+                    response.data.data.elements,
+                    config
+                );
 
                 fetch(env.CRAWL_URL, {
                     method: 'POST',
@@ -237,7 +243,6 @@ const Show = (props) => {
                     <HomeOutlined />
                 </Breadcrumb.Item>
                 <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
-                <Breadcrumb.Item>Recipe: {recipeId}</Breadcrumb.Item>
             </Breadcrumb>
             <Button type="primary">
                 <Link to={{
@@ -257,7 +262,12 @@ const Show = (props) => {
             <Button type="primary" loading={loadings[0]} onClick={showModal}>
                 Start Scrapring!
             </Button>
-            <Modal title="Config Crawler" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+            <Modal title="Config Crawler"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                footer={null}
+            >
                 <Form
                     name="basic"
                     labelCol={{
@@ -273,6 +283,14 @@ const Show = (props) => {
                     onFinishFailed={onFinishFailedConfigCrawler}
                     autoComplete="off"
                 >
+                    <Form.Item
+                        label="Crawl item limit"
+                        name="item-limit"
+                        rules={[]}
+                    >
+                        <InputNumber />
+                    </Form.Item>
+
                     <Form.Item
                         label="Request interval (ms)"
                         name="request-interval"

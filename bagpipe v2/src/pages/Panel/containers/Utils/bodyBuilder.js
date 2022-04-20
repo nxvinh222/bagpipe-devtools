@@ -1,9 +1,11 @@
-export const buildBody = (url, selectors) => {
+export const buildBody = (url, selectors, config) => {
     var body = {
-        url: "",
-        elements: []
+        "url": "",
+        "item_limit": 10,
+        "elements": []
     };
     body.url = url;
+    body.item_limit = config["item-limit"]
     body.elements = selectors;
     return body;
     return {
