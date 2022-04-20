@@ -10,7 +10,7 @@ process.setMaxListeners(Infinity);
 
 const app = express(); // Initializing Express
 
-app.use(timeout('120s'));
+app.use(timeout('1200s'));
 app.use(haltOnTimedout);
 app.use(express.json())
 
