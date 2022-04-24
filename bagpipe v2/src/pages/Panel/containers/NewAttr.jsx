@@ -168,6 +168,7 @@ const NewAttr = (props) => {
                         <Option value="object">Object</Option>
                         <Option value="text">Text</Option>
                         <Option value="link">Link</Option>
+                        <Option value="click">Click <b>(Action)</b></Option>
                         {/* <Option value="popup-link">Popup Link</Option>
                         <Option value="table">Table</Option>
                         <Option value="html">Html</Option>

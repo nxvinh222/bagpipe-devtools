@@ -10,6 +10,8 @@ const crawlSinglePage = async (browser, url, element) => {
     let resultValue
     let nextLink
     let page = await browser.newPage()
+
+    // console.log("e: ", element);
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
     await Promise.all(element.child_elements.map(async (childElement) => {
         switch (childElement.type) {
@@ -43,9 +45,13 @@ const crawlSinglePage = async (browser, url, element) => {
                 break;
             case "click":
                 nextLink = await page.evaluate((childElement) => {
-                    console.log(childElement);
                     let crawledElements = document.querySelector(childElement.selector)
-                    return crawledElements.href
+                    // debugger;
+                    if (crawledElements != null)
+                        if ('href' in crawledElements)
+                            return crawledElements.href;
+
+                    return null;
                 }, childElement)
                 return;
             case "link":
@@ -107,7 +113,7 @@ const crawlSinglePage = async (browser, url, element) => {
         })
         // And return it as result
         result.push(obj)
-        return result
+        return [result, nextLink]
     }
 
     // If crawled element is a list of element
@@ -129,7 +135,7 @@ const crawlSinglePage = async (browser, url, element) => {
 
 
     // if (element.type == "object")
-    //     console.log(crawlResult);
+    // console.log(crawlResult);
     // console.log("done handling: ", element.name);
     return [result, nextLink]
 }
@@ -143,8 +149,9 @@ async function advanceCrawlService(request) {
 
     let browser = await puppeteer.launch({
         headless: true,
-        devtools: true,
+        // devtools: false,
         defaultViewport: null,
+        args: ['--start-maximized']
     })
 
     let nextLink
@@ -159,16 +166,15 @@ async function advanceCrawlService(request) {
                 element
             );
 
-            if (nextLink) {
-                while (crawlResult[element.name].length <= 50) {
-                    let result
-                    [result, nextLink] = await crawlSinglePage(
-                        browser,
-                        nextLink,
-                        element
-                    );
-                    crawlResult[element.name] = crawlResult[element.name].concat(result)
-                }
+            while (crawlResult[element.name].length < size) {
+                if (nextLink == null) break;
+                let result
+                [result, nextLink] = await crawlSinglePage(
+                    browser,
+                    nextLink,
+                    element
+                );
+                crawlResult[element.name] = crawlResult[element.name].concat(result)
             }
 
             crawlResult[element.name] = crawlResult[element.name].slice(0, size)
