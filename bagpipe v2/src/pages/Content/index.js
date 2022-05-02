@@ -36,6 +36,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     $('.bagpipe-scrape-inject').on('click', () => {
         $(".select-panel").css("display", "block");
         $('body').children().on("mouseover.selectElement", function (e) {
+            e.preventDefault();
             if (extension_element.includes(e.target.className)) return false
             $(".hova").removeClass("hova");
             $(e.target).addClass("hova");
@@ -45,34 +46,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
         });
 
         $('body').children().on("click.selectElement", function (event) {
-            if (extension_element.includes(event.target.className)) return false
-            event.preventDefault()
-            $(".hova").removeClass("hova");
-            $(".click-hova").removeClass("click-hova");
-            if (selected_element.length == 2)
-                selected_element = [];
-
-            if (selected_element.length >= 1) {
-                selected_element.push(event.target)
-                final_element = getSimilarElement(selected_element)
-                $(final_element).addClass("click-hova");
-            }
-            else {
-                selected_element.push(event.target)
-
-                final_element = String(getCssSelector(
-                    selected_element,
-                    {
-                        // combineWithinSelector: true,
-                        // combineBetweenSelectors: true,
-                        // includeTag: true,
-                        // maxCandidates: 10,
-                        selectors: ['class', 'id', 'nthchild'],
-                    }
-                ))
-                console.log("aa: ", final_element);
-                $(final_element).addClass("click-hova");
-            }
+            handleClick(event)
         });
         console.log("turned on");
     })
@@ -87,48 +61,36 @@ function removeSelector() {
     $(".select-panel").css("display", "none");
 }
 
-function getFullSelector(e) {
-    var s = "", t, i, c, p, n;
-    do {
-        t = e.tagName.toLowerCase();
-        i = e.hasAttribute("id") ? "#" + e.id : "";
-        c = e.hasAttribute("class") ? "." + e.className.split(/\s+/).join(".") : "";
-        p = e.parentNode;
-        n = Array.prototype.filter.call(e.parentNode.childNodes, function (x) {
-            return x.nodeType == Node.ELEMENT_NODE;
-        }).indexOf(e) + 1;
-        s = t + i + c + ":nth-child(" + n + ") > " + s;
-    } while (!p || !(e = p).tagName.match(/^HTML$/i));
-    return s.slice(0, -3);
-}
+function handleClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("selected e: ", selected_element);
+    if (extension_element.includes(event.target.className)) return false
+    $(".hova").removeClass("hova");
+    $(".click-hova").removeClass("click-hova");
+    if (selected_element.length == 2)
+        selected_element = [];
 
-function getMinSelector(e) {
-    var s = "", t, i, c, p, n;
-    do {
-        t = e.tagName.toLowerCase();
-        i = e.hasAttribute("id") ? "#" + e.id : "";
-        c = e.hasAttribute("class") ? "." + e.className.split(/\s+/).join(".") : "";
-        p = e.parentNode;
-        n = Array.prototype.filter.call(e.parentNode.childNodes, function (x) {
-            return x.nodeType == Node.ELEMENT_NODE;
-        }).indexOf(e) + 1;
-        n = ":nth-child(" + n + ")";
-        if (i && p.querySelectorAll(i).length == 1)
-            s = i + " > " + s;
-        else if (p.querySelectorAll(t).length == 1)
-            s = t + " > " + s;
-        else if (c && p.querySelectorAll(t + c).length == 1)
-            s = t + c + " > " + s;
-        else if (i && c && p.querySelectorAll(t + i + c).length == 1)
-            s = t + i + c + " > " + s;
-        else
-            s = t + i + c + n + " > " + s;
-    } while (!p || !(e = p).tagName.match(/^HTML$/i));
-    // try to remove parent selectors
-    let cs = s.slice(0, -(" > ".length)).split(" > ");
-    s = cs.pop();
-    while (document.querySelectorAll(s).length > 1) {
-        s = cs.pop() + " > " + s;
+    if (selected_element.length >= 1) {
+        selected_element.push(event.target)
+        final_element = getSimilarElement(selected_element)
+        $(final_element).addClass("click-hova");
     }
-    return s;
+    else {
+        console.log("here: ", event.target.className);
+        selected_element.push(event.target)
+
+        final_element = String(getCssSelector(
+            selected_element,
+            {
+                // combineWithinSelector: true,
+                // combineBetweenSelectors: true,
+                // includeTag: true,
+                // maxCandidates: 10,
+                selectors: ['class', 'nthchild'],
+            }
+        ))
+        console.log("aa: ", final_element);
+        $(final_element).addClass("click-hova");
+    }
 }

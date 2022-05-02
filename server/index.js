@@ -10,8 +10,8 @@ process.setMaxListeners(Infinity);
 
 const app = express(); // Initializing Express
 
-app.use(timeout("1200s"));
-app.use(haltOnTimedout);
+// app.use(timeout("1200s"));
+// app.use(haltOnTimedout);
 app.use(express.json());
 
 // Wrapping the Puppeteer browser logic in a GET request

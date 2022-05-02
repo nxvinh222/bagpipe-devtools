@@ -12,7 +12,7 @@ const crawlSinglePage = async (browser, url, element) => {
     let page = await browser.newPage()
 
     // console.log("e: ", element);
-    await page.goto(url, { waitUtil: "networkkidle0", timeout: 120000 })
+    await page.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
     await Promise.all(element.child_elements.map(async (childElement) => {
         switch (childElement.type) {
             case "object":
@@ -29,6 +29,7 @@ const crawlSinglePage = async (browser, url, element) => {
                     let crawledElementsContent = []
 
                     let crawledElements = document.querySelectorAll(childElement.selector)
+                    debugger;
                     console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
                         crawledElementsContent.push(crawledElement.innerText)
@@ -42,6 +43,44 @@ const crawlSinglePage = async (browser, url, element) => {
                 resultValue = crawledChildElementsContent[childElement.name]
                 // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
                 // return
+                break;
+            case "image":
+                keyList.push(childElement.name)
+                var crawledChildElementsContent = await page.evaluate((childElement) => {
+                    let crawledElementsContent = []
+
+                    let crawledElements = document.querySelectorAll(childElement.selector)
+                    debugger;
+                    console.log(childElement.selector);
+                    crawledElements.forEach((crawledElement, index) => {
+                        crawledElementsContent.push(crawledElement.src)
+                    })
+
+                    return {
+                        [childElement.name]: crawledElementsContent
+                    }
+                }, childElement)
+                resultKey = childElement.name
+                resultValue = crawledChildElementsContent[childElement.name]
+                break;
+            case "paragraph":
+                keyList.push(childElement.name)
+                var crawledChildElementsContent = await page.evaluate((childElement) => {
+                    let crawledElementsContent = ""
+
+                    let crawledElements = document.querySelectorAll(childElement.selector)
+                    debugger;
+                    console.log(childElement.selector);
+                    crawledElements.forEach((crawledElement, index) => {
+                        crawledElementsContent = crawledElementsContent + "\n" + crawledElement.innerText
+                    })
+
+                    return {
+                        [childElement.name]: crawledElementsContent
+                    }
+                }, childElement)
+                resultKey = childElement.name
+                resultValue = crawledChildElementsContent[childElement.name]
                 break;
             case "click":
                 nextLink = await page.evaluate((childElement) => {
