@@ -25,6 +25,9 @@ export function getSimilarElement(selected_element) {
     // combine of father and child selector
     let final_selector;
 
+    // direct father nodename
+    let direct_father_nodename = first_father.parentElement.nodeName
+
     // get closest father of 2 element
     while (true) {
         first_father = first_father.parentElement;
@@ -89,9 +92,17 @@ export function getSimilarElement(selected_element) {
         final_child = selected_element[0].nodeName + "." + final_classlist.join(".");
     }
 
-    // Combine Father and Child(Element)
-    final_selector = final_father + " " + final_child;
+    // add direct father nodename
+    if (final_child.startsWith(direct_father_nodename)) {
+        direct_father_nodename = "";
+    } else {
+        direct_father_nodename = " " + direct_father_nodename;
+    }
 
+    // Combine Father and Child(Element)
+    final_selector = final_father + direct_father_nodename + " " + final_child;
+
+    console.log("final child: ", final_child);
     console.log("FINAL e selector: ", final_selector);
     return final_selector
 }
