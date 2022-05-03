@@ -13,6 +13,10 @@ const crawlSinglePage = async (browser, url, element) => {
 
     // console.log("e: ", element);
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+    // await page.setRequestInterception(true)
+    // page.on("request", (request) => {
+    //     request.abort();
+    // });
     await Promise.all(element.child_elements.map(async (childElement) => {
         switch (childElement.type) {
             case "object":
@@ -140,7 +144,7 @@ const crawlSinglePage = async (browser, url, element) => {
     }
 
     // If crawled element is single element
-    if (i == keyList.length) {
+    if (i == keyList.length || element.type != "object") {
         obj = {}
         // Combine all crawled result which is an single variable into an object
         keyList.forEach((value) => {
@@ -187,8 +191,8 @@ async function advanceCrawlService(request) {
     let crawlResult = {}
 
     let browser = await puppeteer.launch({
-        headless: true,
-        // devtools: false,
+        headless: false,
+        // devtools: true,
         defaultViewport: null,
         args: ['--start-maximized']
     })

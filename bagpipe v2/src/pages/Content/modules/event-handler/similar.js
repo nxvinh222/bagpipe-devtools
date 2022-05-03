@@ -83,13 +83,20 @@ export function getSimilarElement(selected_element) {
     // final child = Parent nodename + Parent class + Element nodename + Element Attr
     if (no_class_flag) {
         // outer nodename and classname
-        final_child = selected_element[0].parentElement.nodeName + "." + final_classlist.join(".");
+        if (final_classlist[0].length != 0)
+            final_child = selected_element[0].parentElement.nodeName + "." + final_classlist.join(".");
+        else
+            final_child = selected_element[0].parentElement.nodeName;
+
         final_child += " " + selected_element[0].nodeName + final_attr;
     }
     // else
     // final child = Element nodename + Element class
     else {
-        final_child = selected_element[0].nodeName + "." + final_classlist.join(".");
+        if (final_classlist[0].length != 0)
+            final_child = selected_element[0].nodeName + "." + final_classlist.join(".");
+        else
+            final_child = selected_element[0].nodeName
     }
 
     // add direct father nodename
