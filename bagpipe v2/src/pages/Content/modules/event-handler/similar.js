@@ -110,12 +110,13 @@ export function getSimilarElement(selected_element) {
     }
 
     // add direct father nodename
-    direct_father_nodename = first_outer.nodeName
-    if (final_child.startsWith(direct_father_nodename)) {
-        direct_father_nodename = "";
-    } else {
-        direct_father_nodename = " " + direct_father_nodename;
-    }
+    direct_father_nodename = "";
+    // direct_father_nodename = first_outer.nodeName
+    // if (final_child.startsWith(direct_father_nodename)) {
+    //     direct_father_nodename = "";
+    // } else {
+    //     direct_father_nodename = " " + direct_father_nodename;
+    // }
 
     // Combine Father and Child(Element)
     final_selector = final_father + direct_father_nodename + " " + final_child;
