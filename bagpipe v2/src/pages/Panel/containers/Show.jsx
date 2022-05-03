@@ -133,37 +133,47 @@ const Show = (props) => {
             title: 'Action',
             key: 'action',
             render: (text, record) => (
-                <Button onClick={() => {
-                    axios.
-                        delete(`/api/v1/elements/${record[idColumn]}`).
-                        then(
-                            r => {
-                                console.log(r);
-                                getData(fatherId);
-                            }
-                        ).catch(e => console.log(e))
-                    // var tempSelectors = selectors;
-                    // tempSelectors = tempSelectors.filter((selector) => {
-                    //     return selector.name != record.name
-                    // })
-                    // console.log("new temp selector: ", {
-                    //     name: record.name,
-                    //     tempSelectors: tempSelectors
-                    // });
+                <div>
+                    <Button>
+                        <Link to={{
+                            pathname: newAttrPathWithQuery,
+                        }}
+                        >
+                            Edit
+                        </Link>
+                    </Button>
+                    <Button onClick={() => {
+                        axios.
+                            delete(`/api/v1/elements/${record[idColumn]}`).
+                            then(
+                                r => {
+                                    console.log(r);
+                                    getData(fatherId);
+                                }
+                            ).catch(e => console.log(e))
+                        // var tempSelectors = selectors;
+                        // tempSelectors = tempSelectors.filter((selector) => {
+                        //     return selector.name != record.name
+                        // })
+                        // console.log("new temp selector: ", {
+                        //     name: record.name,
+                        //     tempSelectors: tempSelectors
+                        // });
 
 
-                    // chrome.storage.sync.get("recipes", function (res) {
-                    //     let tempRecipes = res.recipes;
+                        // chrome.storage.sync.get("recipes", function (res) {
+                        //     let tempRecipes = res.recipes;
 
-                    //     tempRecipes[`${recipeId}`] = tempSelectors;
-                    //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                    //         console.log("delete attr success, new recipe setted: ", tempRecipes);
-                    //     });
-                    //     setSelectors(tempSelectors)
-                    // });
-                }}>
-                    <a>Delete</a>
-                </Button>
+                        //     tempRecipes[`${recipeId}`] = tempSelectors;
+                        //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
+                        //         console.log("delete attr success, new recipe setted: ", tempRecipes);
+                        //     });
+                        //     setSelectors(tempSelectors)
+                        // });
+                    }}>
+                        <a>Delete</a>
+                    </Button>
+                </div>
             ),
         }
     ];
