@@ -5,6 +5,11 @@ export function getSimilarElement(selected_element) {
     let first_father = selected_element[0];
     // second element's father node
     let second_father = selected_element[1];
+
+    // nearest outer that have classname
+    let first_outer;
+    let second_outer;
+
     // first element's class list
     let first_classlist;
     // second element's class list
@@ -26,7 +31,7 @@ export function getSimilarElement(selected_element) {
     let final_selector;
 
     // direct father nodename
-    let direct_father_nodename = first_father.parentElement.nodeName
+    let direct_father_nodename
 
     // get closest father of 2 element
     while (true) {
@@ -53,15 +58,20 @@ export function getSimilarElement(selected_element) {
         final_classlist.push(first_classlist[i]);
     }
     // if final classlist blank, check for outer element
-    if (final_classlist[0].length == 0) {
+    first_outer = selected_element[0].parentElement
+    second_outer = selected_element[1].parentElement
+    while (final_classlist[0].length == 0) {
         no_class_flag = true;
         final_classlist.pop();
-        first_classlist = selected_element[0].parentElement.className.split(" ");
-        second_classlist = selected_element[1].parentElement.className.split(" ");
+        first_classlist = first_outer.className.split(" ");
+        second_classlist = second_outer.className.split(" ");
         for (var i = 0; i < first_classlist.length; i++) {
             if (first_classlist[i] == second_classlist[i]);
             final_classlist.push(first_classlist[i]);
         }
+        if (first_outer.parentElement == undefined || second_outer.parentElement == undefined) break;
+        first_outer = first_outer.parentElement
+        second_outer = second_outer.parentElement
     }
 
     // calculate attributes
@@ -84,9 +94,9 @@ export function getSimilarElement(selected_element) {
     if (no_class_flag) {
         // outer nodename and classname
         if (final_classlist[0].length != 0)
-            final_child = selected_element[0].parentElement.nodeName + "." + final_classlist.join(".");
+            final_child = first_outer.nodeName + "." + final_classlist.join(".");
         else
-            final_child = selected_element[0].parentElement.nodeName;
+            final_child = first_outer.nodeName;
 
         final_child += " " + selected_element[0].nodeName + final_attr;
     }
@@ -100,6 +110,7 @@ export function getSimilarElement(selected_element) {
     }
 
     // add direct father nodename
+    direct_father_nodename = first_outer.nodeName
     if (final_child.startsWith(direct_father_nodename)) {
         direct_father_nodename = "";
     } else {

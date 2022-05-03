@@ -210,7 +210,8 @@ async function advanceCrawlService(request) {
             );
 
             while (crawlResult[element.name].length < size) {
-                if (nextLink == null) break;
+                console.log("next link: ", nextLink);
+                if (!isValidHttpUrl(nextLink)) break;
                 let result
                 [result, nextLink] = await crawlSinglePage(
                     browser,
@@ -229,6 +230,18 @@ async function advanceCrawlService(request) {
     await browser.close()
 
     return crawlResult
+}
+
+function isValidHttpUrl(string) {
+    let url;
+
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
 }
 
 module.exports = advanceCrawlService;
