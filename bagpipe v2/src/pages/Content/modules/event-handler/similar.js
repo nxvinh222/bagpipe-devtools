@@ -107,7 +107,7 @@ export function getSimilarElement(selected_element) {
   if (no_class_flag) {
     // outer nodename and classname
     if (final_classlist[0].length != 0)
-      final_child = first_outer.nodeName + '.' + final_classlist.join('.');
+      final_child = first_outer.nodeName + ' .' + final_classlist.join('.');
     else final_child = first_outer.nodeName;
 
     final_child += ' ' + selected_element[0].nodeName + final_attr;
