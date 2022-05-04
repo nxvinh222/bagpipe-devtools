@@ -119,22 +119,18 @@ export function getSimilarElement(selected_element) {
       final_child =
         selected_element[0].nodeName + '.' + final_classlist.join('.');
     else final_child = selected_element[0].nodeName;
-  }
 
-  // add direct father nodename
-  direct_father_nodename = '';
-  // direct_father_nodename = first_outer.nodeName
-  // if (final_child.startsWith(direct_father_nodename)) {
-  //     direct_father_nodename = "";
-  // } else {
-  //     direct_father_nodename = " " + direct_father_nodename;
-  // }
+    // add direct father in case result contains element with same class
+    if (!final_father.startsWith(selected_element[0].parentElement.nodeName))
+      final_child =
+        selected_element[0].parentElement.nodeName + ' ' + final_child;
+  }
 
   // Combine Father and Child(Element)
 
   if (first_outer.contains(father_element)) final_father = '';
 
-  final_selector = final_father + direct_father_nodename + ' ' + final_child;
+  final_selector = final_father + ' ' + final_child;
 
   console.log('final child: ', final_child);
   console.log('FINAL e selector: ', final_selector);
