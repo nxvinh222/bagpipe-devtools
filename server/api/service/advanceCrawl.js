@@ -1,8 +1,7 @@
 const puppeteer = require("puppeteer");
 
 
-const crawlSinglePage = async (browser, url, element) => {
-    console.log("crawling: ", url);
+const crawlSinglePage = async (browser, url, element, delayTime) => {
     let result = []
     let crawlResult = {}
     let keyList = []
@@ -12,16 +11,20 @@ const crawlSinglePage = async (browser, url, element) => {
     let page = await browser.newPage()
 
     // console.log("e: ", element);
+    console.log("waiting: ", url);
+    await delay(delayTime);
+    console.log("crawling: ", url);
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
     // await page.setRequestInterception(true)
     // page.on("request", (request) => {
     //     request.abort();
     // });
     await Promise.all(element.child_elements.map(async (childElement) => {
+        // delay
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
-                childObjectResult = (await crawlSinglePage(browser, url, childElement))[0]
+                childObjectResult = (await crawlSinglePage(browser, url, childElement, delayTime))[0]
                 resultKey = childElement.name
                 resultValue = childObjectResult
                 // crawlResult[childElement.name] = childObjectResult
@@ -116,7 +119,7 @@ const crawlSinglePage = async (browser, url, element) => {
                 // Treat this the same as an object type
                 let crawledGotoResult = []
                 await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                    childObjectResult = (await crawlSinglePage(browser, crawledElement, childElement))[0]
+                    childObjectResult = (await crawlSinglePage(browser, crawledElement, childElement, delayTime * index))[0]
                     // Must use element because crawl function will return in correct order
                     crawledGotoResult[index] = childObjectResult
                 }))
@@ -189,6 +192,7 @@ async function advanceCrawlService(request) {
     console.log("Handling Text Scraping Request!");
 
     let crawlResult = {}
+    let delayTime = request.request_interval
 
     let browser = await puppeteer.launch({
         headless: false,
@@ -206,7 +210,8 @@ async function advanceCrawlService(request) {
             [crawlResult[element.name], nextLink] = await crawlSinglePage(
                 browser,
                 request.url,
-                element
+                element,
+                delayTime
             );
 
             while (crawlResult[element.name].length < size) {
@@ -216,7 +221,8 @@ async function advanceCrawlService(request) {
                 [result, nextLink] = await crawlSinglePage(
                     browser,
                     nextLink,
-                    element
+                    element,
+                    delayTime
                 );
                 crawlResult[element.name] = crawlResult[element.name].concat(result)
             }
@@ -242,6 +248,12 @@ function isValidHttpUrl(string) {
     }
 
     return url.protocol === "http:" || url.protocol === "https:";
+}
+
+function delay(time) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, time);
+    });
 }
 
 module.exports = advanceCrawlService;

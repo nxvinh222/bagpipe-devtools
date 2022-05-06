@@ -33,6 +33,11 @@ const Show = (props) => {
     const [breadCrumbList, setBreadCrumbList] = useState([]);
     const [recipeName, setRecipeName] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [crawlConfigForm] = Form.useForm();
+    crawlConfigForm.setFieldsValue({
+        request_interval: 500,
+        load_delay: 500
+    });
 
     const showModal = () => {
         setIsModalVisible(true);
@@ -333,6 +338,7 @@ const Show = (props) => {
             >
                 <Form
                     name="basic"
+                    form={crawlConfigForm}
                     labelCol={{
                         span: 8,
                     }}
@@ -348,7 +354,7 @@ const Show = (props) => {
                 >
                     <Form.Item
                         label="Crawl item limit"
-                        name="item-limit"
+                        name="item_limit"
                         rules={[]}
                     >
                         <InputNumber />
@@ -356,18 +362,18 @@ const Show = (props) => {
 
                     <Form.Item
                         label="Request interval (ms)"
-                        name="request-interval"
+                        name="request_interval"
                         rules={[]}
                     >
-                        <Input placeholder="Leave it blank if you want to use default value" />
+                        <InputNumber />
                     </Form.Item>
 
                     <Form.Item
                         label="Page load delay (ms)"
-                        name="load-delay"
+                        name="load_delay"
                         rules={[]}
                     >
-                        <Input placeholder="Leave it blank if you want to use default value (1000ms)" />
+                        <InputNumber />
                     </Form.Item>
 
                     <Form.Item
