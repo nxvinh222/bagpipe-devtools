@@ -45,7 +45,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             $(this).removeClass("hova");
         });
 
-        $('body').children().on("click.selectElement", function (event) {
+        $('body').children().on("contextmenu.selectElement", function (event) {
             handleClick(event)
         });
         console.log("turned on");
@@ -55,7 +55,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
 function removeSelector() {
     selected_element = []
     $('body').children().off("mouseover.selectElement");
-    $('body').children().off("click.selectElement");
+    $('body').children().off("contextmenu.selectElement");
     $(".click-hova").removeClass("click-hova");
     $(".hova").removeClass("hova");
     $(".select-panel").css("display", "none");
