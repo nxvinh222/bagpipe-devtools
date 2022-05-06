@@ -13,6 +13,7 @@
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@hot-loader/react-dom": "^17.0.2",
     "antd": "^4.16.13",
     "axios": "^0.26.1",

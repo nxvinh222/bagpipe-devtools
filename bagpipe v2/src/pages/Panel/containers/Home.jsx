@@ -3,8 +3,8 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath } from './constants'
 
-import { Table, Button, Breadcrumb } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
+import { Table, Button, Breadcrumb, Typography } from 'antd';
+import { AliwangwangOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import { data } from './Data/HomeData'
 import axios from './axios';
@@ -22,6 +22,7 @@ const Home = (props) => {
     const nameColumn = "name"
     const urlColumn = "start_url"
     const commentColumn = "note"
+    const { Title } = Typography;
 
     const getData = () => {
         axios.
@@ -46,13 +47,14 @@ const Home = (props) => {
             title: 'Name',
             dataIndex: nameColumn,
             key: nameColumn,
+            sorter: (a, b) => a[nameColumn].localeCompare(b[nameColumn]),
             render: (text, record) => {
                 // let urlParams = new URLSearchParams(window.location.search);
                 // urlParams.set('domain', record.domain);
                 // let path = showRecipeBasicPath + text + "?" + urlParams.toString();
                 let path = showRecipeBasicPath + record.id
                 console.log(path);
-                return <Link to={path}>{text}</Link>
+                return <Link to={path}><b>{text}</b></Link>
             }
             ,
         },
@@ -101,11 +103,14 @@ const Home = (props) => {
 
     return (
         <div className="home">
-            <Breadcrumb separator=">">
+            <Title level={3}>
+                Recipe list <AliwangwangOutlined />
+            </Title>
+            {/* <Breadcrumb separator=">">
                 <Breadcrumb.Item href={basePath}>
                     <HomeOutlined />
                 </Breadcrumb.Item>
-            </Breadcrumb>
+            </Breadcrumb> */}
             <Button type="primary">
                 <Link to={newRecipePath}>Add Recipe</Link>
             </Button>

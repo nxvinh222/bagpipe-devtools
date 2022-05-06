@@ -116,14 +116,29 @@ const Show = (props) => {
             },
         },
         {
-            title: 'Selector',
-            dataIndex: selectorColumn,
-            key: selectorColumn,
-        },
-        {
             title: 'Type',
             dataIndex: typeColumn,
             key: typeColumn,
+            width: '10%',
+            filters: [
+                {
+                    text: 'Click',
+                    value: 'click',
+                },
+            ],
+            onFilter: (value, record) => record.type.indexOf(value) === 0,
+            sorter: (a, b) => a.type.localeCompare(b.type),
+            render: type => (
+                <Tag color={getColor(type)} key={type}>
+                    {capitalizeFirstLetter(type)}
+                </Tag>
+            ),
+        },
+        {
+            title: 'Selector',
+            dataIndex: selectorColumn,
+            key: selectorColumn,
+            width: '40%',
         },
         // {
         //     title: 'Multitple',
@@ -326,7 +341,8 @@ const Show = (props) => {
             <Table
                 rowKey={row => row.name}
                 dataSource={selectors}
-                columns={columns} />
+                columns={columns}
+            />
             <Button type="primary" loading={loadings[0]} onClick={showModal}>
                 Start Scrapring!
             </Button>
@@ -392,5 +408,27 @@ const Show = (props) => {
     )
 }
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getColor(type) {
+    switch (type) {
+        case "object":
+            return "red"
+        case "text":
+            return "gold"
+        case "link":
+            return "magenta"
+        case "click":
+            return "purple"
+        case "image":
+            return "blue"
+        case "paragraph":
+            return "green"
+        default:
+            return "yellow"
+    }
+}
 
 export default Show;
