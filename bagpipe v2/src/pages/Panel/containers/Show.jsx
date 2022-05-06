@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './css/Show.css';
-import { basePath, newAttrPath, showRecipeBasicPath } from './constants'
+import { basePath, newAttrPath, showRecipeBasicPath, editAttrPath } from './constants'
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
@@ -25,6 +25,7 @@ const Show = (props) => {
     const fatherIdQuery = 'fatherId'
     const fatherId = query.get(fatherIdQuery)
     // console.log("father element id: ", fatherId);
+    const elementIdQuery = 'elementId';
 
     let { recipeId } = useParams();
     const [loadings, setLoadings] = useState([]);
@@ -136,7 +137,7 @@ const Show = (props) => {
                 <div>
                     <Button>
                         <Link to={{
-                            pathname: newAttrPathWithQuery,
+                            pathname: editAttrPathWithQuery + `&${elementIdQuery}=${record[idColumn]}`,
                         }}
                         >
                             Edit
@@ -182,7 +183,8 @@ const Show = (props) => {
     let urlParams = new URLSearchParams(window.location.search);
     urlParams.set('recipeId', recipeId);
     urlParams.set(fatherIdQuery, fatherId);
-    const newAttrPathWithQuery = newAttrPath + "?" + urlParams.toString()
+    const newAttrPathWithQuery = newAttrPath + "?" + urlParams.toString();
+    const editAttrPathWithQuery = editAttrPath + "?" + urlParams.toString();
 
     useEffect(() => {
         getData(fatherId);

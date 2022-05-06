@@ -1,23 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { showRecipeBasicPath } from './constants'
+import { showRecipeBasicPath, editAttrPath } from './constants'
 
 import { Form, Input, Button, Select } from 'antd';
 
 import axios from './axios';
+import { data } from './Data/ShowData';
 
 const NewAttr = (props) => {
     const navigate = useNavigate();
     const useQuery = () => new URLSearchParams(useLocation().search);
     let query = useQuery();
 
-    const fatherIdQuery = 'fatherId'
-    const fatherId = query.get(fatherIdQuery)
-    const recipeId = query.get('recipeId')
-    const [element, setElement] = useState('')
+    const fatherIdQuery = 'fatherId';
+    const fatherId = query.get(fatherIdQuery);
+    const recipeId = query.get('recipeId');
+    const elementIdQuery = 'elementId';
+    const elementId = query.get(elementIdQuery);
+    const [element, setElement] = useState('');
+
+    const [form] = Form.useForm();
 
     const showRecipePath = showRecipeBasicPath + recipeId
+
+    // Check if this is an edit form
+    let isEdit = false;
+    if (window.location.href.toString().split(window.location.host)[1].startsWith(editAttrPath)) {
+        isEdit = true;
+        console.log("This is edit element form!");
+    }
+
+
 
     // Create a connection to the background page
     var backgroundPageConnection = chrome.runtime.connect({
@@ -35,7 +49,34 @@ const NewAttr = (props) => {
             if (request.action == "set-selected-element")
                 setElement(request.data);
         });
+
+
+        // if (isEdit) {
+        //     form.setFieldsValue({
+        //         name: 'Hi, man!',
+        //     });
+        // }
     });
+
+    useEffect(() => {
+        if (isEdit) {
+            let url = `/api/v1/elements/${elementId}`
+
+            axios.
+                get(url).
+                then(response => {
+                    // console.log(response.data.data);
+
+                    form.setFieldsValue({
+                        name: response.data.data.name,
+                        type: response.data.data.type,
+                    });
+
+                    setElement(response.data.data.selector)
+                })
+                .catch(err => console.log(err))
+        }
+    }, []);
 
     const selectElementScript = function () {
         $(".bagpipe-scrape-inject").trigger('click');
@@ -70,46 +111,51 @@ const NewAttr = (props) => {
 
     const onFinish = (values) => {
         // console.log('Success:', values);
-        // chrome.storage.sync.get("recipes", function (res) {
-        //     let tempRecipes = res.recipes
-        //     console.log("old recipe: ", res.recipes);
+        if (isEdit) {
+            let updateBody = {
+                name: values.name,
+                selector: element,
+                type: values.type,
+            }
 
-        //     tempRecipes[`${recipeId}`].push({
-        //         name: values.name,
-        //         selector: element,
-        //         type: "Text",
-        //         multitple: "yes",
-        //     })
-        //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-        //         console.log("new recipe setted: ", tempRecipes);
-        //         navigate(showRecipePath)
-        //     });
-        // });
-        let requestBody = {
-            element_id: parseInt(fatherId),
-            name: values.name,
-            selector: element,
-            type: values.type,
-            multitple: "yes",
-        }
-        if (requestBody.element_id == "null") {
-            delete requestBody.element_id
-        }
-        axios.
-            post(`/api/v1/recipes/${recipeId}/elements`, {
-                elements: [
-                    requestBody
-                ]
-            }).
-            then(response => {
-                console.log(response);
+            axios.
+                put(`/api/v1/elements/${elementId}`, updateBody).
+                then(response => {
+                    console.log(response);
 
-                let urlParams = new URLSearchParams(window.location.search);
-                urlParams.set(fatherIdQuery, fatherId);
-                let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
-                navigate(path)
-            })
-            .catch(err => console.log(err))
+                    let urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set(fatherIdQuery, fatherId);
+                    let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                    navigate(path)
+                })
+                .catch(err => console.log(err))
+        } else {
+            let requestBody = {
+                element_id: parseInt(fatherId),
+                name: values.name,
+                selector: element,
+                type: values.type,
+                multitple: "yes",
+            }
+            if (requestBody.element_id == "null") {
+                delete requestBody.element_id
+            }
+            axios.
+                post(`/api/v1/recipes/${recipeId}/elements`, {
+                    elements: [
+                        requestBody
+                    ]
+                }).
+                then(response => {
+                    console.log(response);
+
+                    let urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set(fatherIdQuery, fatherId);
+                    let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                    navigate(path)
+                })
+                .catch(err => console.log(err))
+        }
     };
 
     const onFinishFailed = (errorInfo) => {
@@ -125,6 +171,7 @@ const NewAttr = (props) => {
             <div>Select a new Attribute by clicking "Select Element"</div>
             <Form
                 name="basic"
+                form={form}
                 labelCol={{
                     span: 3,
                 }}
