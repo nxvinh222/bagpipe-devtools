@@ -91,13 +91,18 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 break;
             case "click":
                 nextLink = await page.evaluate((childElement) => {
-                    let crawledElements = document.querySelector(childElement.selector)
+                    let crawledLinkList = []
+                    let crawledElements = document.querySelectorAll(childElement.selector)
                     // debugger;
-                    if (crawledElements != null)
-                        if ('href' in crawledElements)
-                            return crawledElements.href;
-
-                    return null;
+                    crawledElements.forEach((crawledElement, index) => {
+                        if (crawledElement != null)
+                            if ('href' in crawledElement) {
+                                crawledLinkList.push(crawledElement.href)
+                            } else {
+                                crawledLinkList.push("")
+                            }
+                    })
+                    return crawledLinkList;
                 }, childElement)
                 return;
             case "link":
@@ -201,30 +206,54 @@ async function advanceCrawlService(request) {
         args: ['--start-maximized']
     })
 
+    // list of link to go next
+    let nextLinkStack
+    // link of added link (checking purpose only)
+    let nextLinkList = []
+    let returnedNextLink
     let nextLink
     let size = request.item_limit
     if (size == null) size = 5
 
     await Promise.all(request.elements.map(async (element) => {
         if (element.type == "object") {
-            [crawlResult[element.name], nextLink] = await crawlSinglePage(
+            [crawlResult[element.name], nextLinkStack] = await crawlSinglePage(
                 browser,
                 request.url,
                 element,
                 delayTime
             );
 
+            //remove duplicate link
+            nextLinkStack = [...new Set(nextLinkStack)];
+            // copy
+            nextLinkList = nextLinkStack.slice();
+
+            // crawl next link one by one
             while (crawlResult[element.name].length < size) {
+                console.log("crawled link list: ", nextLinkStack);
+                // get next link
+                nextLink = nextLinkStack.pop();
                 console.log("next link: ", nextLink);
+                // check if this is an invalid link
                 if (!isValidHttpUrl(nextLink)) break;
                 let result
-                [result, nextLink] = await crawlSinglePage(
+                // crawl with this link
+                [result, returnedNextLink] = await crawlSinglePage(
                     browser,
                     nextLink,
                     element,
                     delayTime
                 );
                 crawlResult[element.name] = crawlResult[element.name].concat(result)
+
+                // push returned link into next link stack
+                for (const next of returnedNextLink) {
+                    if (!nextLinkList.includes(next)) {
+                        nextLinkStack.push(next);
+                        nextLinkList.push(next);
+                    }
+                }
             }
 
             crawlResult[element.name] = crawlResult[element.name].slice(0, size)
