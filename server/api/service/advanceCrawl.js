@@ -52,6 +52,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 // return
                 break;
             case "image":
+            case "image-auto":
                 keyList.push(childElement.name)
                 var crawledChildElementsContent = await page.evaluate((childElement) => {
                     let crawledElementsContent = []
@@ -200,7 +201,7 @@ async function advanceCrawlService(request) {
     let delayTime = request.request_interval
 
     let browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         // devtools: true,
         defaultViewport: null,
         args: ['--start-maximized']

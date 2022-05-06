@@ -19,6 +19,7 @@ const NewAttr = (props) => {
     const elementIdQuery = 'elementId';
     const elementId = query.get(elementIdQuery);
     const [element, setElement] = useState('');
+    const [currentType, setCurrentType] = useState('');
 
     const [form] = Form.useForm();
 
@@ -46,8 +47,14 @@ const NewAttr = (props) => {
     useEffect(() => {
         // get data from content script through background
         backgroundPageConnection.onMessage.addListener(function (request, sender, sendResponse) {
-            if (request.action == "set-selected-element")
-                setElement(request.data);
+            if (request.action == "set-selected-element") {
+                if (currentType == "image-auto") {
+                    setElement(request.data + " img")
+                }
+                else {
+                    setElement(request.data);
+                }
+            }
         });
 
 
@@ -209,13 +216,18 @@ const NewAttr = (props) => {
                 >
                     <Select
                         placeholder="Select type of data you want to scrape"
-
+                        onChange={(value) => {
+                            setCurrentType(value)
+                            if (value == "image-auto" && element.slice(-3) != "img")
+                                setElement(element + " img")
+                        }}
                         allowClear
                     >
                         <Option value="object">Object</Option>
                         <Option value="text">Text</Option>
                         <Option value="link">Link</Option>
                         <Option value="image">Image</Option>
+                        <Option value="image-auto">Image <b>(Auto scan)</b></Option>
                         <Option value="paragraph">Paragraph</Option>
                         <Option value="click">Click <b>(Action)</b></Option>
                         {/* <Option value="popup-link">Popup Link</Option>
