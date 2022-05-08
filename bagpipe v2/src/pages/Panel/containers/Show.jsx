@@ -153,11 +153,12 @@ const Show = (props) => {
         {
             title: 'Action',
             key: 'action',
-            render: (text, record) => (
-                <div>
+            render: (text, record) => {
+                let path = editAttrPathWithQuery + `&${elementIdQuery}=${record[idColumn]}`
+                return <div>
                     <Button>
                         <Link to={{
-                            pathname: editAttrPathWithQuery + `&${elementIdQuery}=${record[idColumn]}`,
+                            pathname: path,
                         }}
                         >
                             Edit
@@ -172,30 +173,11 @@ const Show = (props) => {
                                     getData(fatherId);
                                 }
                             ).catch(e => console.log(e))
-                        // var tempSelectors = selectors;
-                        // tempSelectors = tempSelectors.filter((selector) => {
-                        //     return selector.name != record.name
-                        // })
-                        // console.log("new temp selector: ", {
-                        //     name: record.name,
-                        //     tempSelectors: tempSelectors
-                        // });
-
-
-                        // chrome.storage.sync.get("recipes", function (res) {
-                        //     let tempRecipes = res.recipes;
-
-                        //     tempRecipes[`${recipeId}`] = tempSelectors;
-                        //     chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                        //         console.log("delete attr success, new recipe setted: ", tempRecipes);
-                        //     });
-                        //     setSelectors(tempSelectors)
-                        // });
                     }}>
                         <a>Delete</a>
                     </Button>
                 </div>
-            ),
+            },
         }
     ];
 
@@ -203,6 +185,7 @@ const Show = (props) => {
     let urlParams = new URLSearchParams(window.location.search);
     urlParams.set('recipeId', recipeId);
     urlParams.set(fatherIdQuery, fatherId);
+    urlParams.delete(elementIdQuery);
     const newAttrPathWithQuery = newAttrPath + "?" + urlParams.toString();
     const editAttrPathWithQuery = editAttrPath + "?" + urlParams.toString();
 

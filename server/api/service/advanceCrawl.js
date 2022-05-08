@@ -152,15 +152,21 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
             break;
     }
 
+    // if (element.type == "object") console.log("crawl result: ", crawlResult);
+
     // If crawled element is single element
     if (i == keyList.length || element.type != "object") {
         obj = {}
         // Combine all crawled result which is an single variable into an object
         keyList.forEach((value) => {
-            if (crawlResult[value] == null) {
+            if (crawlResult[value] == null ||
+                (Array.isArray(crawlResult[value]) && crawlResult[value].length == 0)) {
                 obj[value] = ""
             } else {
-                obj[value] = crawlResult[value]
+                if (Array.isArray(crawlResult[value]) && crawlResult[value].length == 1)
+                    obj[value] = crawlResult[value][0]
+                else
+                    obj[value] = crawlResult[value]
             }
         })
         // And return it as result
@@ -175,10 +181,14 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
         // For each element of crawl result of each selector which is an array
         // Take 1 in each of them and form an object
         keyList.forEach((value) => {
-            if (crawlResult[value][i] == null) {
+            if (crawlResult[value][i] == null ||
+                (Array.isArray(crawlResult[value][i]) && crawlResult[value][i].length == 0)) {
                 obj[value] = ""
             } else {
-                obj[value] = crawlResult[value][i]
+                if (Array.isArray(crawlResult[value][i]) && crawlResult[value][i].length == 1)
+                    obj[value] = crawlResult[value][i][0]
+                else
+                    obj[value] = crawlResult[value][i]
             }
         })
         // Push it into result
