@@ -94,6 +94,7 @@ async function advanceSqlCrawlTransport(req, res) {
         })
         insertMap = insertMap.join(", ")
         console.log("insert: ", insertMap);
+        // path.resolve(__dirname, `../../result/test.txt`)
         var sqlQuery = `BEGIN;\
                                     create temporary table temp_json \
                                     (values text) on \

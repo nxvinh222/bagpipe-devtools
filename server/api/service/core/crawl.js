@@ -36,7 +36,10 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                     debugger;
                     console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
-                        let crawledText = crawledElement.innerText.replaceAll("\n", "\\n")
+                        let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                        crawledText = crawledText.replaceAll("\n", "\\n")
+                        crawledText = crawledText.replaceAll("\t", "")
+
                         crawledElementsContent.push(crawledText)
                     })
 
@@ -78,7 +81,10 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                     debugger;
                     console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
-                        let crawledText = crawledElement.innerText.replaceAll("\n", "\\n")
+                        let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                        crawledText = crawledText.replaceAll("\n", "\\n")
+                        crawledText = crawledText.replaceAll("\t", "")
+
                         crawledElementsContent = crawledElementsContent + "\\n" + crawledText
                     })
 
