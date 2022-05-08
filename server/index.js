@@ -2,6 +2,7 @@ const express = require("express"); // Adding Express
 var timeout = require("connect-timeout");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
+const path = require("path");
 
 const simpleCrawlTransport = require("./api/transport/simpleCrawl.js");
 const advanceCrawlTransport = require("./api/transport/advanceCrawl.js");
@@ -19,6 +20,10 @@ app.use(express.json());
 app.post("/simple", simpleCrawlTransport);
 app.post("/advance", advanceCrawlTransport);
 app.post("/advance-sql", advanceSqlCrawlTransport);
+app.get('/download', function (req, res) {
+  const file = path.resolve(__dirname, `./result/test.txt`);
+  res.download(file); // Set disposition and send it.
+});
 
 // Making Express listen on port 7000
 app.listen(7000, function () {
