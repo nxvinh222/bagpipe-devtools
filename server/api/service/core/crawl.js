@@ -36,7 +36,8 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                     debugger;
                     console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
-                        crawledElementsContent.push(crawledElement.innerText)
+                        let crawledText = crawledElement.innerText.replaceAll("\n", "\\n")
+                        crawledElementsContent.push(crawledText)
                     })
 
                     return {
@@ -77,7 +78,8 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                     debugger;
                     console.log(childElement.selector);
                     crawledElements.forEach((crawledElement, index) => {
-                        crawledElementsContent = crawledElementsContent + "\n" + crawledElement.innerText
+                        let crawledText = crawledElement.innerText.replaceAll("\n", "\\n")
+                        crawledElementsContent = crawledElementsContent + "\\n" + crawledText
                     })
 
                     return {

@@ -35,7 +35,14 @@ async function advanceSqlCrawlTransport(req, res) {
         const fileName = path.resolve(__dirname, `../../result/${Date.now()}.txt`)
         // const fileName = `/result/test.txt`
         console.log("r: ", result);
+        let data;
+        let tableName;
         for (var key in result) {
+            // Get table name
+            tableName = key;
+            // Data without object key name
+            data = result[key];
+
             let parsed = JSON.stringify(result[key]);
             console.log(key);
             console.log(parsed);
@@ -55,8 +62,7 @@ async function advanceSqlCrawlTransport(req, res) {
         // var sqlQuery = fs.readFileSync(path.resolve(__dirname, './test.txt'),
         //     { encoding: 'utf8', flag: 'r' });
 
-        let data = [{ "price": "7,590,000₫", "duration": "4 ngày" }, { "price": "9,390,000₫", "duration": "5 ngày" }];
-        // let data = result;
+        // let data = [{ "price": "7,590,000₫", "duration": "4 ngày" }, { "price": "9,390,000₫", "duration": "5 ngày" }];
         // GET KEY LIST
         let keyList = [];
         for (var key in data[0]) {
@@ -66,7 +72,6 @@ async function advanceSqlCrawlTransport(req, res) {
         console.log("keys: ", keyList);
 
         // CREATE TABLE
-        const tableName = "tests"
         var dropQuery = `DROP TABLE IF EXISTS ${tableName}`
         await client
             .query(dropQuery)

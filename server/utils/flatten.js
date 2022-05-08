@@ -15,7 +15,7 @@ var flattenJSON = (function (isArray, wrapped) {
                 //     if (wrapped(item) !== item) accumulator[property] = item;
                 //     else reduce(property, accumulator, item);
                 // }
-                accumulator[path] = table.join("\n");
+                accumulator[path] = table.join("\\n");
             } else accumulator[path] = table;
         } else {
             var empty = true;
