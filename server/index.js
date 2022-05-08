@@ -5,6 +5,7 @@ const fs = require("fs");
 
 const simpleCrawlTransport = require("./api/transport/simpleCrawl.js");
 const advanceCrawlTransport = require("./api/transport/advanceCrawl.js");
+const advanceSqlCrawlTransport = require("./api/transport/advanceSqlCrawl.js");
 
 process.setMaxListeners(Infinity);
 
@@ -17,6 +18,7 @@ app.use(express.json());
 // Wrapping the Puppeteer browser logic in a GET request
 app.post("/simple", simpleCrawlTransport);
 app.post("/advance", advanceCrawlTransport);
+app.post("/advance-sql", advanceSqlCrawlTransport);
 
 // Making Express listen on port 7000
 app.listen(7000, function () {
