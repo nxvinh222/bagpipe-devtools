@@ -28,17 +28,23 @@ async function advanceSqlCrawlTransport(req, res) {
     }
 
     try {
-        // let result = await advanceCrawlService(req.body)
-        // console.log("Scraping done! Streaming to client!");
-        // result = flatten(result);
-        // const json = JSON.stringify(result);
-        // const fileName = `result/${Date.now()}.txt`
-        const fileName = `/result/test.txt`
-        // // fs.writeFileSync(`result/${fileName}.txt`, { flag: 'w+' }, json);
-        // fs.writeFile(fileName, json, { flag: 'a+' }, function (err) {
-        //     if (err) throw err;
-        //     console.log("It's saved!");
-        // });
+        let result = await advanceCrawlService(req.body)
+        console.log("Scraping done! Streaming to client!");
+        result = flatten(result);
+        const json = JSON.stringify(result);
+        const fileName = path.resolve(__dirname, `../../result/${Date.now()}.txt`)
+        // const fileName = `/result/test.txt`
+        console.log("r: ", result);
+        for (var key in result) {
+            let parsed = JSON.stringify(result[key]);
+            console.log(key);
+            console.log(parsed);
+            fs.writeFile(fileName, parsed, { flag: 'a+' }, function (err) {
+                if (err) throw err;
+                console.log("It's saved!");
+            });
+            break;
+        }
         // const buf = Buffer.from(json);
         // res.writeHead(200, {
         //     'Content-Type': 'application/octet-stream',
@@ -88,7 +94,7 @@ async function advanceSqlCrawlTransport(req, res) {
                                     (values text) on \
                                     commit \
                                     drop; \
-                                    copy temp_json from '${path.resolve(__dirname, '../../result/test.txt')}'; \
+                                    copy temp_json from '${fileName}'; \
                                 insert into ${tableName} (${columnList}) \
                                 select ${insertMap}\
                                 from\

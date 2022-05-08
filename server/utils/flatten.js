@@ -22,7 +22,8 @@ var flattenJSON = (function (isArray, wrapped) {
 
             if (path) {
                 for (var property in table) {
-                    var item = table[property], property = path + "." + property, empty = false;
+                    // var item = table[property], property = path + "." + property, empty = false;
+                    var item = table[property], property = property, empty = false;
                     if (wrapped(item) !== item) accumulator[property] = item;
                     else reduce(property, accumulator, item);
                 }
