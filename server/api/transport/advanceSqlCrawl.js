@@ -88,7 +88,7 @@ async function advanceSqlCrawlTransport(req, res) {
                                     (values text) on \
                                     commit \
                                     drop; \
-                                    copy temp_json from '${path.resolve(__dirname, './test.txt')}'; \
+                                    copy temp_json from '${path.resolve(__dirname, '../../result/test.txt')}'; \
                                 insert into ${tableName} (${columnList}) \
                                 select ${insertMap}\
                                 from\
