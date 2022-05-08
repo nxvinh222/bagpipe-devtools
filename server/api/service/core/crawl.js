@@ -158,7 +158,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
         keyList.forEach((value) => {
             if (crawlResult[value] == null ||
                 (Array.isArray(crawlResult[value]) && crawlResult[value].length == 0)) {
-                obj[value] = ""
+                obj[value] = "nil"
             } else {
                 if (Array.isArray(crawlResult[value]) && crawlResult[value].length == 1)
                     obj[value] = crawlResult[value][0]
@@ -180,7 +180,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
         keyList.forEach((value) => {
             if (crawlResult[value][i] == null ||
                 (Array.isArray(crawlResult[value][i]) && crawlResult[value][i].length == 0)) {
-                obj[value] = ""
+                obj[value] = "nil"
             } else {
                 if (Array.isArray(crawlResult[value][i]) && crawlResult[value][i].length == 1)
                     obj[value] = crawlResult[value][i][0]

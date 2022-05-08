@@ -32,7 +32,13 @@ async function advanceSqlCrawlTransport(req, res) {
         // console.log("Scraping done! Streaming to client!");
         // result = flatten(result);
         // const json = JSON.stringify(result);
-        // fs.writeFileSync("result/data.txt", { flag: 'a+' }, json);
+        // const fileName = `result/${Date.now()}.txt`
+        const fileName = `/result/test.txt`
+        // // fs.writeFileSync(`result/${fileName}.txt`, { flag: 'w+' }, json);
+        // fs.writeFile(fileName, json, { flag: 'a+' }, function (err) {
+        //     if (err) throw err;
+        //     console.log("It's saved!");
+        // });
         // const buf = Buffer.from(json);
         // res.writeHead(200, {
         //     'Content-Type': 'application/octet-stream',
@@ -43,7 +49,8 @@ async function advanceSqlCrawlTransport(req, res) {
         // var sqlQuery = fs.readFileSync(path.resolve(__dirname, './test.txt'),
         //     { encoding: 'utf8', flag: 'r' });
 
-        let data = [{ "msg": "ok", "msg2": "ok2" }, { "msg": "ok1", "msg2": "ok3" }];
+        let data = [{ "price": "7,590,000₫", "duration": "4 ngày" }, { "price": "9,390,000₫", "duration": "5 ngày" }];
+        // let data = result;
         // GET KEY LIST
         let keyList = [];
         for (var key in data[0]) {
@@ -77,25 +84,27 @@ async function advanceSqlCrawlTransport(req, res) {
         insertMap = insertMap.join(", ")
         console.log("insert: ", insertMap);
         var sqlQuery = `BEGIN;\
-                                create temporary table temp_json \
-                                (values text) on \
-                                commit \
-                                drop; \
-                            copy temp_json from '${path.resolve(__dirname, './test.txt')}'; \
-                            insert into ${tableName} (${columnList}) \
-                            select ${insertMap}\
-                            from\
-                            (\
-                                    select json_array_elements(replace(values,' \ ',' \ \ ')::json) as values \
-                                    from temp_json\
-                            ) a;\
-                            COMMIT;`
+                                    create temporary table temp_json \
+                                    (values text) on \
+                                    commit \
+                                    drop; \
+                                    copy temp_json from '${path.resolve(__dirname, './test.txt')}'; \
+                                insert into ${tableName} (${columnList}) \
+                                select ${insertMap}\
+                                from\
+                                (\
+                                        select json_array_elements(replace(values,' \ ',' \ \ ')::json) as values \
+                                        from temp_json\
+                                ) a;\
+                                COMMIT;`
         console.log(sqlQuery);
         await client
             .query(sqlQuery)
             // .then(res => console.log(res.rows[0]))
             .then(res => console.log("finish query"))
-            .catch(e => console.error(e.stack))
+            .catch(e => console.error("add failed: ", e.stack))
+        await client.end()
+
         res.status(200).send(
             {
                 msg: "ok",
@@ -110,9 +119,6 @@ async function advanceSqlCrawlTransport(req, res) {
             }
         )
     }
-
-
-    await client.end()
 }
 
 module.exports = advanceSqlCrawlTransport;
