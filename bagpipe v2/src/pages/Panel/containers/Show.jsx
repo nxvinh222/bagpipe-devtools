@@ -5,7 +5,7 @@ import { basePath, newAttrPath, showRecipeBasicPath, editAttrPath } from './cons
 
 import downloadjs from "downloadjs";
 import { useParams } from 'react-router-dom'
-import { Table, Button, Tag, Modal, Form, Input, InputNumber, Breadcrumb } from 'antd';
+import { Table, Button, Tag, Modal, Form, Input, InputNumber, Breadcrumb, Switch } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { Link, useLocation } from "react-router-dom";
 
@@ -13,6 +13,7 @@ import { data } from './Data/ShowData'
 import { buildBody } from './Utils/bodyBuilder';
 import env from './env';
 import axios from './axios';
+import axiosCrawl from 'axios';
 
 const Show = (props) => {
     const idColumn = "id"
@@ -230,8 +231,19 @@ const Show = (props) => {
                     response.data.data.elements,
                     config
                 );
-
-                fetch(env.CRAWL_URL, {
+                if (config.is_sql) {
+                    console.log("SQL!!");
+                    fetch(env.CRAWL_URL_SQL, {
+                        method: 'POST',
+                        body: JSON.stringify(elementBody),
+                    })
+                        .then(response => {
+                            console.log("sql: ", response.data);
+                        })
+                        .catch((e)=>{console.log(e);})
+                }
+                
+                if (!config.is_sql) fetch(env.CRAWL_URL, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -373,6 +385,13 @@ const Show = (props) => {
                         rules={[]}
                     >
                         <InputNumber />
+                    </Form.Item>
+                    <Form.Item 
+                        label="Switch" 
+                        valuePropName="checked"
+                        name="is_sql"
+                    >
+                        <Switch />
                     </Form.Item>
 
                     <Form.Item
