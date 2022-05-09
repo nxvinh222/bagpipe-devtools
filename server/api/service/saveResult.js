@@ -1,9 +1,14 @@
 const path = require("path");
 var fs = require("fs");
+const { PostgreSql } = require("@shagital/db-dumper");
+const { log } = require("console");
 
-async function SaveResult(client, result) {
+async function SaveResult(client, result, generatedFileName) {
   const json = JSON.stringify(result);
-  const fileName = path.resolve(__dirname, `../../result/${Date.now()}.txt`);
+  const fileName = path.resolve(
+    __dirname,
+    `../../result/${generatedFileName}.txt`
+  );
   // const fileName = `/result/test.txt`
   // console.log("r: ", result);
   let data;
@@ -17,6 +22,8 @@ async function SaveResult(client, result) {
     let parsed = JSON.stringify(result[key]);
     // console.log(key);
     // console.log(parsed);
+
+    // Create temporary data file
     fs.writeFile(fileName, parsed, { flag: "a+" }, function (err) {
       if (err) throw err;
       console.log("It's saved!");
@@ -80,6 +87,26 @@ async function SaveResult(client, result) {
     )
     .catch((e) => console.error("add failed: ", e.stack));
   await client.end();
+
+  let dumpLocation = path.resolve(
+    __dirname,
+    `../../result/${generatedFileName}.sql`
+  );
+  try {
+    exec(
+      `pg_dump -U ${process.env.DB_USER} -d ${process.env.DB_NAME} -t public.${tableName} > ${dumpLocation}`
+    );
+    console.log("Sql file dumped successfully");
+  } catch (error) {
+    console.error("dump failed: ", error.stack);
+  }
+}
+
+var exec = require("child_process").exec;
+function execute(command, callback) {
+  exec(command, function (error, stdout, stderr) {
+    callback(stdout);
+  });
 }
 
 module.exports = SaveResult;

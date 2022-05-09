@@ -6,6 +6,8 @@ const flatten = require("../../utils/flatten");
 const advanceCrawlService = require("../service/advanceCrawl");
 const { log } = require("console");
 const SaveResult = require("../service/saveResult");
+const { response } = require("express");
+const responseSuccess = require("./response/successResponse");
 // console.log(process.env);
 async function advanceSqlCrawlTransport(req, res) {
   const client = new Client({
@@ -31,10 +33,9 @@ async function advanceSqlCrawlTransport(req, res) {
     let result = await advanceCrawlService(req.body);
     console.log("Scraping done! Streaming to client!");
     result = flatten(result);
-    await SaveResult(client, result);
-    res.status(200).send({
-      msg: "ok",
-    });
+    const fileName = `${Date.now()}`;
+    await SaveResult(client, result, fileName);
+    responseSuccess(res, `${fileName}.sql`);
   } catch (error) {
     console.log("Scrape failed: ", error);
     res.status(500).send({
