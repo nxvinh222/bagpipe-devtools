@@ -30,6 +30,7 @@ async function advanceSqlCrawlTransport(req, res) {
   }
 
   try {
+    console.log("Request body sql: ", req.body);
     let result = await advanceCrawlService(req.body);
     console.log("Scraping done! Streaming to client!");
     result = flatten(result);
