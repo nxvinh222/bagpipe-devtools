@@ -20,8 +20,9 @@ import {
   InputNumber,
   Breadcrumb,
   Switch,
+  Space
 } from 'antd';
-import { HomeOutlined } from '@ant-design/icons';
+import { HomeOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 
 import { data } from './Data/ShowData';
@@ -49,6 +50,11 @@ const Show = (props) => {
   const [breadCrumbList, setBreadCrumbList] = useState([]);
   const [recipeName, setRecipeName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
+  const [resultDownloadUrl, setResultDownloadUrl] = useState("");
+  const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] = useState(true);
+
   const [crawlConfigForm] = Form.useForm();
   crawlConfigForm.setFieldsValue({
     request_interval: 500,
@@ -106,6 +112,23 @@ const Show = (props) => {
         .catch((err) => console.log(err));
     }
   };
+
+  const downloadResult = () => {
+    axiosCrawl.
+      get(`/download?filename=${resultDownloadUrl}`, {
+        // include your additional POSTed data here
+        responseType: "blob"
+      }).
+      then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `data.${resultDownloadUrl.substr(-3)}`);
+        document.body.appendChild(link);
+        link.click();
+      }).
+      catch((err) => console.log("download failed: ", err));
+  }
 
   const columns = [
     {
@@ -256,6 +279,9 @@ const Show = (props) => {
           .post('/advance-sql', elementBody)
           .then((response) => {
             console.log('sql response ', response.data);
+            setIsCrawlResultVisible(true);
+            setResultDownloadUrl(response.data.data);
+            setIsDownloadButtonDisabled(false);
             enterLoading(false);
           })
           .catch((err) => console.log(err));
@@ -364,9 +390,23 @@ const Show = (props) => {
         dataSource={selectors}
         columns={columns}
       />
-      <Button type="primary" loading={loadings[0]} onClick={showModal}>
-        Start Scrapring!
-      </Button>
+
+      <Space size={8}>
+        <Button type="primary" loading={loadings[0]} onClick={showModal}>
+          Start Scrapring!
+        </Button>
+
+        <Button
+          type="primary"
+          ghost
+          icon={<DownloadOutlined />}
+          size="medium"
+          disabled={isDownloadButtonDisabled}
+          onClick={downloadResult}
+        />
+      </Space>
+      {isCrawlResultVisible && <CrawlMsg />}
+
       <Modal
         title="Config Crawler"
         visible={isModalVisible}
@@ -424,6 +464,14 @@ const Show = (props) => {
     </div>
   );
 };
+
+const CrawlMsg = () => (
+  <div className="crawl-result-msg">
+    Scraping finish!
+  </div>
+)
+
+
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
