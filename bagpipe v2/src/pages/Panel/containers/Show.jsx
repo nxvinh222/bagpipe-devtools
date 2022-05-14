@@ -20,7 +20,8 @@ import {
   InputNumber,
   Breadcrumb,
   Switch,
-  Space
+  Space,
+  Typography
 } from 'antd';
 import { HomeOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -30,6 +31,7 @@ import { buildBody } from './Utils/bodyBuilder';
 import env from './env';
 import axios from './axios';
 import axiosCrawl from './axiosCrawl';
+const { Text } = Typography;
 
 const Show = (props) => {
   const idColumn = 'id';
@@ -52,6 +54,7 @@ const Show = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
+  const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] = useState(false);
   const [resultDownloadUrl, setResultDownloadUrl] = useState("");
   const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] = useState(true);
 
@@ -123,7 +126,7 @@ const Show = (props) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `data.${resultDownloadUrl.substr(-3)}`);
+        link.setAttribute('download', `data.${resultDownloadUrl.split(".")[1]}`);
         document.body.appendChild(link);
         link.click();
       }).
@@ -275,6 +278,7 @@ const Show = (props) => {
       );
       if (config.is_sql) {
         console.log('Calling ', env.CRAWL_URL_SQL);
+        setIsCrawlResultFailVisible(false);
         axiosCrawl
           .post('/advance-sql', elementBody)
           .then((response) => {
@@ -284,45 +288,65 @@ const Show = (props) => {
             setIsDownloadButtonDisabled(false);
             enterLoading(false);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            setIsCrawlResultFailVisible(true);
+            enterLoading(false);
+            console.log(err)
+          });
         return;
       }
 
       if (!config.is_sql) {
         console.log('Calling ', env.CRAWL_URL);
-        fetch(env.CRAWL_URL, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(elementBody),
-        })
-          //1st solution
-          // .then(res =>
-          //     res.blob()
-          // )
-          // .then(blob => {
-          //     var file = window.URL.createObjectURL(blob);
-          //     window.location.assign(file);
-          // })
-          //2nd
+        setIsCrawlResultFailVisible(false);
+        axiosCrawl
+          .post('/advance', elementBody)
           .then((response) => {
-            if (response.status === 200) {
-              return response.blob();
-            } else {
-              return;
-            }
-          })
-          .then((body) => {
-            downloadjs(body, 'data.json', 'application/octet-stream');
+            console.log('json response ', response.data);
+            setIsCrawlResultVisible(true);
+            setResultDownloadUrl(response.data.data);
+            setIsDownloadButtonDisabled(false);
             enterLoading(false);
           })
-          .catch((e) => {
-            //json is invalid and other e
-            console.log(e);
+          .catch((err) => {
+            setIsCrawlResultFailVisible(true);
+            enterLoading(false);
+            console.log(err)
           });
+        return;
+        // fetch(env.CRAWL_URL, {
+        //   method: 'POST',
+        //   credentials: 'include',
+        //   headers: {
+        //     Accept: 'application/json',
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(elementBody),
+        // })
+        //   //1st solution
+        //   // .then(res =>
+        //   //     res.blob()
+        //   // )
+        //   // .then(blob => {
+        //   //     var file = window.URL.createObjectURL(blob);
+        //   //     window.location.assign(file);
+        //   // })
+        //   //2nd
+        //   .then((response) => {
+        //     if (response.status === 200) {
+        //       return response.blob();
+        //     } else {
+        //       return;
+        //     }
+        //   })
+        //   .then((body) => {
+        //     downloadjs(body, 'data.json', 'application/octet-stream');
+        //     enterLoading(false);
+        //   })
+        //   .catch((e) => {
+        //     //json is invalid and other e
+        //     console.log(e);
+        //   });
       }
     });
   };
@@ -406,6 +430,7 @@ const Show = (props) => {
         />
       </Space>
       {isCrawlResultVisible && <CrawlMsg />}
+      {isCrawlResultFailVisible && <CrawlMsgFail />}
 
       <Modal
         title="Config Crawler"
@@ -442,10 +467,10 @@ const Show = (props) => {
             <InputNumber />
           </Form.Item>
 
-          <Form.Item label="Page load delay (ms)" name="load_delay" rules={[]}>
+          {/* <Form.Item label="Page load delay (ms)" name="load_delay" rules={[]}>
             <InputNumber />
-          </Form.Item>
-          <Form.Item label="Switch" valuePropName="checked" name="is_sql">
+          </Form.Item> */}
+          <Form.Item label="Convert to PostgreSQL" valuePropName="checked" name="is_sql">
             <Switch />
           </Form.Item>
 
@@ -467,7 +492,17 @@ const Show = (props) => {
 
 const CrawlMsg = () => (
   <div className="crawl-result-msg">
-    Scraping finish!
+    <Text type="success">
+      <b>Scraping finish!</b>
+    </Text>
+  </div>
+)
+
+const CrawlMsgFail = () => (
+  <div className="crawl-result-fail-msg">
+    <Text type="danger">
+      <b>Scraping failed, please try again!</b>
+    </Text>
   </div>
 )
 

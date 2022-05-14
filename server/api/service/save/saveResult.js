@@ -7,7 +7,7 @@ async function SaveResult(client, result, generatedFileName) {
   const json = JSON.stringify(result);
   const fileName = path.resolve(
     __dirname,
-    `../../result/${generatedFileName}.txt`
+    `../../../result/${generatedFileName}.txt`
   );
   // const fileName = `/result/test.txt`
   // console.log("r: ", result);

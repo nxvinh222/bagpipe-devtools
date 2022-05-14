@@ -5,7 +5,7 @@ const path = require("path");
 const flatten = require("../../utils/flatten");
 const advanceCrawlService = require("../service/advanceCrawl");
 const { log } = require("console");
-const SaveResult = require("../service/saveResult");
+const SaveResult = require("../service/save/saveResult");
 const { response } = require("express");
 const responseSuccess = require("./response/successResponse");
 // console.log(process.env);
