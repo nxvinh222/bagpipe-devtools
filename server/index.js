@@ -3,6 +3,7 @@ var timeout = require("connect-timeout");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
+const { google } = require('googleapis');
 require("dotenv").config();
 // console.log(process.env);
 
@@ -34,6 +35,64 @@ app.get("/test", function (req, res) {
     console.error("dump failed: ", error.stack);
   }
   responseSuccess(res, null);
+});
+
+
+app.get("/test-sheet", async function (req, res) {
+  // const { request, name } = req.body;
+
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: "https://www.googleapis.com/auth/spreadsheets",
+  });
+
+  // Create client instance for auth
+  const client = await auth.getClient();
+
+  // Instance of Google Sheets API
+  const googleSheets = google.sheets({ version: "v4", auth: client });
+
+  const spreadsheetId = "1C6R4M-3J3awSZZiN1DwXFTmAfPo-Gcr5o-QaSygCdXg";
+
+  // Get metadata about spreadsheet
+  const metaData = await googleSheets.spreadsheets.get({
+    auth,
+    spreadsheetId,
+  });
+
+  // Read rows from spreadsheet
+  const getRows = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Sheet1!A:A",
+  });
+
+  // Write row(s) to spreadsheet
+  await googleSheets.spreadsheets.values.append({
+    auth,
+    spreadsheetId,
+    range: "Sheet1",
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      // values: [{ a: "123", b: "456" }, { a: "321", b: "654" }],
+      values: [["a", "b", "c"]],
+    },
+  });
+  await googleSheets.spreadsheets.values.append({
+    auth,
+    spreadsheetId,
+    range: "Sheet1",
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      // values: [{ a: "123", b: "456" }, { a: "321", b: "654" }],
+      values: [[123, 456, 789], [111, 222, 333]],
+    },
+  });
+
+
+
+  // res.send(metaData);
+  res.send("Successfully submitted! Thank you!");
 });
 
 // Making Express listen on port 7000

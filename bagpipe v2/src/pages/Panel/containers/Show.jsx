@@ -203,7 +203,7 @@ const Show = (props) => {
         console.log('Calling ', env.CRAWL_URL);
         setIsCrawlResultFailVisible(false);
         axiosCrawl
-          .post('/advance', elementBody)
+          .post('/advance?flatten=1', elementBody)
           .then((response) => {
             console.log('json response ', response.data);
             setIsCrawlResultVisible(true);
