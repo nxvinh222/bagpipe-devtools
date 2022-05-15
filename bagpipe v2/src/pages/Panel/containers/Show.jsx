@@ -31,6 +31,7 @@ import { buildBody } from './Utils/bodyBuilder';
 import env from './env';
 import axios from './axios';
 import axiosCrawl from './axiosCrawl';
+import ElementTable from './components/ElementTable';
 const { Text } = Typography;
 
 const Show = (props) => {
@@ -133,104 +134,6 @@ const Show = (props) => {
       catch((err) => console.log("download failed: ", err));
   }
 
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: nameColumn,
-      key: nameColumn,
-      render: (text, record) => {
-        //  check if this attribute an object
-        if (record[typeColumn] != 'object' && record[typeColumn] != 'link')
-          return <div>{text}</div>;
-
-        let urlParams = new URLSearchParams(window.location.search);
-        urlParams.set(fatherIdQuery, record[idColumn]);
-        let path =
-          showRecipeBasicPath + `${recipeId}` + '?' + urlParams.toString();
-        return (
-          <Link
-            to={{ pathname: path }}
-            onClick={() => {
-              getData(record[idColumn]);
-              getBreadCrumbData(record[idColumn]);
-            }}
-          >
-            {text}
-          </Link>
-        );
-      },
-    },
-    {
-      title: 'Type',
-      dataIndex: typeColumn,
-      key: typeColumn,
-      width: '10%',
-      filters: [
-        {
-          text: 'Click',
-          value: 'click',
-        },
-      ],
-      onFilter: (value, record) => record.type.indexOf(value) === 0,
-      sorter: (a, b) => a.type.localeCompare(b.type),
-      render: (type) => (
-        <Tag color={getColor(type)} key={type}>
-          {capitalizeFirstLetter(type)}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Selector',
-      dataIndex: selectorColumn,
-      key: selectorColumn,
-      width: '40%',
-    },
-    // {
-    //     title: 'Multitple',
-    //     key: 'multitple',
-    //     dataIndex: 'multitple',
-    //     render: multiple => (
-    //         <Tag color={multiple == "yes" ? 'green' : 'red'} key={multiple}>
-    //             {multiple.toUpperCase()}
-    //         </Tag>
-    //     ),
-    // },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (text, record) => {
-        let path =
-          editAttrPathWithQuery + `&${elementIdQuery}=${record[idColumn]}`;
-        return (
-          <div>
-            <Button>
-              <Link
-                to={{
-                  pathname: path,
-                }}
-              >
-                Edit
-              </Link>
-            </Button>
-            <Button
-              onClick={() => {
-                axios
-                  .delete(`/api/v1/elements/${record[idColumn]}`)
-                  .then((r) => {
-                    console.log(r);
-                    getData(fatherId);
-                  })
-                  .catch((e) => console.log(e));
-              }}
-            >
-              <a>Delete</a>
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
-
   // new recipe path: /show/newattr?recipeId=1
   let urlParams = new URLSearchParams(window.location.search);
   urlParams.set('recipeId', recipeId);
@@ -314,39 +217,6 @@ const Show = (props) => {
             console.log(err)
           });
         return;
-        // fetch(env.CRAWL_URL, {
-        //   method: 'POST',
-        //   credentials: 'include',
-        //   headers: {
-        //     Accept: 'application/json',
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(elementBody),
-        // })
-        //   //1st solution
-        //   // .then(res =>
-        //   //     res.blob()
-        //   // )
-        //   // .then(blob => {
-        //   //     var file = window.URL.createObjectURL(blob);
-        //   //     window.location.assign(file);
-        //   // })
-        //   //2nd
-        //   .then((response) => {
-        //     if (response.status === 200) {
-        //       return response.blob();
-        //     } else {
-        //       return;
-        //     }
-        //   })
-        //   .then((body) => {
-        //     downloadjs(body, 'data.json', 'application/octet-stream');
-        //     enterLoading(false);
-        //   })
-        //   .catch((e) => {
-        //     //json is invalid and other e
-        //     console.log(e);
-        //   });
       }
     });
   };
@@ -400,24 +270,37 @@ const Show = (props) => {
           {testbread}
         </Breadcrumb>
       </div>
-      <Button type="primary">
-        <Link
-          to={{
-            pathname: newAttrPathWithQuery,
-          }}
-        >
-          New Selector
-        </Link>
-      </Button>
-      <Table
-        rowKey={(row) => row.name}
-        dataSource={selectors}
-        columns={columns}
+      <Space size={8}>
+        <Button type="primary">
+          <Link
+            to={{
+              pathname: newAttrPathWithQuery,
+            }}
+          >
+            New Selector
+          </Link>
+        </Button>
+        <Button>View crawled url list</Button>
+      </Space>
+      <br />
+      <br />
+
+      <ElementTable
+        selectors={selectors}
+        getData={getData}
+        getBreadCrumbData={getBreadCrumbData}
+        idColumn={idColumn}
+        nameColumn={nameColumn}
+        typeColumn={typeColumn}
+        selectorColumn={selectorColumn}
+        fatherIdQuery={fatherIdQuery}
+        elementIdQuery={elementIdQuery}
+        recipeId={recipeId}
       />
 
       <Space size={8}>
         <Button type="primary" loading={loadings[0]} onClick={showModal}>
-          Start Scrapring!
+          Start Crawling!
         </Button>
 
         <Button
