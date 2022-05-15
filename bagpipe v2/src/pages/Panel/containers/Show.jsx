@@ -376,7 +376,7 @@ const Show = (props) => {
 const CrawlMsg = () => (
   <div className="crawl-result-msg">
     <Text type="success">
-      <b>Scraping finish!</b>
+      <b>Crawling finished!</b>
     </Text>
   </div>
 )
@@ -384,7 +384,7 @@ const CrawlMsg = () => (
 const CrawlMsgFail = () => (
   <div className="crawl-result-fail-msg">
     <Text type="danger">
-      <b>Scraping failed, please try again!</b>
+      <b>Crawling failed, please try again!</b>
     </Text>
   </div>
 )
