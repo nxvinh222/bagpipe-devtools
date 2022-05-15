@@ -90,7 +90,7 @@ async function SaveResult(client, result, generatedFileName) {
 
   let dumpLocation = path.resolve(
     __dirname,
-    `../../result/${generatedFileName}.sql`
+    `../../../result/${generatedFileName}.sql`
   );
   try {
     exec(
