@@ -192,12 +192,14 @@ const Show = (props) => {
           .then((response) => {
             console.log('sql response ', response.data);
             setIsCrawlResultVisible(true);
+            setIsCrawlResultFailVisible(false);
             setResultDownloadUrl(response.data.data);
             setIsDownloadButtonDisabled(false);
             enterLoading(false);
           })
           .catch((err) => {
             setIsCrawlResultFailVisible(true);
+            setIsCrawlResultVisible(false);
             enterLoading(false);
             console.log(err);
           });
