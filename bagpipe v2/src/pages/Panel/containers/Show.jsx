@@ -21,7 +21,7 @@ import {
   Breadcrumb,
   Switch,
   Space,
-  Typography
+  Typography,
 } from 'antd';
 import { HomeOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -55,9 +55,11 @@ const Show = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
-  const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] = useState(false);
-  const [resultDownloadUrl, setResultDownloadUrl] = useState("");
-  const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] = useState(true);
+  const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] =
+    useState(false);
+  const [resultDownloadUrl, setResultDownloadUrl] = useState('');
+  const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] =
+    useState(true);
 
   const [crawlConfigForm] = Form.useForm();
   crawlConfigForm.setFieldsValue({
@@ -118,21 +120,24 @@ const Show = (props) => {
   };
 
   const downloadResult = () => {
-    axiosCrawl.
-      get(`/download?filename=${resultDownloadUrl}`, {
+    axiosCrawl
+      .get(`/download?filename=${resultDownloadUrl}`, {
         // include your additional POSTed data here
-        responseType: "blob"
-      }).
-      then(response => {
+        responseType: 'blob',
+      })
+      .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `data.${resultDownloadUrl.split(".")[1]}`);
+        link.setAttribute(
+          'download',
+          `data.${resultDownloadUrl.split('.')[1]}`
+        );
         document.body.appendChild(link);
         link.click();
-      }).
-      catch((err) => console.log("download failed: ", err));
-  }
+      })
+      .catch((err) => console.log('download failed: ', err));
+  };
 
   // new recipe path: /show/newattr?recipeId=1
   let urlParams = new URLSearchParams(window.location.search);
@@ -194,7 +199,7 @@ const Show = (props) => {
           .catch((err) => {
             setIsCrawlResultFailVisible(true);
             enterLoading(false);
-            console.log(err)
+            console.log(err);
           });
         return;
       }
@@ -214,7 +219,7 @@ const Show = (props) => {
           .catch((err) => {
             setIsCrawlResultFailVisible(true);
             enterLoading(false);
-            console.log(err)
+            console.log(err);
           });
         return;
       }
@@ -293,6 +298,7 @@ const Show = (props) => {
         nameColumn={nameColumn}
         typeColumn={typeColumn}
         selectorColumn={selectorColumn}
+        fatherId={fatherId}
         fatherIdQuery={fatherIdQuery}
         elementIdQuery={elementIdQuery}
         recipeId={recipeId}
@@ -353,7 +359,11 @@ const Show = (props) => {
           {/* <Form.Item label="Page load delay (ms)" name="load_delay" rules={[]}>
             <InputNumber />
           </Form.Item> */}
-          <Form.Item label="Convert to PostgreSQL" valuePropName="checked" name="is_sql">
+          <Form.Item
+            label="Convert to PostgreSQL"
+            valuePropName="checked"
+            name="is_sql"
+          >
             <Switch />
           </Form.Item>
 
@@ -379,7 +389,7 @@ const CrawlMsg = () => (
       <b>Crawling finished!</b>
     </Text>
   </div>
-)
+);
 
 const CrawlMsgFail = () => (
   <div className="crawl-result-fail-msg">
@@ -387,9 +397,7 @@ const CrawlMsgFail = () => (
       <b>Crawling failed, please try again!</b>
     </Text>
   </div>
-)
-
-
+);
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
