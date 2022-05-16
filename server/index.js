@@ -3,7 +3,9 @@ var timeout = require("connect-timeout");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
-const { google } = require('googleapis');
+const { google } = require("googleapis");
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+const creds = require("./credentials.json");
 require("dotenv").config();
 // console.log(process.env);
 
@@ -37,59 +39,98 @@ app.get("/test", function (req, res) {
   responseSuccess(res, null);
 });
 
-
 app.get("/test-sheet", async function (req, res) {
-  // const { request, name } = req.body;
+  const doc = new GoogleSpreadsheet(
+    "1C6R4M-3J3awSZZiN1DwXFTmAfPo-Gcr5o-QaSygCdXg"
+  );
+  await doc.useServiceAccountAuth(creds);
+  await doc.loadInfo();
+  const worksheet = doc.sheetsByIndex[0]; // Here, 1st tab on Google Spreadsheet is used.
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: "https://www.googleapis.com/auth/spreadsheets",
-  });
+  // This is from your sample value.
+  const values = [
+    { a: "123", b: "456" },
+    { a: "321", b: "654" },
+  ];
+  await worksheet.setHeaderRow(Object.keys(values[0])); // This is the header row.
+  await worksheet.addRows(values); // Your value is put to the sheet.
+  // // const { request, name } = req.body;
 
-  // Create client instance for auth
-  const client = await auth.getClient();
+  // const auth = new google.auth.GoogleAuth({
+  //   keyFile: "credentials.json",
+  //   scopes: "https://www.googleapis.com/auth/spreadsheets",
+  // });
 
-  // Instance of Google Sheets API
-  const googleSheets = google.sheets({ version: "v4", auth: client });
+  // // Create client instance for auth
+  // const client = await auth.getClient();
 
-  const spreadsheetId = "1C6R4M-3J3awSZZiN1DwXFTmAfPo-Gcr5o-QaSygCdXg";
+  // // Instance of Google Sheets API
+  // const googleSheets = google.sheets({ version: "v4", auth: client });
 
-  // Get metadata about spreadsheet
-  const metaData = await googleSheets.spreadsheets.get({
-    auth,
-    spreadsheetId,
-  });
+  // const spreadsheetId = "1C6R4M-3J3awSZZiN1DwXFTmAfPo-Gcr5o-QaSygCdXg";
 
-  // Read rows from spreadsheet
-  const getRows = await googleSheets.spreadsheets.values.get({
-    auth,
-    spreadsheetId,
-    range: "Sheet1!A:A",
-  });
+  // // Get metadata about spreadsheet
+  // const metaData = await googleSheets.spreadsheets.get({
+  //   auth,
+  //   spreadsheetId,
+  // });
 
-  // Write row(s) to spreadsheet
-  await googleSheets.spreadsheets.values.append({
-    auth,
-    spreadsheetId,
-    range: "Sheet1",
-    valueInputOption: "USER_ENTERED",
-    resource: {
-      // values: [{ a: "123", b: "456" }, { a: "321", b: "654" }],
-      values: [["a", "b", "c"]],
-    },
-  });
-  await googleSheets.spreadsheets.values.append({
-    auth,
-    spreadsheetId,
-    range: "Sheet1",
-    valueInputOption: "USER_ENTERED",
-    resource: {
-      // values: [{ a: "123", b: "456" }, { a: "321", b: "654" }],
-      values: [[123, 456, 789], [111, 222, 333]],
-    },
-  });
+  // // Read rows from spreadsheet
+  // // const getRows = await googleSheets.spreadsheets.values.get({
+  // //   auth,
+  // //   spreadsheetId,
+  // //   range: "Sheet1!A:A",
+  // // });
 
+  // // Create new speadsheet
+  // const title = "test";
+  // const requestBody = {
+  //   properties: {
+  //     title,
+  //   },
+  // };
+  // googleSheets.spreadsheets.create(
+  //   {
+  //     requestBody,
+  //     fields: "spreadsheetId",
+  //   },
+  //   (err, spreadsheet) => {
+  //     if (err) {
+  //       // Handle error.
+  //       console.log(err);
+  //     } else {
+  //       console.log(`Spreadsheet ID: ${spreadsheet.spreadsheetId}`);
+  //     }
+  //   }
+  // );
 
+  // let result = [
+  //   { name: "vinh", school: "hnue" },
+  //   { name: "nam", school: "ltv" },
+  // ];
+
+  // // Write row(s) to spreadsheet
+  // await googleSheets.spreadsheets.values.append({
+  //   auth,
+  //   spreadsheetId,
+  //   range: "Sheet1",
+  //   valueInputOption: "USER_ENTERED",
+  //   resource: {
+  //     values: [Object.keys(result[0])],
+  //   },
+  // });
+  // for (const res of result) {
+  //   await googleSheets.spreadsheets.values.append({
+  //     auth,
+  //     spreadsheetId,
+  //     range: "Sheet1",
+  //     valueInputOption: "USER_ENTERED",
+  //     resource: {
+  //       // values: [{ a: "123", b: "456" }, { a: "321", b: "654" }],
+  //       values: [Object.values(res)],
+  //     },
+  //   });
+  // }
 
   // res.send(metaData);
   res.send("Successfully submitted! Thank you!");

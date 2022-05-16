@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index",
+    "dev": "nodemon --ignore 'result' index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "connect-timeout": "^1.9.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.1",
+    "google-spreadsheet": "^3.3.0",
     "googleapis": "^100.0.0",
     "mssql": "^8.1.0",
     "mysqldump": "^3.2.0",
