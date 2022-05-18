@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore 'result' index",
+    "dev": "nodemon --ignore result/ index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
