@@ -5,7 +5,7 @@ const SaveSheet = require("../service/save/saveSheet");
 const responseSuccess = require("./response/successResponse");
 
 async function advanceCrawlTransport(req, res) {
-  let sheetId = "1C6R4M-3J3awSZZiN1DwXFTmAfPo-Gcr5o-QaSygCdXg";
+  let sheetId = req.body.sheet_id;
   try {
     let result = await advanceCrawlService(req.body);
     console.log("[INFO] Scraping done! Streaming to client!");
@@ -20,7 +20,9 @@ async function advanceCrawlTransport(req, res) {
     // res.end();
     const fileName = `${Date.now()}.json`;
     await SaveJsonResult(result, fileName);
-    await SaveSheet(sheetId, result);
+    if (sheetId != "") {
+      await SaveSheet(sheetId, result);
+    }
     responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);

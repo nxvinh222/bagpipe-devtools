@@ -186,6 +186,7 @@ const Show = (props) => {
       );
       if (config.is_sql) {
         console.log('Calling ', env.CRAWL_URL_SQL);
+        setIsCrawlResultVisible(false);
         setIsCrawlResultFailVisible(false);
         axiosCrawl
           .post('/advance-sql', elementBody)
@@ -361,6 +362,11 @@ const Show = (props) => {
           {/* <Form.Item label="Page load delay (ms)" name="load_delay" rules={[]}>
             <InputNumber />
           </Form.Item> */}
+
+          <Form.Item label="Google Sheet Id" name="sheet_id">
+            <Input placeholder="leave this blank if you don't want to export to google sheet" />
+          </Form.Item>
+
           <Form.Item
             label="Convert to PostgreSQL"
             valuePropName="checked"
@@ -400,28 +406,5 @@ const CrawlMsgFail = () => (
     </Text>
   </div>
 );
-
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-function getColor(type) {
-  switch (type) {
-    case 'object':
-      return 'red';
-    case 'text':
-      return 'gold';
-    case 'link':
-      return 'magenta';
-    case 'click':
-      return 'purple';
-    case 'image':
-      return 'blue';
-    case 'paragraph':
-      return 'green';
-    default:
-      return 'yellow';
-  }
-}
 
 export default Show;

@@ -2,6 +2,7 @@ const { GoogleSpreadsheet } = require("google-spreadsheet");
 const creds = require("../../../credentials.json");
 
 async function SaveSheet(sheetId, result) {
+  console.log("[INFO] Saving result data to sheet: ", sheetId);
   let values;
   for (var key in result) {
     values = result[key];
@@ -19,7 +20,7 @@ async function SaveSheet(sheetId, result) {
     await worksheet.addRows(values); // Your value is put to the sheet.
     console.log("[INFO] Result data saved to sheet: ", sheetId);
   } catch (error) {
-    console.log("[ERROR] Cannot save to sheet: ", error);
+    console.log("[ERROR] Cannot save to sheet");
   }
 }
 
