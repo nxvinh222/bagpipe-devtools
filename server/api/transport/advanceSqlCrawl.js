@@ -8,8 +8,10 @@ const { log } = require("console");
 const SaveResult = require("../service/save/saveResult");
 const { response } = require("express");
 const responseSuccess = require("./response/successResponse");
+const SaveSheet = require("../service/save/saveSheet");
 // console.log(process.env);
 async function advanceSqlCrawlTransport(req, res) {
+  let sheetUrl = req.body.sheet_id;
   const client = new Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -30,15 +32,16 @@ async function advanceSqlCrawlTransport(req, res) {
   }
 
   try {
-    console.log("Request body sql: ", req.body);
+    // console.log("Request body sql: ", req.body);
     let result = await advanceCrawlService(req.body);
-    console.log("Scraping done! Streaming to client!");
+    console.log("[INFO] Scraping done! Saving result!");
     result = flatten(result);
     const fileName = `${Date.now()}`;
     await SaveResult(client, result, fileName);
+    await SaveSheet(sheetUrl, result);
     responseSuccess(res, `${fileName}.sql`);
   } catch (error) {
-    console.log("Scrape failed: ", error);
+    console.log("[ERROR] Scrape failed: ", error);
     res.status(500).send({
       msg: "Scrape failed, please try again!",
       error: error,

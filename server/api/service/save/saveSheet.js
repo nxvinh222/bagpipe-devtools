@@ -1,7 +1,16 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const creds = require("../../../credentials.json");
 
-async function SaveSheet(sheetId, result) {
+async function SaveSheet(sheetUrl, result) {
+  let sheetId;
+  if (sheetUrl.split("/").length >= 6) {
+    sheetId = sheetUrl.split("/")[5];
+  } else {
+    sheetId = "";
+  }
+  if (sheetId == "") {
+    return;
+  }
   console.log("[INFO] Saving result data to sheet: ", sheetId);
   let values;
   for (var key in result) {

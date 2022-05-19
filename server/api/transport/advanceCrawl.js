@@ -5,10 +5,10 @@ const SaveSheet = require("../service/save/saveSheet");
 const responseSuccess = require("./response/successResponse");
 
 async function advanceCrawlTransport(req, res) {
-  let sheetId = req.body.sheet_id;
+  let sheetUrl = req.body.sheet_id;
   try {
     let result = await advanceCrawlService(req.body);
-    console.log("[INFO] Scraping done! Streaming to client!");
+    console.log("[INFO] Scraping done! Saving result!");
     if (req.query.flatten == 1) result = flatten(result);
     // const json = JSON.stringify(result);
     // const buf = Buffer.from(json);
@@ -20,9 +20,7 @@ async function advanceCrawlTransport(req, res) {
     // res.end();
     const fileName = `${Date.now()}.json`;
     await SaveJsonResult(result, fileName);
-    if (sheetId != "") {
-      await SaveSheet(sheetId, result);
-    }
+    await SaveSheet(sheetUrl, result);
     responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);

@@ -330,6 +330,7 @@ const Show = (props) => {
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
+        width="60vw"
       >
         <Form
           name="basic"
@@ -363,7 +364,7 @@ const Show = (props) => {
             <InputNumber />
           </Form.Item> */}
 
-          <Form.Item label="Google Sheet Id" name="sheet_id">
+          <Form.Item label="Google Sheet URL" name="sheet_id">
             <Input placeholder="leave this blank if you don't want to export to google sheet" />
           </Form.Item>
 
