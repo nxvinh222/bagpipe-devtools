@@ -1,4 +1,4 @@
-export const buildBody = (url, selectors, config) => {
+export const buildBody = (data, config) => {
   var body = {
     url: '',
     item_limit: 10,
@@ -7,11 +7,13 @@ export const buildBody = (url, selectors, config) => {
     elements: [],
     sheet_id: 'abc',
   };
-  body.url = url;
+
+  body.url = data.start_url;
+  body.elements = data.elements;
+
   body.item_limit = config['item_limit'];
   body.request_interval = config.request_interval;
   body.load_delay = config.load_delay;
   body.sheet_id = config.sheet_id;
-  body.elements = selectors;
   return body;
 };

@@ -180,8 +180,7 @@ const Show = (props) => {
     enterLoading(true);
     axios.get(`/api/v1/recipes/${recipeId}`).then((response) => {
       const elementBody = buildBody(
-        response.data.data.start_url,
-        response.data.data.elements,
+        response.data.data,
         config
       );
       if (config.is_sql) {
