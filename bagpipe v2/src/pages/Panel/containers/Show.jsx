@@ -32,6 +32,7 @@ import env from './env';
 import axios from './axios';
 import axiosCrawl from './axiosCrawl';
 import ElementTable from './components/ElementTable';
+import CrawlerConfigModal from './components/CrawlerConfigModal';
 const { Text } = Typography;
 
 const Show = (props) => {
@@ -323,70 +324,15 @@ const Show = (props) => {
       {isCrawlResultVisible && <CrawlMsg />}
       {isCrawlResultFailVisible && <CrawlMsgFail />}
 
-      <Modal
-        title="Config Crawler"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={null}
-        width="60vw"
-      >
-        <Form
-          name="basic"
-          form={crawlConfigForm}
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 16,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onFinishConfigCrawler}
-          onFinishFailed={onFinishFailedConfigCrawler}
-          autoComplete="off"
-        >
-          <Form.Item label="Crawl item limit" name="item_limit" rules={[]}>
-            <InputNumber />
-          </Form.Item>
+      <CrawlerConfigModal
+        isModalVisible={isModalVisible}
+        handleOk={handleOk}
+        handleCancel={handleCancel}
+        crawlConfigForm={crawlConfigForm}
+        onFinishConfigCrawler={onFinishConfigCrawler}
+        onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
+      />
 
-          <Form.Item
-            label="Request interval (ms)"
-            name="request_interval"
-            rules={[]}
-          >
-            <InputNumber />
-          </Form.Item>
-
-          {/* <Form.Item label="Page load delay (ms)" name="load_delay" rules={[]}>
-            <InputNumber />
-          </Form.Item> */}
-
-          <Form.Item label="Google Sheet URL" name="sheet_id">
-            <Input placeholder="leave this blank if you don't want to export to google sheet" />
-          </Form.Item>
-
-          <Form.Item
-            label="Convert to PostgreSQL"
-            valuePropName="checked"
-            name="is_sql"
-          >
-            <Switch />
-          </Form.Item>
-
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };

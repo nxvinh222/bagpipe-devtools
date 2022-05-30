@@ -3,10 +3,11 @@ import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { showRecipeBasicPath, editAttrPath } from './constants'
 
-import { Form, Input, Button, Select } from 'antd';
+import { Form, Input, Button, Select, Typography } from 'antd';
 
 import axios from './axios';
 import { data } from './Data/ShowData';
+const { Text } = Typography;
 
 const NewAttr = (props) => {
     const navigate = useNavigate();
@@ -20,6 +21,8 @@ const NewAttr = (props) => {
     const elementId = query.get(elementIdQuery);
     const [element, setElement] = useState('');
     const [currentType, setCurrentType] = useState('');
+    const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] = useState(false);
+    const [createFailMsg, setCreateFailMsg] = useState("");
 
     const [form] = Form.useForm();
 
@@ -135,7 +138,9 @@ const NewAttr = (props) => {
                     let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
                     navigate(path)
                 })
-                .catch(err => console.log(err))
+                .catch(err => {
+                    setFailMsg(err);
+                })
         } else {
             let requestBody = {
                 element_id: parseInt(fatherId),
@@ -161,9 +166,22 @@ const NewAttr = (props) => {
                     let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
                     navigate(path)
                 })
-                .catch(err => console.log(err))
+                .catch(err => {
+                    setFailMsg(err);
+                })
         }
     };
+
+    const setFailMsg = (err) => {
+        console.log("cannot create element: ", err.response.data)
+        if (err.response.data.error_key == "ErrAttributeNameAlreadyExists") {
+            setIsCrawlResultFailVisible(true);
+            setCreateFailMsg("Duplicate element name!");
+        } else {
+            setIsCrawlResultFailVisible(true);
+            setCreateFailMsg("Something wrong happened!");
+        }
+    }
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -275,9 +293,26 @@ const NewAttr = (props) => {
                         Cancel
                     </Button>
                 </Form.Item>
+
+                <Form.Item
+                    wrapperCol={{
+                        offset: 3,
+                        span: 9,
+                    }}
+                >
+                    {isCrawlResultFailVisible && <CrawlMsgFail createFailMsg={createFailMsg} />}
+                </Form.Item>
             </Form>
         </div>
     )
 }
+
+const CrawlMsgFail = (props) => (
+    <div className="crawl-result-fail-msg">
+        <Text type="danger">
+            <b>{props.createFailMsg}</b>
+        </Text>
+    </div>
+);
 
 export default NewAttr

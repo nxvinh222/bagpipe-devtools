@@ -8,8 +8,11 @@ export const buildBody = (data, config) => {
     sheet_id: 'abc',
   };
 
+  body.recipe_id = data.id;
   body.url = data.start_url;
   body.elements = data.elements;
+  body.identifier_attr = data.identifier_attr;
+  body.identifier_list = data.identifier_list;
 
   body.item_limit = config['item_limit'];
   body.request_interval = config.request_interval;
