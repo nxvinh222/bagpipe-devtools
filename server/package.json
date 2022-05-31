@@ -21,8 +21,10 @@
     "googleapis": "^100.0.0",
     "mssql": "^8.1.0",
     "mysqldump": "^3.2.0",
+    "node-fetch": "^3.2.4",
     "pg": "^8.7.3",
     "puppeteer": "^12.0.1",
+    "request": "^2.88.2",
     "simple-hashtable": "^1.0.1",
     "sql": "^0.78.0"
   },
