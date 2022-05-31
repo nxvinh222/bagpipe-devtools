@@ -8,9 +8,9 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     let page = await browser.newPage()
 
     // console.log("e: ", element);
-    console.log("waiting: ", url);
+    console.log("[INFO] waiting: ", url);
     await delay(delayTime);
-    console.log("crawling: ", url);
+    console.log("[INFO] crawling: ", url);
     await page.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
     // await page.setRequestInterception(true)
     // page.on("request", (request) => {

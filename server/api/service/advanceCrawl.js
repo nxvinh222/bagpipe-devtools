@@ -103,9 +103,9 @@ async function advanceCrawlService(request) {
         httpRequest(options, function (error, response, body) {
           if (!error && response.statusCode == 200) {
             // Print out the response body
-            console.log(body)
+            console.log("[INFO] Update recipe succeed")
           } else {
-            console.log(body)
+            console.log("[ERROR] Update recipe failed")
           }
         })
       }
