@@ -51,9 +51,16 @@ const Show = (props) => {
   let { recipeId } = useParams();
   const [loadings, setLoadings] = useState([]);
   const [selectors, setSelectors] = useState([]);
+  const [attrNameList, setAttrNameList] = useState([]);
+  const [identifierAttr, setIdentifierAttr] = useState("");
   const [breadCrumbList, setBreadCrumbList] = useState([]);
   const [recipeName, setRecipeName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [attrNameChangeWarningMsg, setAttrNameChangeWarningMsg] = useState({
+    msg: "",
+    status: ""
+  });
+
 
   const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
   const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] =
@@ -81,6 +88,22 @@ const Show = (props) => {
   };
 
   const getData = (fatherId) => {
+    // get recipe name and all selectors list
+    axios
+      .get(`/api/v1/recipes/${recipeId}?simple=1`)
+      .then((r) => {
+        setRecipeName(r.data.data.name);
+        setAttrNameList(r.data.data.attribute_name_list);
+        if (r.data.data.attribute_name_list.includes(r.data.data.identifier_attr))
+          setIdentifierAttr(r.data.data.identifier_attr);
+        else {
+          setIdentifierAttr(null);
+        }
+      })
+      .catch((e) => console.log(e));
+
+
+    // get selector list
     let url = `/api/v1/recipes/${recipeId}/elements`;
     // console.log(fatherId);
     if (fatherId != 'null' && fatherId != null) {
@@ -151,13 +174,6 @@ const Show = (props) => {
   useEffect(() => {
     getData(fatherId);
     getBreadCrumbData(fatherId);
-    // get recipe name
-    axios
-      .get(`/api/v1/recipes/${recipeId}?simple=1`)
-      .then((r) => {
-        setRecipeName(r.data.data.name);
-      })
-      .catch((e) => console.log(e));
   }, []);
 
   const enterLoading = (status, index = 0) => {
@@ -179,54 +195,77 @@ const Show = (props) => {
   const scrape = (config) => {
     console.log('Scraping!');
     enterLoading(true);
-    axios.get(`/api/v1/recipes/${recipeId}`).then((response) => {
-      const elementBody = buildBody(
-        response.data.data,
-        config
-      );
-      if (config.is_sql) {
-        console.log('Calling ', env.CRAWL_URL_SQL);
-        setIsCrawlResultVisible(false);
-        setIsCrawlResultFailVisible(false);
-        axiosCrawl
-          .post('/advance-sql', elementBody)
-          .then((response) => {
-            console.log('sql response ', response.data);
-            setIsCrawlResultVisible(true);
-            setIsCrawlResultFailVisible(false);
-            setResultDownloadUrl(response.data.data);
-            setIsDownloadButtonDisabled(false);
-            enterLoading(false);
-          })
-          .catch((err) => {
-            setIsCrawlResultFailVisible(true);
-            setIsCrawlResultVisible(false);
-            enterLoading(false);
-            console.log(err);
-          });
-        return;
-      }
 
-      if (!config.is_sql) {
-        console.log('Calling ', env.CRAWL_URL);
-        setIsCrawlResultFailVisible(false);
-        axiosCrawl
-          .post('/advance?flatten=1', elementBody)
-          .then((response) => {
-            console.log('json response ', response.data);
-            setIsCrawlResultVisible(true);
-            setResultDownloadUrl(response.data.data);
-            setIsDownloadButtonDisabled(false);
-            enterLoading(false);
-          })
-          .catch((err) => {
-            setIsCrawlResultFailVisible(true);
-            enterLoading(false);
-            console.log(err);
-          });
-        return;
-      }
-    });
+    // Update identifier before crawl
+    axios.put(`/api/v1/recipes/${recipeId}`, {
+      "identifier_attr": config.identifier_attr,
+    }).then((response) => {
+      // Get recipe full information before crawl
+      axios.get(`/api/v1/recipes/${recipeId}`).then((response) => {
+        // Update identifier state
+        setIdentifierAttr(response.data.data.identifier_attr);
+        setAttrNameChangeWarningMsg({
+          msg: "",
+          status: ""
+        });
+        // Build body
+        const elementBody = buildBody(
+          response.data.data,
+          config
+        );
+        // Crawl and convert to sql
+        if (config.is_sql) {
+          console.log('Calling ', env.CRAWL_URL_SQL);
+          setIsCrawlResultVisible(false);
+          setIsCrawlResultFailVisible(false);
+          axiosCrawl
+            .post('/advance-sql', elementBody)
+            .then((response) => {
+              console.log('sql response ', response.data);
+              setIsCrawlResultVisible(true);
+              setIsCrawlResultFailVisible(false);
+              setResultDownloadUrl(response.data.data);
+              setIsDownloadButtonDisabled(false);
+              enterLoading(false);
+            })
+            .catch((err) => {
+              setIsCrawlResultFailVisible(true);
+              setIsCrawlResultVisible(false);
+              enterLoading(false);
+              console.log(err);
+            });
+          return;
+        }
+
+        // Crawl only
+        if (!config.is_sql) {
+          console.log('Calling ', env.CRAWL_URL);
+          setIsCrawlResultFailVisible(false);
+          axiosCrawl
+            .post('/advance?flatten=1', elementBody)
+            .then((response) => {
+              console.log('json response ', response.data);
+              setIsCrawlResultVisible(true);
+              setResultDownloadUrl(response.data.data);
+              setIsDownloadButtonDisabled(false);
+              enterLoading(false);
+            })
+            .catch((err) => {
+              setIsCrawlResultFailVisible(true);
+              setIsCrawlResultVisible(false);
+              enterLoading(false);
+              console.log(err);
+            });
+          return;
+        }
+      });
+    }).catch(err => {
+      setIsCrawlResultFailVisible(true);
+      setIsCrawlResultVisible(false);
+      enterLoading(false);
+      console.log(err);
+    })
+
   };
 
   const threedot = (function () {
@@ -331,6 +370,11 @@ const Show = (props) => {
         crawlConfigForm={crawlConfigForm}
         onFinishConfigCrawler={onFinishConfigCrawler}
         onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
+        attrNameList={attrNameList}
+        identifierAttr={identifierAttr}
+        setIdentifierAttr={setIdentifierAttr}
+        attrNameChangeWarningMsg={attrNameChangeWarningMsg}
+        setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
       />
 
     </div>

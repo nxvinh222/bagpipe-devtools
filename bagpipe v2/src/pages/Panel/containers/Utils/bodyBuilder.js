@@ -18,5 +18,6 @@ export const buildBody = (data, config) => {
   body.request_interval = config.request_interval;
   body.load_delay = config.load_delay;
   body.sheet_id = config.sheet_id;
+  body.exclude = config.exclude;
   return body;
 };

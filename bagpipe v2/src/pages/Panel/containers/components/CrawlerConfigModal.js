@@ -10,6 +10,8 @@ import {
 } from 'antd';
 
 const CrawlerConfigModal = (props) => {
+    const warningMsg = "If you change this field, information about previous running will be lost";
+    const [disableAttributeDropdown, setDisableAttributeDropdow] = useState(true);
 
     return (
         <Modal
@@ -64,24 +66,50 @@ const CrawlerConfigModal = (props) => {
                     <Switch />
                 </Form.Item>
 
-                {/* <Form.Item
-                    name="type"
-                    label="Type"
+                <Form.Item
+                    label="Exclude crawled data"
+                    valuePropName="checked"
+                    name="exclude"
+                >
+                    <Switch onChange={(value) => {
+                        setDisableAttributeDropdow(!value)
+                    }} />
+                </Form.Item>
+                <Form.Item
+                    name="identifier_attr"
+                    label="Identifier attribute"
                     rules={[
                         {
-                            required: true,
+                            required: false,
                         },
                     ]}
+                    validateStatus={props.attrNameChangeWarningMsg.status} help={props.attrNameChangeWarningMsg.msg}
                 >
                     <Select
-                        placeholder="Select type of data you want to scrape"
+                        placeholder="Select the selector you want to choose as an identifier to distinguish data records"
                         onChange={(value) => {
+                            if (props.identifierAttr != null && value != props.identifierAttr) {
+                                props.setAttrNameChangeWarningMsg({
+                                    msg: warningMsg,
+                                    status: "warning"
+                                });
+                            } else {
+                                props.setAttrNameChangeWarningMsg({
+                                    msg: "",
+                                    status: ""
+                                });
+                            }
                         }}
                         allowClear
+                        defaultValue={props.identifierAttr}
+                        disabled={disableAttributeDropdown}
                     >
-                        <Option value="object">Object</Option>
+                        {props.attrNameList.map((attr, index) => (
+                            <Option value={attr}>{attr}</Option>
+                        ))}
+                        {/* <Option value="object">Object</Option> */}
                     </Select>
-                </Form.Item> */}
+                </Form.Item>
 
                 <Form.Item
                     wrapperCol={{
@@ -90,7 +118,7 @@ const CrawlerConfigModal = (props) => {
                     }}
                 >
                     <Button type="primary" htmlType="submit">
-                        Submit
+                        Start Crawling!
                     </Button>
                 </Form.Item>
             </Form>
