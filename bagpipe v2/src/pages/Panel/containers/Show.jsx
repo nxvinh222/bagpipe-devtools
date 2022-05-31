@@ -195,6 +195,8 @@ const Show = (props) => {
   const scrape = (config) => {
     console.log('Scraping!');
     enterLoading(true);
+    setIsCrawlResultVisible(false);
+    setIsCrawlResultFailVisible(false);
 
     // Update identifier before crawl
     axios.put(`/api/v1/recipes/${recipeId}`, {
@@ -216,8 +218,6 @@ const Show = (props) => {
         // Crawl and convert to sql
         if (config.is_sql) {
           console.log('Calling ', env.CRAWL_URL_SQL);
-          setIsCrawlResultVisible(false);
-          setIsCrawlResultFailVisible(false);
           axiosCrawl
             .post('/advance-sql', elementBody)
             .then((response) => {
@@ -240,7 +240,6 @@ const Show = (props) => {
         // Crawl only
         if (!config.is_sql) {
           console.log('Calling ', env.CRAWL_URL);
-          setIsCrawlResultFailVisible(false);
           axiosCrawl
             .post('/advance?flatten=1', elementBody)
             .then((response) => {
