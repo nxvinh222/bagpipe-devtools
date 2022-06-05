@@ -1,33 +1,36 @@
 .hova {
-    background-color: lightblue;
+  background-color: lightblue !important;
 }
 
 .click-hova {
-    background-color: pink;
+  background-color: pink !important;
 }
 
 
 .select-panel {
-    background: transparent;
-    background-color: white !important;
-    border: none;
-    position: fixed;
-    left: 10px;
-    bottom: 10px;
-    height: 50px;
-    width: 620px;
+  background: transparent;
+  background-color: white !important;
+  border: none;
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  height: 50px;
+  width: 620px;
+  z-index: 9999;
+  padding: 1%;
 }
 
-.select-panel{
-    display: none;
+.select-panel {
+  display: none;
 }
 
-.bagpipe-scrape-inject{
+.bagpipe-scrape-inject {
   display: none;
 }
 
 /* CSS */
-.bagpipe-finish, .bagpipe-scrape-inject {
+.bagpipe-finish,
+.bagpipe-scrape-inject {
   align-items: center;
   appearance: button;
   background-color: #0276FF;
@@ -37,7 +40,7 @@
   box-sizing: border-box;
   color: #fff;
   cursor: pointer;
-  font-family: "RM Neue",sans-serif;
+  font-family: "RM Neue", sans-serif;
   font-size: 100%;
   line-height: 1.15;
   margin: 0;
@@ -49,54 +52,57 @@
   touch-action: manipulation;
 }
 
-.bagpipe-finish:active, .bagpipe-scrape-inject:active {
+.bagpipe-finish:active,
+.bagpipe-scrape-inject:active {
   background-color: #006AE8;
 }
 
-.bagpipe-finish:hover, .bagpipe-scrape-inject:hover {
+.bagpipe-finish:hover,
+.bagpipe-scrape-inject:hover {
   background-color: #1C84FF;
 }
 
 
-.navigator-container{
-    position: fixed;
-    top:0;
-    z-index: 999999 !important;
-    background: #fff;
-    width: 100%;
+.navigator-container {
+  position: fixed;
+  top: 0;
+  z-index: 999999 !important;
+  background: #fff;
+  width: 100%;
 
-    display: flex;
-    justify-content: center;
-    padding: 0.5%;
-    padding-left: 10%;
-    padding-right: 10%;
+  display: flex;
+  justify-content: center;
+  padding: 0.5%;
+  padding-left: 10%;
+  padding-right: 10%;
 }
 
-.attr-outer, #attr-con {
-    /* display: flex; */
-    align-items: center;    
-    height: 100%;
+.attr-outer,
+#attr-con {
+  /* display: flex; */
+  align-items: center;
+  height: 100%;
 }
 
 #attr-con {
-    justify-content: start;
-    /* overflow-x: auto; */
-    overflow-y: auto;
-    /* width: 500px; */
+  justify-content: start;
+  /* overflow-x: auto; */
+  overflow-y: auto;
+  /* width: 500px; */
 }
 
 .selected-attr {
-    display: block;
+  display: block;
 }
 
 .attr-outer {
-    display: block;
-    align-self: center
+  display: block;
+  align-self: center
 }
 
 .attr-input {
-    margin: 1px;
-    border-style: groove;
+  margin: 1px;
+  border-style: groove;
 }
 
 /* CSS */
@@ -111,7 +117,7 @@
   color: #fff;
   cursor: pointer;
   display: inline-flex;
-  font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   font-weight: 600;
   justify-content: center;
@@ -146,8 +152,8 @@
   transform: translateY(0);
 }
 
-.bp-guide{
-    display:inline-block;
-    color: #c85000;
-    font-size: 16px;
+.bp-guide {
+  display: inline-block;
+  color: #c85000;
+  font-size: 16px;
 }

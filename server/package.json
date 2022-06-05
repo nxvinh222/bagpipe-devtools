@@ -4,16 +4,29 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index",
+    "dev": "nodemon --ignore result/ index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ronomon/hash-table": "^2.0.8",
+    "@shagital/db-dumper": "^1.0.2",
+    "child_process": "^1.0.2",
     "connect-timeout": "^1.9.0",
+    "dotenv": "^16.0.0",
     "express": "^4.17.1",
-    "puppeteer": "^12.0.1"
+    "google-spreadsheet": "^3.3.0",
+    "googleapis": "^100.0.0",
+    "mssql": "^8.1.0",
+    "mysqldump": "^3.2.0",
+    "node-fetch": "^3.2.4",
+    "pg": "^8.7.3",
+    "puppeteer": "^12.0.1",
+    "request": "^2.88.2",
+    "simple-hashtable": "^1.0.1",
+    "sql": "^0.78.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

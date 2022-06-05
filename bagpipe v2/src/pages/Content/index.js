@@ -36,6 +36,7 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     $('.bagpipe-scrape-inject').on('click', () => {
         $(".select-panel").css("display", "block");
         $('body').children().on("mouseover.selectElement", function (e) {
+            e.preventDefault();
             if (extension_element.includes(e.target.className)) return false
             $(".hova").removeClass("hova");
             $(e.target).addClass("hova");
@@ -44,23 +45,8 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
             $(this).removeClass("hova");
         });
 
-        $('body').children().on("click.selectElement", function (event) {
-            if (extension_element.includes(event.target.className)) return false
-            event.preventDefault()
-            console.log("prevent default");
-            $(".hova").removeClass("hova");
-            $(".click-hova").removeClass("click-hova");
-            // console.log(getCssSelector(event.target));
-            if (selected_element.length == 2)
-                selected_element = [];
-
-            selected_element.push(event.target)
-            current_element = String(getCssSelector(selected_element))
-            final_element = getSimilarElement(selected_element)
-            if (selected_element.length < 2)
-                $(current_element).addClass("click-hova");
-            else
-                $(final_element).addClass("click-hova");
+        $('body').children().on("contextmenu.selectElement", function (event) {
+            handleClick(event)
         });
         console.log("turned on");
     })
@@ -69,8 +55,42 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
 function removeSelector() {
     selected_element = []
     $('body').children().off("mouseover.selectElement");
-    $('body').children().off("click.selectElement");
+    $('body').children().off("contextmenu.selectElement");
     $(".click-hova").removeClass("click-hova");
     $(".hova").removeClass("hova");
     $(".select-panel").css("display", "none");
+}
+
+function handleClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("selected e: ", selected_element);
+    if (extension_element.includes(event.target.className)) return false
+    $(".hova").removeClass("hova");
+    $(".click-hova").removeClass("click-hova");
+    if (selected_element.length == 2)
+        selected_element = [];
+
+    if (selected_element.length >= 1) {
+        selected_element.push(event.target)
+        final_element = getSimilarElement(selected_element)
+        $(final_element).addClass("click-hova");
+    }
+    else {
+        console.log("here: ", event.target.className);
+        selected_element.push(event.target)
+
+        final_element = String(getCssSelector(
+            selected_element,
+            {
+                // combineWithinSelector: true,
+                // combineBetweenSelectors: true,
+                // includeTag: true,
+                // maxCandidates: 10,
+                selectors: ['class', 'nthchild'],
+            }
+        ))
+        console.log("aa: ", final_element);
+        $(final_element).addClass("click-hova");
+    }
 }

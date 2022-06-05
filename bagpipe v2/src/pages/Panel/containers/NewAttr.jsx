@@ -1,19 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { showRecipeBasicPath } from './constants'
+import { showRecipeBasicPath, editAttrPath } from './constants'
 
-import { Form, Input, Button, Select } from 'antd';
+import { Form, Input, Button, Select, Typography } from 'antd';
+
+import axios from './axios';
+import { data } from './Data/ShowData';
+const { Text } = Typography;
 
 const NewAttr = (props) => {
     const navigate = useNavigate();
     const useQuery = () => new URLSearchParams(useLocation().search);
     let query = useQuery();
 
-    const recipeId = query.get('recipeId')
-    const [element, setElement] = useState('Element haven\'t selected yet!')
+    const fatherIdQuery = 'fatherId';
+    const fatherId = query.get(fatherIdQuery);
+    const recipeId = query.get('recipeId');
+    const elementIdQuery = 'elementId';
+    const elementId = query.get(elementIdQuery);
+    const [element, setElement] = useState('');
+    const [currentType, setCurrentType] = useState('');
+    const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] = useState(false);
+    const [createFailMsg, setCreateFailMsg] = useState("");
+
+    const [form] = Form.useForm();
 
     const showRecipePath = showRecipeBasicPath + recipeId
+
+    // Check if this is an edit form
+    let isEdit = false;
+    if (window.location.href.toString().split(window.location.host)[1].startsWith(editAttrPath)) {
+        isEdit = true;
+        console.log("This is edit element form!");
+    }
+
+
 
     // Create a connection to the background page
     var backgroundPageConnection = chrome.runtime.connect({
@@ -28,10 +50,43 @@ const NewAttr = (props) => {
     useEffect(() => {
         // get data from content script through background
         backgroundPageConnection.onMessage.addListener(function (request, sender, sendResponse) {
-            if (request.action == "set-selected-element")
-                setElement(request.data);
+            if (request.action == "set-selected-element") {
+                if (currentType == "image-auto") {
+                    setElement(request.data + " img")
+                }
+                else {
+                    setElement(request.data);
+                }
+            }
         });
+
+
+        // if (isEdit) {
+        //     form.setFieldsValue({
+        //         name: 'Hi, man!',
+        //     });
+        // }
     });
+
+    useEffect(() => {
+        if (isEdit) {
+            let url = `/api/v1/elements/${elementId}`
+
+            axios.
+                get(url).
+                then(response => {
+                    // console.log(response.data.data);
+
+                    form.setFieldsValue({
+                        name: response.data.data.name,
+                        type: response.data.data.type,
+                    });
+
+                    setElement(response.data.data.selector)
+                })
+                .catch(err => console.log(err))
+        }
+    }, []);
 
     const selectElementScript = function () {
         $(".bagpipe-scrape-inject").trigger('click');
@@ -66,22 +121,67 @@ const NewAttr = (props) => {
 
     const onFinish = (values) => {
         // console.log('Success:', values);
-        chrome.storage.sync.get("recipes", function (res) {
-            let tempRecipes = res.recipes
-            console.log("old recipe: ", res.recipes);
-
-            tempRecipes[`${recipeId}`].push({
+        if (isEdit) {
+            let updateBody = {
                 name: values.name,
                 selector: element,
-                type: "Text",
+                type: values.type,
+            }
+
+            axios.
+                put(`/api/v1/elements/${elementId}`, updateBody).
+                then(response => {
+                    console.log(response);
+
+                    let urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set(fatherIdQuery, fatherId);
+                    let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                    navigate(path)
+                })
+                .catch(err => {
+                    setFailMsg(err);
+                })
+        } else {
+            let requestBody = {
+                element_id: parseInt(fatherId),
+                name: values.name,
+                selector: element,
+                type: values.type,
                 multitple: "yes",
-            })
-            chrome.storage.sync.set({ "recipes": tempRecipes }, function () {
-                console.log("new recipe setted: ", tempRecipes);
-                navigate(showRecipePath)
-            });
-        });
+            }
+            if (requestBody.element_id == "null") {
+                delete requestBody.element_id
+            }
+            axios.
+                post(`/api/v1/recipes/${recipeId}/elements`, {
+                    elements: [
+                        requestBody
+                    ]
+                }).
+                then(response => {
+                    console.log(response);
+
+                    let urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set(fatherIdQuery, fatherId);
+                    let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+                    navigate(path)
+                })
+                .catch(err => {
+                    setFailMsg(err);
+                })
+        }
     };
+
+    const setFailMsg = (err) => {
+        console.log("cannot create element: ", err.response.data)
+        if (err.response.data.error_key == "ErrAttributeNameAlreadyExists") {
+            setIsCrawlResultFailVisible(true);
+            setCreateFailMsg("Duplicate element name!");
+        } else {
+            setIsCrawlResultFailVisible(true);
+            setCreateFailMsg("Something wrong happened!");
+        }
+    }
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -96,6 +196,7 @@ const NewAttr = (props) => {
             <div>Select a new Attribute by clicking "Select Element"</div>
             <Form
                 name="basic"
+                form={form}
                 labelCol={{
                     span: 3,
                 }}
@@ -133,15 +234,24 @@ const NewAttr = (props) => {
                 >
                     <Select
                         placeholder="Select type of data you want to scrape"
-
+                        onChange={(value) => {
+                            setCurrentType(value)
+                            if (value == "image-auto" && element.slice(-3) != "img")
+                                setElement(element + " img")
+                        }}
                         allowClear
                     >
+                        <Option value="object">Object</Option>
                         <Option value="text">Text</Option>
                         <Option value="link">Link</Option>
-                        <Option value="popup-link">Popup Link</Option>
+                        <Option value="image">Image</Option>
+                        <Option value="image-auto">Image <b>(Auto scan)</b></Option>
+                        <Option value="paragraph">Paragraph</Option>
+                        <Option value="click">Click <b>(Action)</b></Option>
+                        {/* <Option value="popup-link">Popup Link</Option>
                         <Option value="table">Table</Option>
                         <Option value="html">Html</Option>
-                        <Option value="attribute">Attribute Tag</Option>
+                        <Option value="attribute">Attribute Tag</Option> */}
                     </Select>
                 </Form.Item>
 
@@ -183,9 +293,26 @@ const NewAttr = (props) => {
                         Cancel
                     </Button>
                 </Form.Item>
+
+                <Form.Item
+                    wrapperCol={{
+                        offset: 3,
+                        span: 9,
+                    }}
+                >
+                    {isCrawlResultFailVisible && <CrawlMsgFail createFailMsg={createFailMsg} />}
+                </Form.Item>
             </Form>
         </div>
     )
 }
+
+const CrawlMsgFail = (props) => (
+    <div className="crawl-result-fail-msg">
+        <Text type="danger">
+            <b>{props.createFailMsg}</b>
+        </Text>
+    </div>
+);
 
 export default NewAttr

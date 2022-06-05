@@ -75,10 +75,10 @@ var options = {
       },
       {
         test: new RegExp('.(' + fileExtensions.join('|') + ')$'),
-        loader: 'asset/resource',
-        options: {
-          name: '[name].[ext]',
-        },
+        type: 'asset/resource',
+        // options: {
+        //   name: '[name].[ext]',
+        // },
         exclude: /node_modules/,
       },
       {

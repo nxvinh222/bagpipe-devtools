@@ -5,39 +5,29 @@ import { basePath } from './constants'
 import 'antd/dist/antd.css';
 import { Form, Input, Button, Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
+import axios from './axios';
 
 const New = (props) => {
+    const nameColumn = "name"
+    const urlColumn = "start_url"
+    const noteColumn = "note"
+
     var showRecipePath = basePath + "/show/"
     const navigate = useNavigate();
 
     const onFinish = (values) => {
-        chrome.storage.sync.get("crawlers", function (res) {
-            showRecipePath += values.id;
-            let tempCrawlers = res.crawlers || [];
-            console.log("old crawlers: ", res.crawlers);
-
-            tempCrawlers.unshift({
-                id: values.id,
-                domain: values.domain,
-                comment: values.comment,
-            });
-            console.log("new crawlers: ", tempCrawlers);
-            chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
-                console.log("new crawlers setted: ", tempCrawlers);
-
-                //create blank recipe in storage
-                chrome.storage.sync.get("recipes", function (res) {
-                    let tempRecipes = res.recipes;
-                    tempRecipes[`${values.id}`] = [];
-                    chrome.storage.sync.set({ "recipes": tempRecipes }, () => {
-                        navigate(basePath)
-                    });
-                });
-
-            });
-
-
-        });
+        axios.
+            post(`/api/v1/recipes`, {
+                [nameColumn]: values[nameColumn],
+                [urlColumn]: values[urlColumn],
+                [noteColumn]: values[noteColumn],
+            }
+            ).
+            then(response => {
+                console.log(response);
+                navigate(basePath)
+            })
+            .catch(err => console.log(err))
     };
 
     const onFinishFailed = (errorInfo) => {
@@ -68,12 +58,12 @@ const New = (props) => {
                 autoComplete="off"
             >
                 <Form.Item
-                    label="ID"
-                    name="id"
+                    label="Name"
+                    name={nameColumn}
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your ID!',
+                            message: 'Please input your recipe name!',
                         },
                     ]}
                 >
@@ -82,11 +72,11 @@ const New = (props) => {
 
                 <Form.Item
                     label="Domain"
-                    name="domain"
+                    name={urlColumn}
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your domain!',
+                            message: 'Please input your start url!',
                         },
                     ]}
                 >
@@ -94,12 +84,11 @@ const New = (props) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Comment"
-                    name="comment"
+                    label="Note"
+                    name={noteColumn}
                     rules={[
                         {
-                            required: true,
-                            message: 'Please input your comment!!',
+                            required: false,
                         },
                     ]}
                     wrapperCol={{

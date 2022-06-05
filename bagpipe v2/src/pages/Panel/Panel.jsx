@@ -13,7 +13,7 @@ const Panel = () => {
   const newRecipePath = myConsts.newRecipePath;
   const showRecipePath = myConsts.showRecipePath;
   const newAttrPath = myConsts.newAttrPath;
-  const showRecipeBasicPath = myConsts.showRecipeBasicPath;
+  const editAttrPath = myConsts.editAttrPath;
 
   return (
     <div className='bagpipe-root'>
@@ -32,6 +32,10 @@ const Panel = () => {
         />
         <Route
           path={newAttrPath}
+          element={<NewAttr />}
+        />
+        <Route
+          path={editAttrPath}
           element={<NewAttr />}
         />
       </Routes>
