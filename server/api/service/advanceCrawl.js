@@ -69,7 +69,9 @@ async function advanceCrawlService(request) {
             delayTime
           );
           // update hash
-          [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
+          if (request.exclude) {
+            [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
+          }
           // concat value
           crawlResult[element.name] = crawlResult[element.name].concat(result);
 
