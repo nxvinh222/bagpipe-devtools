@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css';
 import './css/Home.css';
-import { basePath, newRecipePath, showRecipeBasicPath } from './constants';
+import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
 import { Table, Button, Breadcrumb, Typography } from 'antd';
 import { AliwangwangOutlined } from '@ant-design/icons';
@@ -18,7 +18,6 @@ const Home = (props) => {
   //     },
   // ]
   const [crawlers, setCrawlers] = useState([]);
-  const idNameColumn = 'id';
   const nameColumn = 'name';
   const urlColumn = 'start_url';
   const commentColumn = 'note';
@@ -30,7 +29,7 @@ const Home = (props) => {
       .then((response) => {
         // console.log(response.data.data);
         let recipes = response.data.data.map((recipe) => ({
-          [idNameColumn]: recipe[idNameColumn],
+          [idColumn]: recipe[idColumn],
           [nameColumn]: recipe[nameColumn],
           [urlColumn]: recipe[urlColumn],
           [commentColumn]: recipe[commentColumn],
@@ -73,30 +72,44 @@ const Home = (props) => {
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
-        <Button
-          onClick={() => {
-            axios
-              .delete(`/api/v1/recipes/${record[idNameColumn]}`)
-              .then((r) => {
-                console.log(r);
-                getData();
-              })
-              .catch((e) => console.log(e));
-            // var tempCrawlers = crawlers;
-            // tempCrawlers = tempCrawlers.filter((crawler) => {
-            //     return crawler.id != record.id
-            // })
+      render: (text, record) => {
+        let editPath = editRecipePath + `?${recipeIdQuery}=${record[idColumn]}`
+        return (
+          <div>
+            <Button>
+              <Link
+                to={{
+                  pathname: editPath,
+                }}
+              >
+                Edit
+              </Link>
+            </Button>
+            <Button
+              onClick={() => {
+                axios
+                  .delete(`/api/v1/recipes/${record[idColumn]}`)
+                  .then((r) => {
+                    console.log(r);
+                    getData();
+                  })
+                  .catch((e) => console.log(e));
+                // var tempCrawlers = crawlers;
+                // tempCrawlers = tempCrawlers.filter((crawler) => {
+                //     return crawler.id != record.id
+                // })
 
-            // chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
-            //     console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
-            //     // setCrawlers(tempCrawlers)
-            // });
-          }}
-        >
-          <a>Delete</a>
-        </Button>
-      ),
+                // chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
+                //     console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
+                //     // setCrawlers(tempCrawlers)
+                // });
+              }}
+            >
+              <a>Delete</a>
+            </Button>
+          </div>
+        )
+      },
     },
   ];
 

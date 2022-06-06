@@ -11,6 +11,7 @@ import NewAttr from './containers/NewAttr';
 const Panel = () => {
   const basePath = myConsts.basePath;
   const newRecipePath = myConsts.newRecipePath;
+  const editRecipePath = myConsts.editRecipePath;
   const showRecipePath = myConsts.showRecipePath;
   const newAttrPath = myConsts.newAttrPath;
   const editAttrPath = myConsts.editAttrPath;
@@ -24,6 +25,10 @@ const Panel = () => {
         />
         <Route
           path={newRecipePath}
+          element={<New />}
+        />
+        <Route
+          path={editRecipePath}
           element={<New />}
         />
         <Route
