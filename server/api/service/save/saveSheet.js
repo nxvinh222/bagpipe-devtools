@@ -38,7 +38,7 @@ async function SaveSheet(sheetUrl, result) {
     console.log("[INFO] Result data saved to sheet: ", sheetId);
   } catch (error) {
     console.log("[ERROR] Cannot save to sheet");
-    throw error
+    throw error;
   }
 }
 
