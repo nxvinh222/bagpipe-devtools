@@ -15,7 +15,16 @@ var flattenJSON = (function (isArray, wrapped) {
                 //     if (wrapped(item) !== item) accumulator[property] = item;
                 //     else reduce(property, accumulator, item);
                 // }
-                accumulator[path] = table.join("\\n");
+                if (typeof table[0] === "object") {
+                    table = table.map((v) => {
+                        return JSON.stringify(v)
+                    })
+                    accumulator[path] = table.join(",");
+                    accumulator[path] = "[" + accumulator[path] + "]"
+                } else {
+                    accumulator[path] = table.join(",");
+                    accumulator[path] = "[" + accumulator[path] + "]"
+                }
             } else accumulator[path] = table;
         } else {
             var empty = true;

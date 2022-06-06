@@ -9,18 +9,15 @@ async function advanceCrawlTransport(req, res) {
   try {
     let result = await advanceCrawlService(req.body);
     console.log("[INFO] Scraping done! Saving result!");
-    // if (req.query.flatten == 1) result = flatten(result);
-    // const json = JSON.stringify(result);
-    // const buf = Buffer.from(json);
-    // res.writeHead(200, {
-    //     'Content-Type': 'application/octet-stream',
-    //     'Content-disposition': 'attachment; filename=data.json'
-    // });
-    // res.write(buf);
-    // res.end();
+
+    try {
+      await SaveSheet(sheetUrl, flatten(result));
+    } catch (error) {
+      console.log("[ERROR] Cannot save to sheet");
+    }
+
     const fileName = `${Date.now()}.json`;
     await SaveJsonResult(result, fileName);
-    await SaveSheet(sheetUrl, flatten(result));
     responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);

@@ -9,6 +9,7 @@ const SaveResult = require("../service/save/saveResult");
 const { response } = require("express");
 const responseSuccess = require("./response/successResponse");
 const SaveSheet = require("../service/save/saveSheet");
+const SaveJsonResult = require("../service/save/saveJsonResult");
 // console.log(process.env);
 async function advanceSqlCrawlTransport(req, res) {
   let sheetUrl = req.body.sheet_id;
@@ -35,11 +36,22 @@ async function advanceSqlCrawlTransport(req, res) {
     // console.log("Request body sql: ", req.body);
     let result = await advanceCrawlService(req.body);
     console.log("[INFO] Scraping done! Saving result!");
-    result = flatten(result);
+
+    try {
+      await SaveSheet(sheetUrl, flatten(result));
+    } catch (error) {
+      console.log("[ERROR] Cannot save to sheet");
+    }
+
     const fileName = `${Date.now()}`;
-    await SaveResult(client, result, fileName);
-    await SaveSheet(sheetUrl, result);
-    responseSuccess(res, `${fileName}.sql`);
+    try {
+      await SaveResult(client, flatten(result), fileName);
+      responseSuccess(res, `${fileName}.sql`);
+    } catch (error) {
+      console.log("[ERROR] Cannot save as sql file");
+      await SaveJsonResult(result, `${fileName}.json`);
+      responseSuccess(res, `${fileName}.json`);
+    }
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);
     res.status(500).send({

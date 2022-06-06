@@ -357,7 +357,9 @@ const Show = (props) => {
           size="medium"
           disabled={isDownloadButtonDisabled}
           onClick={downloadResult}
-        />
+        >
+          Download result file
+        </Button>
       </Space>
       {isCrawlResultVisible && <CrawlMsg />}
       {isCrawlResultFailVisible && <CrawlMsgFail />}
