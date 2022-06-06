@@ -4,7 +4,16 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     let keyList = []
     let resultKey
     let resultValue
-    let nextLink
+    let nextLink = []
+    let childObjectResult
+    let resultTmp
+    let resultInLinkTmp
+    let nextLinkTmp
+    let returnedNextLink
+    // list of link to go next
+    let nextLinkStack;
+    // link of added link (checking purpose only)
+    let nextLinkList = [];
     let page = await browser.newPage()
 
     // console.log("e: ", element);
@@ -21,7 +30,42 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
-                childObjectResult = (await crawlSinglePage(browser, url, childElement, delayTime))[0]
+                resultTmp = await crawlSinglePage(browser, url, childElement, delayTime)
+                childObjectResult = resultTmp[0]
+                nextLinkStack = resultTmp[1]
+
+                //-------------
+                // remove duplicate link
+                nextLinkStack = [...new Set(nextLinkStack)];
+                // copy
+                nextLinkList = nextLinkStack.slice();
+
+                while (true) {
+                    // console.log("link stack", nextLinkStack);
+                    // get next link
+                    nextLinkTmp = nextLinkStack.pop();
+                    // check if this is an invalid link
+                    if (!isValidHttpUrl(nextLinkTmp)) break;
+                    [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
+                        browser,
+                        nextLinkTmp,
+                        element,
+                        delayTime
+                    );
+
+                    // concat value
+                    childObjectResult = childObjectResult.concat(resultInLinkTmp[0][childElement.name]);
+
+                    // push returned link into next link stack
+                    for (const next of returnedNextLink) {
+                        if (!nextLinkList.includes(next)) {
+                            nextLinkStack.push(next);
+                            nextLinkList.push(next);
+                        }
+                    }
+                }
+                //------------
+
                 resultKey = childElement.name
                 resultValue = childObjectResult
                 // crawlResult[childElement.name] = childObjectResult
@@ -130,7 +174,8 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 // Treat this the same as an object type
                 let crawledGotoResult = []
                 await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                    childObjectResult = (await crawlSinglePage(browser, crawledElement, childElement, delayTime * index))[0]
+                    resultTmp = await crawlSinglePage(browser, crawledElement, childElement, delayTime * index)
+                    childObjectResult = resultTmp[0]
                     // Must use element because crawl function will return in correct order
                     crawledGotoResult[index] = childObjectResult
                 }))
@@ -211,6 +256,18 @@ function delay(time) {
     return new Promise(function (resolve) {
         setTimeout(resolve, time);
     });
+}
+
+function isValidHttpUrl(string) {
+    let url;
+
+    try {
+        url = new URL(string);
+    } catch (_) {
+        return false;
+    }
+
+    return url.protocol === "http:" || url.protocol === "https:";
 }
 
 

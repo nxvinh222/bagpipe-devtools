@@ -29,7 +29,7 @@ async function advanceCrawlService(request) {
   let identifierAttr = request.identifier_attr;
   let identifierList = request.identifier_list;
   let recipeId = request.recipe_id;
-  if (size == null) size = 5;
+  if (size == null) size = 10;
 
   await Promise.all(
     request.elements.map(async (element) => {
