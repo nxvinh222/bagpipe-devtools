@@ -1,4 +1,24 @@
+@import "~antd/dist/antd.css";
+
 .bagpipe-root {
   padding: 10px;
   margin: 0 1em 0 1em;
+}
+
+.logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.site-layout-sub-header-background {
+  background: #fff;
+}
+
+.site-layout-background {
+  background: #fff;
+}
+
+[data-theme="dark"] .site-layout-sub-header-background {
+  background: #141414;
 }
