@@ -15,6 +15,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     // link of added link (checking purpose only)
     let nextLinkList = [];
     let page = await browser.newPage()
+    await page.setDefaultNavigationTimeout(0);
 
     // console.log("e: ", element);
     console.log("[INFO] waiting: ", url);
@@ -154,6 +155,29 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                     })
                     return crawledLinkList;
                 }, childElement)
+                // Check if there is any link
+                if (nextLink[0] != '') {
+                    return;
+                }
+                // Open new page to get next link
+                let pageTmp = await browser.newPage();
+                await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                const button = await pageTmp.$(childElement.selector);
+                try {
+                    if (button) {
+                        // await page.waitForNavigation();
+                        // await button.click();
+                        await Promise.all([
+                            pageTmp.waitForNavigation(),
+                            button.click()
+                        ]);
+                        // await page.waitFor(2000);
+                        nextLink = [pageTmp.url()]
+                    }
+                } catch (error) {
+                    console.log("[ERROR] ", error);
+                }
+                await pageTmp.close()
                 return;
             case "link":
                 keyList.push(childElement.name)

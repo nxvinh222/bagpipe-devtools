@@ -7,7 +7,7 @@ const UpdateHash = require("./hash/updateHash");
 const UpdateIdentifierList = require("./hash/updateIdentifierList");
 
 async function advanceCrawlService(request) {
-  console.log("Handling Text Scraping Request!");
+  console.log("[INFO] Handling Text Scraping Request!");
 
   let crawlResult = {};
   let delayTime = request.request_interval;
@@ -41,6 +41,9 @@ async function advanceCrawlService(request) {
           delayTime
         );
 
+        //remove request url
+        nextLinkStack = nextLinkStack.filter(e => e !== request.url);
+
         // filter crawled data
         if (request.exclude) {
           var hashtable = InitHash(new SimpleHashTable(), identifierList);
@@ -62,12 +65,15 @@ async function advanceCrawlService(request) {
           if (!isValidHttpUrl(nextLink)) break;
           let result;
           // crawl with this link
+          console.log("[INFO] navigating to", [nextLink]);
           [result, returnedNextLink] = await crawlSinglePage(
             browser,
             nextLink,
             element,
             delayTime
           );
+          //remove request url
+          returnedNextLink = returnedNextLink.filter(e => e !== request.url);
           // update hash
           if (request.exclude) {
             [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
