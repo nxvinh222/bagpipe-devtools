@@ -50,12 +50,12 @@ const Panel = () => {
         </Menu>
       </Sider>
       <Layout>
-        <Header
+        {/* <Header
           className="site-layout-sub-header-background"
           style={{
             padding: 0,
           }}
-        />
+        /> */}
         <Content
           style={{
             margin: '24px 16px 0',
@@ -65,7 +65,7 @@ const Panel = () => {
             className="site-layout-background"
             style={{
               padding: 24,
-              minHeight: 500,
+              minHeight: 600,
             }}
           >
             <div className='bagpipe-root'>
