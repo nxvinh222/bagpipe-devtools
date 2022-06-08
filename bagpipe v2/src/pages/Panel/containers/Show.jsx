@@ -60,8 +60,8 @@ const Show = (props) => {
     msg: "",
     status: ""
   });
-
-
+  const [axiosTimer, setAxiosTimer] = useState('');
+  const [backElementShowPath, setBackElementShowPath] = useState("");
   const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
   const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] =
     useState(false);
@@ -136,8 +136,14 @@ const Show = (props) => {
       axios
         .get(graphUrl)
         .then((response) => {
-          console.log('bc: ', response.data.data);
+          // console.log('bc res: ', response.data.data);
           setBreadCrumbList(response.data.data.reverse());
+          // console.log('bc: ', breadCrumbList);
+          // if (response.data.data.length > 1) {
+          //   setBackElementShowPath(response.data.data[1].id);
+          // } else {
+          //   setBackElementShowPath("null");
+          // }
         })
         .catch((err) => console.log(err));
     }
@@ -192,6 +198,13 @@ const Show = (props) => {
     console.log('Failed:', errorInfo);
     setIsModalVisible(false);
   };
+  const axiosTimerFunc = (startTime) => {
+    let now = Date.now();
+    let seconds = Math.floor((now - startTime) / 1000);
+    let minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+    setAxiosTimer(`${minutes} minutes, ${seconds} seconds`);
+  }
   const scrape = (config) => {
     console.log('Scraping!');
     enterLoading(true);
@@ -215,6 +228,8 @@ const Show = (props) => {
           response.data.data,
           config
         );
+        // Start timer
+        let startTime = Date.now();
         // Crawl and convert to sql
         if (config.is_sql) {
           console.log('Calling ', env.CRAWL_URL_SQL);
@@ -227,11 +242,13 @@ const Show = (props) => {
               setResultDownloadUrl(response.data.data);
               setIsDownloadButtonDisabled(false);
               enterLoading(false);
+              axiosTimerFunc(startTime);
             })
             .catch((err) => {
               setIsCrawlResultFailVisible(true);
               setIsCrawlResultVisible(false);
               enterLoading(false);
+              axiosTimerFunc(startTime);
               console.log(err);
             });
           return;
@@ -248,11 +265,13 @@ const Show = (props) => {
               setResultDownloadUrl(response.data.data);
               setIsDownloadButtonDisabled(false);
               enterLoading(false);
+              axiosTimerFunc(startTime);
             })
             .catch((err) => {
               setIsCrawlResultFailVisible(true);
               setIsCrawlResultVisible(false);
               enterLoading(false);
+              axiosTimerFunc(startTime);
               console.log(err);
             });
           return;
@@ -266,10 +285,6 @@ const Show = (props) => {
     })
 
   };
-
-  const threedot = (function () {
-    if (fatherId != null) return <Breadcrumb.Item>...</Breadcrumb.Item>;
-  })();
 
   const testbread = breadCrumbList.map((item) => {
     return (
@@ -288,6 +303,24 @@ const Show = (props) => {
       </Breadcrumb.Item>
     );
   });
+
+  const CrawlMsg = () => (
+    <div className="crawl-result-msg">
+      <Text type="success">
+        <b>Crawling finished!</b>
+      </Text>
+      <p>Response time: {axiosTimer}</p>
+    </div>
+  );
+
+  const CrawlMsgFail = () => (
+    <div className="crawl-result-fail-msg">
+      <Text type="danger">
+        <b>Crawling failed, please try again!</b>
+      </Text>
+      <p>Response time: {axiosTimer}</p>
+    </div>
+  );
 
   return (
     <div className="show">
@@ -309,14 +342,29 @@ const Show = (props) => {
               <b>Recipe: </b>
               {recipeName}
             </Link>
-            {/* <a href={showRecipeBasicPath + recipeId}>
-                            Recipe: {recipeName}
-                        </a> */}
           </Breadcrumb.Item>
           {testbread}
         </Breadcrumb>
       </div>
       <Space size={8}>
+        {/* <Button>
+          <Link
+            to={{
+              pathname: showRecipeBasicPath + `${recipeId}?fatherId=${backElementShowPath}`,
+            }}
+            onClick={() => {
+              if (backElementShowPath == "null") {
+                getData(null);
+                setBreadCrumbList([]);
+              } else {
+                getData(backElementShowPath);
+                getBreadCrumbData(backElementShowPath);
+              }
+            }}
+          >
+            Back
+          </Link>
+        </Button> */}
         <Button type="primary">
           <Link
             to={{
@@ -326,7 +374,6 @@ const Show = (props) => {
             New Selector
           </Link>
         </Button>
-        <Button>View crawled url list</Button>
       </Space>
       <br />
       <br />
@@ -381,21 +428,5 @@ const Show = (props) => {
     </div>
   );
 };
-
-const CrawlMsg = () => (
-  <div className="crawl-result-msg">
-    <Text type="success">
-      <b>Crawling finished!</b>
-    </Text>
-  </div>
-);
-
-const CrawlMsgFail = () => (
-  <div className="crawl-result-fail-msg">
-    <Text type="danger">
-      <b>Crawling failed, please try again!</b>
-    </Text>
-  </div>
-);
 
 export default Show;

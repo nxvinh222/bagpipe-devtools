@@ -9,15 +9,16 @@
 
 .select-panel {
   background: transparent;
-  background-color: white !important;
-  border: none;
+  background-color: #F4F4ED !important;
+  border: 5px solid #363732;
   position: fixed;
   left: 10px;
   bottom: 10px;
-  height: 100px;
-  width: 390px;
+  height: 90px;
+  width: 350px;
   z-index: 9999;
   padding: 1%;
+  margin: 0.5%;
 }
 
 .select-panel {
