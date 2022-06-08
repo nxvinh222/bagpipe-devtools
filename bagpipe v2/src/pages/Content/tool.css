@@ -14,8 +14,8 @@
   position: fixed;
   left: 10px;
   bottom: 10px;
-  height: 50px;
-  width: 620px;
+  height: 100px;
+  width: 390px;
   z-index: 9999;
   padding: 1%;
 }

@@ -13,7 +13,7 @@ async function advanceCrawlTransport(req, res) {
     try {
       await SaveSheet(sheetUrl, flatten(result));
     } catch (error) {
-      console.log("[ERROR] Cannot save to sheet");
+      console.log("[ERROR] Cannot save to sheet: ", error);
     }
 
     const fileName = `${Date.now()}.json`;
