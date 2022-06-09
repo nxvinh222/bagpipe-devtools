@@ -44,7 +44,7 @@ const Panel = () => {
         >
           <Menu.Item key="1" >
             <UserOutlined />
-            <span>Home</span>
+            <span>My Projects</span>
             <Link to='/' />
           </Menu.Item>
         </Menu>

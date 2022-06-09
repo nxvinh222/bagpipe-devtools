@@ -120,7 +120,8 @@ const Home = (props) => {
   return (
     <div className="home">
       <Title level={3}>
-        Recipe list <AliwangwangOutlined />
+        Projects list
+        {/* <AliwangwangOutlined /> */}
       </Title>
       {/* <Breadcrumb separator=">">
                 <Breadcrumb.Item href={basePath}>
@@ -128,7 +129,7 @@ const Home = (props) => {
                 </Breadcrumb.Item>
             </Breadcrumb> */}
       <Button type="primary">
-        <Link to={newRecipePath}>Add Recipe</Link>
+        <Link to={newRecipePath}>Create New Project</Link>
       </Button>
       <Table rowKey={(row) => row.id} dataSource={crawlers} columns={columns} />
     </div>
