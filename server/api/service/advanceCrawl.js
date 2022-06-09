@@ -14,7 +14,7 @@ async function advanceCrawlService(request) {
 
   let browser = await puppeteer.launch({
     headless: true,
-    // devtools: true,
+    devtools: false,
     defaultViewport: null,
     args: ["--start-maximized"],
   });

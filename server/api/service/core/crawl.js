@@ -21,20 +21,23 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     console.log("[INFO] waiting: ", url);
     await delay(delayTime);
     console.log("[INFO] crawling: ", url);
-    await page.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
-    // await page.setRequestInterception(true)
-    // page.on("request", (request) => {
-    //     request.abort();
-    // });
+    await page.goto(url, {
+        waitUtil: ["networkkidle0", "domcontentloaded"],
+        timeout: 0
+    })
+
     await Promise.all(element.child_elements.map(async (childElement) => {
-        // delay
+        // Wait for hard coded page load
+        if (childElement.type != "object") {
+            await page.waitForSelector(childElement.selector, timeout = 1e5)
+        }
+        // Crawl
         switch (childElement.type) {
             case "object":
                 keyList.push(childElement.name)
                 resultTmp = await crawlSinglePage(browser, url, childElement, delayTime)
                 childObjectResult = resultTmp[0]
                 nextLinkStack = resultTmp[1]
-
                 //-------------
                 // remove duplicate link
                 nextLinkStack = [...new Set(nextLinkStack)];
@@ -73,6 +76,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 // return
                 break;
             case "text":
+                debugger;
                 keyList.push(childElement.name)
                 var crawledChildElementsContent = await page.evaluate((childElement) => {
                     let crawledElementsContent = []
