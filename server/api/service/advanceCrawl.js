@@ -45,7 +45,7 @@ async function advanceCrawlService(request) {
           root = true,
           limit = limit
         );
-
+        console.log(`[INFO] Crawled ${element.name} object's length: `, crawlResult[element.name].length);
         // update limit
         if (crawlResult[element.name].length <= limit)
           limit = limit - crawlResult[element.name].length;
@@ -66,41 +66,48 @@ async function advanceCrawlService(request) {
 
         // crawl next link one by one
         while (crawlResult[element.name].length < size) {
-          console.log("crawled link list: ", nextLinkStack);
+          // console.log("crawled link list: ", nextLinkStack);
           // get next link
           nextLink = nextLinkStack.pop();
-          console.log("next link: ", nextLink);
+          // console.log("next link: ", nextLink);
           // check if this is an invalid link
           if (!isValidHttpUrl(nextLink)) break;
-          let result;
-          // crawl with this link
-          console.log("[INFO] navigating to", [nextLink]);
-          [result, returnedNextLink] = await crawlSinglePage(
-            browser,
-            nextLink,
-            element,
-            delayTime,
-            root = true,
-            limit = limit
-          );
-          // update limit
-          if (result.length <= limit)
-            limit = limit - result.length;
-          //remove request url
-          returnedNextLink = returnedNextLink.filter(e => e !== request.url);
-          // update hash
-          if (request.exclude) {
-            [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
-          }
-          // concat value
-          crawlResult[element.name] = crawlResult[element.name].concat(result);
-
-          // push returned link into next link stack
-          for (const next of returnedNextLink) {
-            if (!nextLinkList.includes(next)) {
-              nextLinkStack.push(next);
-              nextLinkList.push(next);
+          try {
+            let result;
+            // crawl with this link
+            console.log("[INFO] navigating to", [nextLink]);
+            [result, returnedNextLink] = await crawlSinglePage(
+              browser,
+              nextLink,
+              element,
+              delayTime,
+              root = true,
+              limit = limit
+            );
+            // update limit
+            if (result.length <= limit)
+              limit = limit - result.length;
+            //remove request url
+            returnedNextLink = returnedNextLink.filter(e => e !== request.url);
+            // update hash
+            if (request.exclude) {
+              [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
             }
+            // concat value
+            crawlResult[element.name] = crawlResult[element.name].concat(result);
+            console.log(`[INFO] Crawled ${element.name} object's length: `, crawlResult[element.name].length);
+
+            // push returned link into next link stack
+            for (const next of returnedNextLink) {
+              if (!nextLinkList.includes(next)) {
+                nextLinkStack.push(next);
+                nextLinkList.push(next);
+              }
+            }
+          } catch (error) {
+            console.log("[ERROR] Cannot crawl ", [nextLink]);
+            console.log("[ERROR] Error occured ", error);
+            break;
           }
         }
 

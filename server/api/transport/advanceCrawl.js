@@ -15,7 +15,7 @@ async function advanceCrawlTransport(req, res) {
     try {
       await SaveSheet(sheetUrl, flatten(result));
     } catch (error) {
-      console.log("[ERROR] Cannot save to sheet: ", error);
+      console.log("[ERROR] Cannot save to sheet: ", error.message);
     }
     responseSuccess(res, `${fileName}`);
   } catch (error) {
