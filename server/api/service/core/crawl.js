@@ -27,199 +27,205 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     })
 
     await Promise.all(element.child_elements.map(async (childElement) => {
-        // Wait for hard coded page load
-        if (childElement.type != "object") {
-            await page.waitForSelector(childElement.selector, timeout = 1e5)
-        }
-        // Crawl
-        switch (childElement.type) {
-            case "object":
-                keyList.push(childElement.name)
-                resultTmp = await crawlSinglePage(browser, url, childElement, delayTime)
-                childObjectResult = resultTmp[0]
-                nextLinkStack = resultTmp[1]
-                //-------------
-                // remove duplicate link
-                nextLinkStack = [...new Set(nextLinkStack)];
-                // copy
-                nextLinkList = nextLinkStack.slice();
+        try {
+            // Wait for hard coded page load
+            if (childElement.type != "object") {
+                await page.waitForSelector(childElement.selector, timeout = 1e5)
+            }
+            // Crawl
+            resultKey = childElement.name
+            switch (childElement.type) {
+                case "object":
+                    keyList.push(childElement.name)
+                    resultTmp = await crawlSinglePage(browser, url, childElement, delayTime)
+                    childObjectResult = resultTmp[0]
+                    nextLinkStack = resultTmp[1]
+                    //-------------
+                    // remove duplicate link
+                    nextLinkStack = [...new Set(nextLinkStack)];
+                    // copy
+                    nextLinkList = nextLinkStack.slice();
 
-                while (true) {
-                    // console.log("link stack", nextLinkStack);
-                    // get next link
-                    nextLinkTmp = nextLinkStack.pop();
-                    // check if this is an invalid link
-                    if (!isValidHttpUrl(nextLinkTmp)) break;
-                    [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
-                        browser,
-                        nextLinkTmp,
-                        element,
-                        delayTime
-                    );
+                    while (true) {
+                        // console.log("link stack", nextLinkStack);
+                        // get next link
+                        nextLinkTmp = nextLinkStack.pop();
+                        // check if this is an invalid link
+                        if (!isValidHttpUrl(nextLinkTmp)) break;
+                        [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
+                            browser,
+                            nextLinkTmp,
+                            element,
+                            delayTime
+                        );
 
-                    // concat value
-                    childObjectResult = childObjectResult.concat(resultInLinkTmp[0][childElement.name]);
+                        // concat value
+                        childObjectResult = childObjectResult.concat(resultInLinkTmp[0][childElement.name]);
 
-                    // push returned link into next link stack
-                    for (const next of returnedNextLink) {
-                        if (!nextLinkList.includes(next)) {
-                            nextLinkStack.push(next);
-                            nextLinkList.push(next);
+                        // push returned link into next link stack
+                        for (const next of returnedNextLink) {
+                            if (!nextLinkList.includes(next)) {
+                                nextLinkStack.push(next);
+                                nextLinkList.push(next);
+                            }
                         }
                     }
-                }
-                //------------
+                    //------------
 
-                resultKey = childElement.name
-                resultValue = childObjectResult
-                // crawlResult[childElement.name] = childObjectResult
-                // return
-                break;
-            case "text":
-                debugger;
-                keyList.push(childElement.name)
-                var crawledChildElementsContent = await page.evaluate((childElement) => {
-                    let crawledElementsContent = []
-
-                    let crawledElements = document.querySelectorAll(childElement.selector)
+                    resultKey = childElement.name
+                    resultValue = childObjectResult
+                    // crawlResult[childElement.name] = childObjectResult
+                    // return
+                    break;
+                case "text":
                     debugger;
-                    console.log(childElement.selector);
-                    crawledElements.forEach((crawledElement, index) => {
-                        let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-                        crawledText = crawledText.replaceAll("\n", "\\n")
-                        crawledText = crawledText.replaceAll("\t", "")
+                    keyList.push(childElement.name)
+                    var crawledChildElementsContent = await page.evaluate((childElement) => {
+                        let crawledElementsContent = []
 
-                        crawledElementsContent.push(crawledText)
-                    })
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        debugger;
+                        console.log(childElement.selector);
+                        crawledElements.forEach((crawledElement, index) => {
+                            let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                            crawledText = crawledText.replaceAll("\n", "\\n")
+                            crawledText = crawledText.replaceAll("\t", "")
 
-                    return {
-                        [childElement.name]: crawledElementsContent
+                            crawledElementsContent.push(crawledText)
+                        })
+
+                        return {
+                            [childElement.name]: crawledElementsContent
+                        }
+                    }, childElement)
+                    resultKey = childElement.name
+                    resultValue = crawledChildElementsContent[childElement.name]
+                    // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
+                    // return
+                    break;
+                case "image":
+                case "image-auto":
+                    keyList.push(childElement.name)
+                    var crawledChildElementsContent = await page.evaluate((childElement) => {
+                        let crawledElementsContent = []
+
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        debugger;
+                        console.log(childElement.selector);
+                        crawledElements.forEach((crawledElement, index) => {
+                            crawledElementsContent.push(crawledElement.src)
+                        })
+
+                        return {
+                            [childElement.name]: crawledElementsContent
+                        }
+                    }, childElement)
+                    resultKey = childElement.name
+                    resultValue = crawledChildElementsContent[childElement.name]
+                    break;
+                case "paragraph":
+                    keyList.push(childElement.name)
+                    var crawledChildElementsContent = await page.evaluate((childElement) => {
+                        let crawledElementsContent = ""
+
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        debugger;
+                        console.log(childElement.selector);
+                        crawledElements.forEach((crawledElement, index) => {
+                            let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                            crawledText = crawledText.replaceAll("\n", "\\n")
+                            crawledText = crawledText.replaceAll("\t", "")
+
+                            crawledElementsContent = crawledElementsContent + "\\n" + crawledText
+                        })
+
+                        return {
+                            [childElement.name]: crawledElementsContent
+                        }
+                    }, childElement)
+                    resultKey = childElement.name
+                    resultValue = crawledChildElementsContent[childElement.name]
+                    break;
+                case "click":
+                    nextLink = await page.evaluate((childElement) => {
+                        let crawledLinkList = []
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        // debugger;
+                        crawledElements.forEach((crawledElement, index) => {
+                            if (crawledElement != null)
+                                if ('href' in crawledElement) {
+                                    crawledLinkList.push(crawledElement.href)
+                                } else {
+                                    crawledLinkList.push("")
+                                }
+                        })
+                        return crawledLinkList;
+                    }, childElement)
+                    // Check if there is any link
+                    if (nextLink[0] != '') {
+                        return;
                     }
-                }, childElement)
-                resultKey = childElement.name
-                resultValue = crawledChildElementsContent[childElement.name]
-                // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
-                // return
-                break;
-            case "image":
-            case "image-auto":
-                keyList.push(childElement.name)
-                var crawledChildElementsContent = await page.evaluate((childElement) => {
-                    let crawledElementsContent = []
-
-                    let crawledElements = document.querySelectorAll(childElement.selector)
-                    debugger;
-                    console.log(childElement.selector);
-                    crawledElements.forEach((crawledElement, index) => {
-                        crawledElementsContent.push(crawledElement.src)
-                    })
-
-                    return {
-                        [childElement.name]: crawledElementsContent
+                    // Open new page to get next link
+                    let pageTmp = await browser.newPage();
+                    await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                    const button = await pageTmp.$(childElement.selector);
+                    try {
+                        if (button) {
+                            // await page.waitForNavigation();
+                            // await button.click();
+                            await Promise.all([
+                                pageTmp.waitForNavigation(),
+                                button.click()
+                            ]);
+                            // await page.waitFor(2000);
+                            nextLink = [pageTmp.url()]
+                        }
+                    } catch (error) {
+                        console.log("[ERROR] ", error);
                     }
-                }, childElement)
-                resultKey = childElement.name
-                resultValue = crawledChildElementsContent[childElement.name]
-                break;
-            case "paragraph":
-                keyList.push(childElement.name)
-                var crawledChildElementsContent = await page.evaluate((childElement) => {
-                    let crawledElementsContent = ""
-
-                    let crawledElements = document.querySelectorAll(childElement.selector)
-                    debugger;
-                    console.log(childElement.selector);
-                    crawledElements.forEach((crawledElement, index) => {
-                        let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-                        crawledText = crawledText.replaceAll("\n", "\\n")
-                        crawledText = crawledText.replaceAll("\t", "")
-
-                        crawledElementsContent = crawledElementsContent + "\\n" + crawledText
-                    })
-
-                    return {
-                        [childElement.name]: crawledElementsContent
-                    }
-                }, childElement)
-                resultKey = childElement.name
-                resultValue = crawledChildElementsContent[childElement.name]
-                break;
-            case "click":
-                nextLink = await page.evaluate((childElement) => {
-                    let crawledLinkList = []
-                    let crawledElements = document.querySelectorAll(childElement.selector)
-                    // debugger;
-                    crawledElements.forEach((crawledElement, index) => {
-                        if (crawledElement != null)
-                            if ('href' in crawledElement) {
-                                crawledLinkList.push(crawledElement.href)
-                            } else {
-                                crawledLinkList.push("")
-                            }
-                    })
-                    return crawledLinkList;
-                }, childElement)
-                // Check if there is any link
-                if (nextLink[0] != '') {
+                    await pageTmp.close()
                     return;
-                }
-                // Open new page to get next link
-                let pageTmp = await browser.newPage();
-                await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
-                const button = await pageTmp.$(childElement.selector);
-                try {
-                    if (button) {
-                        // await page.waitForNavigation();
-                        // await button.click();
-                        await Promise.all([
-                            pageTmp.waitForNavigation(),
-                            button.click()
-                        ]);
-                        // await page.waitFor(2000);
-                        nextLink = [pageTmp.url()]
-                    }
-                } catch (error) {
-                    console.log("[ERROR] ", error);
-                }
-                await pageTmp.close()
-                return;
-            case "link":
-                keyList.push(childElement.name)
-                // Get all href link from selector
-                var crawledChildElementsContent = await page.evaluate(async (childElement) => {
-                    let crawledElementsContent = []
+                case "link":
+                    keyList.push(childElement.name)
+                    // Get all href link from selector
+                    var crawledChildElementsContent = await page.evaluate(async (childElement) => {
+                        let crawledElementsContent = []
 
-                    let crawledElements = document.querySelectorAll(childElement.selector)
-                    crawledElements.forEach((crawledElement, index) => {
-                        crawledElementsContent.push(crawledElement.href)
-                    })
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        crawledElements.forEach((crawledElement, index) => {
+                            crawledElementsContent.push(crawledElement.href)
+                        })
 
-                    return {
-                        [childElement.name]: crawledElementsContent
-                    }
-                }, childElement)
-                // For all href link, evaluate child elements
-                // Treat this the same as an object type
-                let crawledGotoResult = []
-                await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                    resultTmp = await crawlSinglePage(browser, crawledElement, childElement, delayTime * index)
-                    childObjectResult = resultTmp[0]
-                    // Must use element because crawl function will return in correct order
-                    crawledGotoResult[index] = childObjectResult
-                }))
-                resultKey = childElement.name
-                resultValue = crawledGotoResult
-                // crawlResult[childElement.name] = crawledGotoResult
-                // return
-                break;
-            default:
-                return;
+                        return {
+                            [childElement.name]: crawledElementsContent
+                        }
+                    }, childElement)
+                    // For all href link, evaluate child elements
+                    // Treat this the same as an object type
+                    let crawledGotoResult = []
+                    await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
+                        resultTmp = await crawlSinglePage(browser, crawledElement, childElement, delayTime * index)
+                        childObjectResult = resultTmp[0]
+                        // Must use element because crawl function will return in correct order
+                        crawledGotoResult[index] = childObjectResult
+                    }))
+                    resultKey = childElement.name
+                    resultValue = crawledGotoResult
+                    // crawlResult[childElement.name] = crawledGotoResult
+                    // return
+                    break;
+                default:
+                    return;
+            }
+
+            if (resultValue.length == 1) {
+                resultValue = resultValue[0]
+            }
+            crawlResult[resultKey] = resultValue
+        } catch (error) {
+            console.log(`[ERROR] cannot extract information from: ${url}\n Error: `, error);
+            crawlResult[resultKey] = [];
         }
-
-        if (resultValue.length == 1) {
-            resultValue = resultValue[0]
-        }
-        crawlResult[resultKey] = resultValue
     }))
     await page.close()
 
