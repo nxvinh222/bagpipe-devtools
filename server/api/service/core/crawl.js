@@ -223,7 +223,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
             }
             crawlResult[resultKey] = resultValue
         } catch (error) {
-            console.log(`[ERROR] cannot extract information from: ${url}\n Error: `, error);
+            console.log(`[WARNING] cannot extract information from: ${url}\n Error: `, error.message);
             crawlResult[resultKey] = [];
         }
     }))
