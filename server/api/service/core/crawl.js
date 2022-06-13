@@ -191,7 +191,9 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
                     }
                     // Open new page to get next link
                     let pageTmp = await browser.newPage();
+                    await pageTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
                     await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                    await pageTmp.waitForSelector(childElement.selector, timeout = 1e5)
                     const button = await pageTmp.$(childElement.selector);
                     try {
                         if (button) {

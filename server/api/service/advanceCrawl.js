@@ -25,7 +25,10 @@ async function advanceCrawlService(request) {
   let nextLinkList = [];
   let returnedNextLink;
   let nextLink;
+  // full data limit
   let size = request.item_limit;
+  // next function call limit
+  let limit = size;
   let identifierAttr = request.identifier_attr;
   let identifierList = request.identifier_list;
   let recipeId = request.recipe_id;
@@ -40,8 +43,12 @@ async function advanceCrawlService(request) {
           element,
           delayTime,
           root = true,
-          limit = size
+          limit = limit
         );
+
+        // update limit
+        if (crawlResult[element.name].length <= limit)
+          limit = limit - crawlResult[element.name].length;
 
         //remove request url
         nextLinkStack = nextLinkStack.filter(e => e !== request.url);
@@ -72,8 +79,13 @@ async function advanceCrawlService(request) {
             browser,
             nextLink,
             element,
-            delayTime
+            delayTime,
+            root = true,
+            limit = limit
           );
+          // update limit
+          if (result.length <= limit)
+            limit = limit - result.length;
           //remove request url
           returnedNextLink = returnedNextLink.filter(e => e !== request.url);
           // update hash
