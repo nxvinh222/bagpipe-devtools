@@ -20,6 +20,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
 
     // Create new page
     let page = await browser.newPage()
+    await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
     await page.setDefaultNavigationTimeout(0);
 
     // console.log("e: ", element);
@@ -140,7 +141,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
                         })
 
                         return {
-                            [childElement.name]: crawledElementsContent.slice(0, limit)
+                            [childElement.name]: crawledElementsContent
                         }
                     }, childElement)
                     resultKey = childElement.name
@@ -216,7 +217,11 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
 
                         let crawledElements = document.querySelectorAll(childElement.selector)
                         crawledElements.forEach((crawledElement, index) => {
-                            crawledElementsContent.push(crawledElement.href)
+                            // check if href link is in wrapper
+                            if (crawledElement.hasOwnProperty("href"))
+                                crawledElementsContent.push(crawledElement.href)
+                            else
+                                crawledElementsContent.push(crawledElement.parentElement.href)
                         })
 
                         return {
