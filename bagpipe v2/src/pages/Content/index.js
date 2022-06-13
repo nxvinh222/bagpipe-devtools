@@ -10,7 +10,17 @@ var current_attr_index = attr_index
 var current_element = "null"
 var final_element = "null"
 var result_demo = {}
-var extension_element = ["select-panel", "attr-con", "attr-input", "bp-add-button", "bp-confirm-button", "bagpipe-finish", "bagpipe-scrape-inject", "bagpipe-instruction"]
+var extension_element = [
+    "select-panel",
+    "attr-con",
+    "attr-input",
+    "bp-add-button",
+    "bp-confirm-button",
+    "bagpipe-finish",
+    "bagpipe-scrape-inject",
+    "bagpipe-instruction",
+    "bagpipe-finish-wrapper"
+]
 
 console.log('Content script works!!');
 console.log('Must reload extension for modifications to take effect.');

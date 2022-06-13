@@ -14,8 +14,8 @@
   position: fixed;
   left: 10px;
   bottom: 10px;
-  height: 90px;
-  width: 350px;
+  height: 100px;
+  width: 360px;
   z-index: 2147483647;
   padding: 1%;
   margin: 0.5%;
@@ -44,7 +44,7 @@
   font-family: "RM Neue", sans-serif;
   font-size: 100%;
   line-height: 1.15;
-  margin: 0;
+  margin: 5px;
   padding: 10px 21px;
   text-align: center;
   text-transform: none;
