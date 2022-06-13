@@ -38,7 +38,9 @@ async function advanceCrawlService(request) {
           browser,
           request.url,
           element,
-          delayTime
+          delayTime,
+          root = true,
+          limit = size
         );
 
         //remove request url

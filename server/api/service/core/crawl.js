@@ -1,4 +1,4 @@
-const crawlSinglePage = async (browser, url, element, delayTime) => {
+const crawlSinglePage = async (browser, url, element, delayTime, root = false, limit) => {
     let result = []
     let crawlResult = {}
     let keyList = []
@@ -14,6 +14,11 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     let nextLinkStack;
     // link of added link (checking purpose only)
     let nextLinkList = [];
+
+    // Check if this is root
+    if (root == false) limit = 100000000;
+
+    // Create new page
     let page = await browser.newPage()
     await page.setDefaultNavigationTimeout(0);
 
@@ -80,7 +85,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 case "text":
                     debugger;
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate((childElement) => {
+                    var crawledChildElementsContent = await page.evaluate((childElement, limit) => {
                         let crawledElementsContent = []
 
                         let crawledElements = document.querySelectorAll(childElement.selector)
@@ -95,15 +100,33 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                         })
 
                         return {
-                            [childElement.name]: crawledElementsContent
+                            [childElement.name]: crawledElementsContent.slice(0, limit)
                         }
-                    }, childElement)
+                    }, childElement, limit)
                     resultKey = childElement.name
                     resultValue = crawledChildElementsContent[childElement.name]
                     // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
                     // return
                     break;
                 case "image":
+                    keyList.push(childElement.name)
+                    var crawledChildElementsContent = await page.evaluate((childElement, limit) => {
+                        let crawledElementsContent = []
+
+                        let crawledElements = document.querySelectorAll(childElement.selector)
+                        debugger;
+                        console.log(childElement.selector);
+                        crawledElements.forEach((crawledElement, index) => {
+                            crawledElementsContent.push(crawledElement.src)
+                        })
+
+                        return {
+                            [childElement.name]: crawledElementsContent.slice(0, limit)
+                        }
+                    }, childElement, limit)
+                    resultKey = childElement.name
+                    resultValue = crawledChildElementsContent[childElement.name]
+                    break;
                 case "image-auto":
                     keyList.push(childElement.name)
                     var crawledChildElementsContent = await page.evaluate((childElement) => {
@@ -117,7 +140,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                         })
 
                         return {
-                            [childElement.name]: crawledElementsContent
+                            [childElement.name]: crawledElementsContent.slice(0, limit)
                         }
                     }, childElement)
                     resultKey = childElement.name
@@ -188,7 +211,7 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                 case "link":
                     keyList.push(childElement.name)
                     // Get all href link from selector
-                    var crawledChildElementsContent = await page.evaluate(async (childElement) => {
+                    var crawledChildElementsContent = await page.evaluate(async (childElement, limit) => {
                         let crawledElementsContent = []
 
                         let crawledElements = document.querySelectorAll(childElement.selector)
@@ -197,9 +220,9 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
                         })
 
                         return {
-                            [childElement.name]: crawledElementsContent
+                            [childElement.name]: crawledElementsContent.slice(0, limit)
                         }
-                    }, childElement)
+                    }, childElement, limit)
                     // For all href link, evaluate child elements
                     // Treat this the same as an object type
                     let crawledGotoResult = []
@@ -223,13 +246,14 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
             }
             crawlResult[resultKey] = resultValue
         } catch (error) {
-            console.log(`[WARNING] cannot extract information from: ${url}\n Error: `, error.message);
-            crawlResult[resultKey] = [];
+            console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error.message);
+            keyList.push(childElement.name);
+            crawlResult[childElement.name] = "";
         }
     }))
     await page.close()
 
-    let i
+    let i;
     for (i = 0; i <= keyList.length; i++) {
         if (i == keyList.length) break;
         if (crawlResult[keyList[i]].length > 1 && Array.isArray(crawlResult[keyList[i]]))
@@ -237,7 +261,6 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     }
 
     // if (element.type == "object") console.log("crawl result: ", crawlResult);
-
     // If crawled element is single element
     if (i == keyList.length || element.type != "object") {
         obj = {}
@@ -261,7 +284,6 @@ const crawlSinglePage = async (browser, url, element, delayTime) => {
     // If crawled element is a list of element
     crawlResult[keyList[i]].forEach((v, i) => {
         obj = {}
-
         // For each element of crawl result of each selector which is an array
         // Take 1 in each of them and form an object
         keyList.forEach((value) => {

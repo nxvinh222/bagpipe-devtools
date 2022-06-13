@@ -10,14 +10,13 @@ async function advanceCrawlTransport(req, res) {
     let result = await advanceCrawlService(req.body);
     console.log("[INFO] Scraping done! Saving result!");
 
+    const fileName = `${Date.now()}.json`;
+    await SaveJsonResult(result, fileName);
     try {
       await SaveSheet(sheetUrl, flatten(result));
     } catch (error) {
       console.log("[ERROR] Cannot save to sheet: ", error);
     }
-
-    const fileName = `${Date.now()}.json`;
-    await SaveJsonResult(result, fileName);
     responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);
