@@ -63,11 +63,13 @@ const Home = (props) => {
       title: 'Start Url',
       dataIndex: urlColumn,
       key: urlColumn,
+      width: '30%'
     },
     {
       title: 'Note',
       dataIndex: commentColumn,
       key: commentColumn,
+      width: '30%',
     },
     {
       title: 'Action',
@@ -131,7 +133,17 @@ const Home = (props) => {
       <Button type="primary">
         <Link to={newRecipePath}>Create New Project</Link>
       </Button>
-      <Table rowKey={(row) => row.id} dataSource={crawlers} columns={columns} />
+      <Table
+        rowKey={(row) => row.id}
+        dataSource={crawlers}
+        columns={columns}
+        scroll={{
+          y: "50%",
+        }}
+        pagination={{
+          pageSize: 7,
+        }}
+      />
     </div>
   );
 };
