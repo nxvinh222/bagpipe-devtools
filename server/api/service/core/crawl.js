@@ -5,7 +5,7 @@ const crawlLink = require("./type/crawlLink")
 const crawlParagraph = require("./type/crawlParagraph")
 const crawlText = require("./type/crawlText")
 
-const crawlSinglePage = async (browser, page, url, element, delayTime, root = false, limit) => {
+const crawlSinglePage = async (browser, page, url, element, delayTime, root = false, limit, autoScroll = false) => {
     let result = []
     let crawlResult = {}
     let keyList = []
@@ -40,20 +40,21 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     })
 
     // Scroll to bottom
-    let lastHeight = await page.evaluate('document.body.scrollHeight');
-    while (true) {
-        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.8)');
-        await page.waitForTimeout(1000);
-        await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
-        console.log("[INFO] Scrolled down! Waiting page load");
-        await page.waitForTimeout(5000); // sleep a bit
-        let newHeight = await page.evaluate('document.body.scrollHeight');
-        if (newHeight === lastHeight) {
-            break;
+    if (autoScroll == true) {
+        let lastHeight = await page.evaluate('document.body.scrollHeight');
+        while (true) {
+            await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.8)');
+            await page.waitForTimeout(1000);
+            await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
+            console.log("[INFO] Scrolled down! Waiting page load");
+            await page.waitForTimeout(5000); // sleep a bit
+            let newHeight = await page.evaluate('document.body.scrollHeight');
+            if (newHeight === lastHeight) {
+                break;
+            }
+            lastHeight = newHeight;
         }
-        lastHeight = newHeight;
     }
-
     // Crawl
     await Promise.all(element.child_elements.map(async (childElement) => {
         try {
@@ -112,15 +113,15 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                 case "text":
                     debugger;
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlText, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlText, childElement)
                     resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name]
+                    resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
                     break;
                 case "image":
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlImage, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlImage, childElement)
                     resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name]
+                    resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
                     break;
                 case "image-auto":
                     keyList.push(childElement.name)
@@ -165,7 +166,8 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                 case "link":
                     keyList.push(childElement.name)
                     // Get all href link from selector
-                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
+                    crawledChildElementsContent[childElement.name] = crawledChildElementsContent[childElement.name].slice(0, limit)
                     // For all href link, evaluate child elements
                     // Treat this the same as an object type
                     let crawledGotoResult = []

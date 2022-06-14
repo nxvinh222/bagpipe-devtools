@@ -1,4 +1,4 @@
-const crawlImage = (childElement, limit) => {
+const crawlImage = (childElement) => {
     let crawledElementsContent = []
 
     let crawledElements = document.querySelectorAll(childElement.selector)
@@ -9,7 +9,7 @@ const crawlImage = (childElement, limit) => {
     })
 
     return {
-        [childElement.name]: crawledElementsContent.slice(0, limit)
+        [childElement.name]: crawledElementsContent
     }
 }
 

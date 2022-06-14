@@ -1,4 +1,4 @@
-const crawlText = (childElement, limit) => {
+const crawlText = (childElement) => {
     let crawledElementsContent = []
 
     let crawledElements = document.querySelectorAll(childElement.selector)
@@ -13,7 +13,7 @@ const crawlText = (childElement, limit) => {
     })
 
     return {
-        [childElement.name]: crawledElementsContent.slice(0, limit)
+        [childElement.name]: crawledElementsContent
     }
 }
 

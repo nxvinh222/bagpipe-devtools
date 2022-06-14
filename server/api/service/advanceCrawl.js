@@ -48,7 +48,8 @@ async function advanceCrawlService(request) {
           element,
           delayTime,
           root = true,
-          limit = limit
+          limit = limit,
+          autoScroll = true
         );
         console.log(`[INFO] Crawled ${element.name} object's length: `, crawlResult[element.name].length);
         // update limit
@@ -88,7 +89,8 @@ async function advanceCrawlService(request) {
               element,
               delayTime,
               root = true,
-              limit = limit
+              limit = limit,
+              autoScroll = true
             );
             // update limit
             if (result.length <= limit)

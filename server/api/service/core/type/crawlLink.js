@@ -1,4 +1,4 @@
-const crawlLink = async (childElement, limit) => {
+const crawlLink = async (childElement) => {
     let crawledElementsContent = []
 
     let crawledElements = document.querySelectorAll(childElement.selector)
@@ -11,7 +11,7 @@ const crawlLink = async (childElement, limit) => {
     })
 
     return {
-        [childElement.name]: crawledElementsContent.slice(0, limit)
+        [childElement.name]: crawledElementsContent
     }
 }
 
