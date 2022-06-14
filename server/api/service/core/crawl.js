@@ -40,19 +40,19 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     })
 
     // Scroll to bottom
-    // let lastHeight = await page.evaluate('document.body.scrollHeight');
-    // while (true) {
-    //     await page.evaluate('window.scrollBy(0, document.body.scrollHeight/4)');
-    //     await page.evaluate('window.scrollBy(0, document.body.scrollHeight/2)');
-    //     await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
-    //     console.log("[INFO] Scrolled down!");
-    //     await page.waitForTimeout(3000); // sleep a bit
-    //     let newHeight = await page.evaluate('document.body.scrollHeight');
-    //     if (newHeight === lastHeight) {
-    //         break;
-    //     }
-    //     lastHeight = newHeight;
-    // }
+    let lastHeight = await page.evaluate('document.body.scrollHeight');
+    while (true) {
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.8)');
+        await page.waitForTimeout(1000);
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
+        console.log("[INFO] Scrolled down! Waiting page load");
+        await page.waitForTimeout(5000); // sleep a bit
+        let newHeight = await page.evaluate('document.body.scrollHeight');
+        if (newHeight === lastHeight) {
+            break;
+        }
+        lastHeight = newHeight;
+    }
 
     // Crawl
     await Promise.all(element.child_elements.map(async (childElement) => {
