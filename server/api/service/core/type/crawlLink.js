@@ -4,7 +4,7 @@ const crawlLink = async (childElement, limit) => {
     let crawledElements = document.querySelectorAll(childElement.selector)
     crawledElements.forEach((crawledElement, index) => {
         // check if href link is in wrapper
-        if (crawledElement.hasOwnProperty("href"))
+        if (crawledElement.href != null)
             crawledElementsContent.push(crawledElement.href)
         else
             crawledElementsContent.push(crawledElement.parentElement.href)
