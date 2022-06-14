@@ -5,7 +5,7 @@ const crawlLink = require("./type/crawlLink")
 const crawlParagraph = require("./type/crawlParagraph")
 const crawlText = require("./type/crawlText")
 
-const crawlSinglePage = async (browser, url, element, delayTime, root = false, limit) => {
+const crawlSinglePage = async (browser, page, url, element, delayTime, root = false, limit) => {
     let result = []
     let crawlResult = {}
     let keyList = []
@@ -26,9 +26,9 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
     if (root == false) limit = 100000000;
 
     // Create new page
-    let page = await browser.newPage()
-    await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
-    await page.setDefaultNavigationTimeout(0);
+    // let page = await browser.newPage()
+    // await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+    // await page.setDefaultNavigationTimeout(0);
 
     // console.log("e: ", element);
     console.log("[INFO] waiting: ", url);
@@ -66,7 +66,9 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
             switch (childElement.type) {
                 case "object":
                     keyList.push(childElement.name)
-                    resultTmp = await crawlSinglePage(browser, url, childElement, delayTime)
+                    let newPage = await browser.newPage()
+                    await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                    resultTmp = await crawlSinglePage(browser, newPage, url, childElement, delayTime)
                     childObjectResult = resultTmp[0]
                     nextLinkStack = resultTmp[1]
                     //-------------
@@ -83,6 +85,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
                         if (!isValidHttpUrl(nextLinkTmp)) break;
                         [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
                             browser,
+                            newPage,
                             nextLinkTmp,
                             element,
                             delayTime
@@ -103,6 +106,8 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
 
                     resultKey = childElement.name
                     resultValue = childObjectResult
+                    await newPage.close()
+
                     break;
                 case "text":
                     debugger;
@@ -165,10 +170,13 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
                     // Treat this the same as an object type
                     let crawledGotoResult = []
                     await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                        resultTmp = await crawlSinglePage(browser, crawledElement, childElement, delayTime * index)
+                        let newPage = await browser.newPage()
+                        await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                        resultTmp = await crawlSinglePage(browser, newPage, crawledElement, childElement, delayTime * index)
                         childObjectResult = resultTmp[0]
                         // Must use element because crawl function will return in correct order
                         crawledGotoResult[index] = childObjectResult
+                        await newPage.close()
                     }))
                     resultKey = childElement.name
                     resultValue = crawledGotoResult
@@ -189,7 +197,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
             crawlResult[childElement.name] = "";
         }
     }))
-    await page.close()
+    // await page.close()
 
     let i;
     for (i = 0; i <= keyList.length; i++) {

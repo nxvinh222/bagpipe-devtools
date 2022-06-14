@@ -18,6 +18,10 @@ async function advanceCrawlService(request) {
     defaultViewport: null,
     args: ["--start-maximized"],
   });
+  // Create new page
+  let page = await browser.newPage()
+  await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+  await page.setDefaultNavigationTimeout(0);
 
   // list of link to go next
   let nextLinkStack;
@@ -39,6 +43,7 @@ async function advanceCrawlService(request) {
       if (element.type == "object") {
         [crawlResult[element.name], nextLinkStack] = await crawlSinglePage(
           browser,
+          page,
           request.url,
           element,
           delayTime,
@@ -78,6 +83,7 @@ async function advanceCrawlService(request) {
             console.log("[INFO] navigating to", [nextLink]);
             [result, returnedNextLink] = await crawlSinglePage(
               browser,
+              page,
               nextLink,
               element,
               delayTime,
@@ -110,7 +116,6 @@ async function advanceCrawlService(request) {
             break;
           }
         }
-
         crawlResult[element.name] = crawlResult[element.name].slice(0, size);
         console.log("[INFO] result length: ", crawlResult[element.name].length);
 
@@ -141,7 +146,7 @@ async function advanceCrawlService(request) {
       }
     })
   );
-
+  await page.close()
   await browser.close();
 
   return crawlResult;
