@@ -53,6 +53,14 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     })
 
     $('.bagpipe-scrape-inject').on('click', () => {
+        // Some website may scale this element
+        let realHeight = document.querySelector(".select-panel").offsetHeight;
+        console.log("real hight ", realHeight);
+        if (realHeight == 60) {
+            $(".select-panel").css("height", "106px");
+            $(".select-panel").css("width", "396px");
+        }
+        // Make panel display
         $(".select-panel").css("display", "block");
         $('body').children().on("mouseover.selectElement", function (e) {
             e.preventDefault();

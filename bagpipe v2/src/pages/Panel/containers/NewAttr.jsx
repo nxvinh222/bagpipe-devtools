@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { showRecipeBasicPath, editAttrPath } from './constants'
 
-import { Form, Input, Button, Select, Typography } from 'antd';
+import { Form, Input, Button, Select, Typography, TreeSelect } from 'antd';
 
 import axios from './axios';
 import { data } from './Data/ShowData';
@@ -232,7 +232,7 @@ const NewAttr = (props) => {
                         },
                     ]}
                 >
-                    <Select
+                    {/* <Select
                         placeholder="Select type of data you want to scrape"
                         onChange={(value) => {
                             setCurrentType(value)
@@ -248,11 +248,49 @@ const NewAttr = (props) => {
                         <Option value="image-auto">Image <b>(Auto scan)</b></Option>
                         <Option value="paragraph">Paragraph</Option>
                         <Option value="click">Click <b>(Action)</b></Option>
-                        {/* <Option value="popup-link">Popup Link</Option>
-                        <Option value="table">Table</Option>
-                        <Option value="html">Html</Option>
-                        <Option value="attribute">Attribute Tag</Option> */}
-                    </Select>
+                    </Select> */}
+                    <TreeSelect
+                        treeData={[
+                            {
+                                title: "Object",
+                                value: "object",
+                            },
+                            {
+                                title: "Text",
+                                value: "text",
+                                children: [
+                                    {
+                                        title: "Paragraph",
+                                        value: "paragraph"
+                                    }
+                                ]
+                            },
+                            {
+                                title: "Link",
+                                value: "link",
+                            },
+                            {
+                                title: "Image",
+                                value: "image",
+                                children: [
+                                    {
+                                        title: "Image (Auto scan)",
+                                        value: "image-auto"
+                                    }
+                                ]
+                            },
+                            {
+                                title: "Click",
+                                value: "click",
+                                children: [
+                                    {
+                                        title: "Click (Infinity click)",
+                                        value: "click-infinity"
+                                    }
+                                ]
+                            }
+                        ]}
+                    />
                 </Form.Item>
 
                 <Form.Item
