@@ -204,7 +204,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     let i;
     for (i = 0; i <= keyList.length; i++) {
         if (i == keyList.length) break;
-        if (crawlResult[keyList[i]].length > 1 && Array.isArray(crawlResult[keyList[i]]))
+        if (Array.isArray(crawlResult[keyList[i]]) && crawlResult[keyList[i]].length > 1)
             break;
     }
 
