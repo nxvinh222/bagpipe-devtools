@@ -1,3 +1,10 @@
+const crawlClick = require("./type/crawlClick")
+const crawlImage = require("./type/crawlImage")
+const crawlImageAuto = require("./type/crawlImageAuto")
+const crawlLink = require("./type/crawlLink")
+const crawlParagraph = require("./type/crawlParagraph")
+const crawlText = require("./type/crawlText")
+
 const crawlSinglePage = async (browser, url, element, delayTime, root = false, limit) => {
     let result = []
     let crawlResult = {}
@@ -39,7 +46,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
     //     await page.evaluate('window.scrollBy(0, document.body.scrollHeight/2)');
     //     await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
     //     console.log("[INFO] Scrolled down!");
-    //     await page.waitForTimeout(10000); // sleep a bit
+    //     await page.waitForTimeout(3000); // sleep a bit
     //     let newHeight = await page.evaluate('document.body.scrollHeight');
     //     if (newHeight === lastHeight) {
     //         break;
@@ -96,111 +103,34 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
 
                     resultKey = childElement.name
                     resultValue = childObjectResult
-                    // crawlResult[childElement.name] = childObjectResult
-                    // return
                     break;
                 case "text":
                     debugger;
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate((childElement, limit) => {
-                        let crawledElementsContent = []
-
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        debugger;
-                        console.log(childElement.selector);
-                        crawledElements.forEach((crawledElement, index) => {
-                            let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-                            crawledText = crawledText.replaceAll("\n", "\\n")
-                            crawledText = crawledText.replaceAll("\t", "")
-
-                            crawledElementsContent.push(crawledText)
-                        })
-
-                        return {
-                            [childElement.name]: crawledElementsContent.slice(0, limit)
-                        }
-                    }, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlText, childElement, limit)
                     resultKey = childElement.name
                     resultValue = crawledChildElementsContent[childElement.name]
-                    // crawlResult[childElement.name] = crawledChildElementsContent[childElement.name]
-                    // return
                     break;
                 case "image":
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate((childElement, limit) => {
-                        let crawledElementsContent = []
-
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        debugger;
-                        console.log(childElement.selector);
-                        crawledElements.forEach((crawledElement, index) => {
-                            crawledElementsContent.push(crawledElement.src)
-                        })
-
-                        return {
-                            [childElement.name]: crawledElementsContent.slice(0, limit)
-                        }
-                    }, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlImage, childElement, limit)
                     resultKey = childElement.name
                     resultValue = crawledChildElementsContent[childElement.name]
                     break;
                 case "image-auto":
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate((childElement) => {
-                        let crawledElementsContent = []
-
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        debugger;
-                        console.log(childElement.selector);
-                        crawledElements.forEach((crawledElement, index) => {
-                            crawledElementsContent.push(crawledElement.src)
-                        })
-
-                        return {
-                            [childElement.name]: crawledElementsContent
-                        }
-                    }, childElement)
+                    var crawledChildElementsContent = await page.evaluate(crawlImageAuto, childElement)
                     resultKey = childElement.name
                     resultValue = crawledChildElementsContent[childElement.name]
                     break;
                 case "paragraph":
                     keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate((childElement) => {
-                        let crawledElementsContent = ""
-
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        debugger;
-                        console.log(childElement.selector);
-                        crawledElements.forEach((crawledElement, index) => {
-                            let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-                            crawledText = crawledText.replaceAll("\n", "\\n")
-                            crawledText = crawledText.replaceAll("\t", "")
-
-                            crawledElementsContent = crawledElementsContent + "\\n" + crawledText
-                        })
-
-                        return {
-                            [childElement.name]: crawledElementsContent
-                        }
-                    }, childElement)
+                    var crawledChildElementsContent = await page.evaluate(crawlParagraph, childElement)
                     resultKey = childElement.name
                     resultValue = crawledChildElementsContent[childElement.name]
                     break;
                 case "click":
-                    nextLink = await page.evaluate((childElement) => {
-                        let crawledLinkList = []
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        // debugger;
-                        crawledElements.forEach((crawledElement, index) => {
-                            if (crawledElement != null)
-                                if ('href' in crawledElement) {
-                                    crawledLinkList.push(crawledElement.href)
-                                } else {
-                                    crawledLinkList.push("")
-                                }
-                        })
-                        return crawledLinkList;
-                    }, childElement)
+                    nextLink = await page.evaluate(crawlClick, childElement)
                     // Check if there is any link
                     if (nextLink[0] != '') {
                         return;
@@ -230,22 +160,7 @@ const crawlSinglePage = async (browser, url, element, delayTime, root = false, l
                 case "link":
                     keyList.push(childElement.name)
                     // Get all href link from selector
-                    var crawledChildElementsContent = await page.evaluate(async (childElement, limit) => {
-                        let crawledElementsContent = []
-
-                        let crawledElements = document.querySelectorAll(childElement.selector)
-                        crawledElements.forEach((crawledElement, index) => {
-                            // check if href link is in wrapper
-                            if (crawledElement.hasOwnProperty("href"))
-                                crawledElementsContent.push(crawledElement.href)
-                            else
-                                crawledElementsContent.push(crawledElement.parentElement.href)
-                        })
-
-                        return {
-                            [childElement.name]: crawledElementsContent.slice(0, limit)
-                        }
-                    }, childElement, limit)
+                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement, limit)
                     // For all href link, evaluate child elements
                     // Treat this the same as an object type
                     let crawledGotoResult = []
