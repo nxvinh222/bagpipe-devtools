@@ -35,7 +35,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     await delay(delayTime);
     console.log("[INFO] crawling: ", url);
     await page.goto(url, {
-        waitUtil: ["networkkidle0", "domcontentloaded"],
+        waitUtil: "networkkidle0",
         timeout: 0
     })
 
