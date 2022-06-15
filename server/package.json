@@ -24,6 +24,7 @@
     "node-fetch": "^3.2.4",
     "pg": "^8.7.3",
     "puppeteer": "^12.0.1",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
     "request": "^2.88.2",
     "simple-hashtable": "^1.0.1",
     "sql": "^0.78.0"

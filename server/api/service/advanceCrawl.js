@@ -1,4 +1,6 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
 var httpRequest = require('request');
 const crawlSinglePage = require("./core/crawl");
 const SimpleHashTable = require('simple-hashtable');
@@ -16,11 +18,11 @@ async function advanceCrawlService(request) {
     headless: true,
     devtools: false,
     defaultViewport: null,
-    args: ["--start-maximized"],
+    args: ["--window-size=1920,1080", "--no-sandbox"],
   });
   // Create new page
   let page = await browser.newPage()
-  await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
   await page.setDefaultNavigationTimeout(0);
 
   // list of link to go next
