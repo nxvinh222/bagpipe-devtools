@@ -54,6 +54,11 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
             }
             lastHeight = newHeight;
         }
+    } else {
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.25)');
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.5)');
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.75)');
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
     }
     // Crawl
     await Promise.all(element.child_elements.map(async (childElement) => {
