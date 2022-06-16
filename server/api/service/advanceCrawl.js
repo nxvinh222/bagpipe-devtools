@@ -35,10 +35,15 @@ async function advanceCrawlService(request) {
   let size = request.item_limit;
   // next function call limit
   let limit = size;
+  // for checking if this is root element
+  let isRootElement = true;
   let identifierAttr = request.identifier_attr;
   let identifierList = request.identifier_list;
   let recipeId = request.recipe_id;
   if (size == null) size = 10;
+
+  // clear limit if request using exclude feature
+  if (request.exclude) isRootElement = false;
 
   await Promise.all(
     request.elements.map(async (element) => {
@@ -49,7 +54,7 @@ async function advanceCrawlService(request) {
           request.url,
           element,
           delayTime,
-          root = true,
+          root = isRootElement,
           limit = limit,
           autoScroll = true
         );
@@ -90,7 +95,7 @@ async function advanceCrawlService(request) {
               nextLink,
               element,
               delayTime,
-              root = true,
+              root = isRootElement,
               limit = limit,
               autoScroll = true
             );
