@@ -93,14 +93,17 @@ const Show = (props) => {
       .get(`/api/v1/recipes/${recipeId}?simple=1`)
       .then((r) => {
         setRecipeName(r.data.data.name);
-        setAttrNameList(r.data.data.attribute_name_list);
+        if (r.data.data.attribute_name_list != null)
+          setAttrNameList(r.data.data.attribute_name_list);
+        else
+          setAttrNameList([]);
         if (r.data.data.attribute_name_list.includes(r.data.data.identifier_attr))
           setIdentifierAttr(r.data.data.identifier_attr);
         else {
           setIdentifierAttr(null);
         }
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.log("[ERROR] Cannot get Data", e));
 
 
     // get selector list
