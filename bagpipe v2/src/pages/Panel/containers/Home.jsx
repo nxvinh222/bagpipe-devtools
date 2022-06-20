@@ -140,9 +140,9 @@ const Home = (props) => {
         scroll={{
           y: "50%",
         }}
-        pagination={{
-          pageSize: 7,
-        }}
+      // pagination={{
+      //   pageSize: 7,
+      // }}
       />
     </div>
   );
