@@ -168,6 +168,12 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     }
                     await pageTmp.close()
                     return;
+                case "link-href":
+                    keyList.push(childElement.name)
+                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
+                    resultKey = childElement.name
+                    resultValue = crawledChildElementsContent[childElement.name]
+                    break;
                 case "link":
                     keyList.push(childElement.name)
                     // Get all href link from selector

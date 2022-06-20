@@ -268,6 +268,12 @@ const NewAttr = (props) => {
                             {
                                 title: "Link",
                                 value: "link",
+                                children: [
+                                    {
+                                        title: "Link (Href Link)",
+                                        value: "link-href"
+                                    }
+                                ]
                             },
                             {
                                 title: "Image",
@@ -288,6 +294,10 @@ const NewAttr = (props) => {
                                         value: "click-infinity"
                                     }
                                 ]
+                            },
+                            {
+                                title: "Map",
+                                value: "map",
                             }
                         ]}
                     />

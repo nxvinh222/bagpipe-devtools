@@ -141,10 +141,13 @@ function getColor(type) {
     case 'text':
       return 'gold';
     case 'link':
+    case 'link-href':
       return 'magenta';
     case 'click':
+    case 'click-infinity':
       return 'purple';
     case 'image':
+    case 'image-auto':
       return 'blue';
     case 'paragraph':
       return 'green';
