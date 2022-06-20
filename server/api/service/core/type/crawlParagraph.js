@@ -2,7 +2,6 @@ const crawlParagraph = (childElement) => {
     let crawledElementsContent = ""
 
     let crawledElements = document.querySelectorAll(childElement.selector)
-    debugger;
     console.log(childElement.selector);
     crawledElements.forEach((crawledElement, index) => {
         let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');

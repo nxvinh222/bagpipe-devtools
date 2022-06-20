@@ -2,6 +2,7 @@ const crawlClick = require("./type/crawlClick")
 const crawlImage = require("./type/crawlImage")
 const crawlImageAuto = require("./type/crawlImageAuto")
 const crawlLink = require("./type/crawlLink")
+const crawlMap = require("./type/crawlMap")
 const crawlParagraph = require("./type/crawlParagraph")
 const crawlText = require("./type/crawlText")
 
@@ -164,7 +165,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                             nextLink = [pageTmp.url()]
                         }
                     } catch (error) {
-                        console.log("[ERROR] ", error);
+                        console.log("[ERROR] Cannot click this element", error);
                     }
                     await pageTmp.close()
                     return;
@@ -195,6 +196,33 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     resultValue = crawledGotoResult
                     // crawlResult[childElement.name] = crawledGotoResult
                     // return
+                    break;
+                case "map":
+                    keyList.push(childElement.name)
+                    const mapSelector = `a[href ^= 'https://maps.google.com/maps?ll']`;
+                    // Open new page to get map
+                    let pageMapTmp = await browser.newPage();
+                    await pageMapTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                    await pageMapTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                    await pageMapTmp.waitForSelector(childElement.selector, timeout = 1e5)
+                    const map = await pageMapTmp.$(childElement.selector);
+                    try {
+                        if (map) {
+                            await pageMapTmp.hover(childElement.selector)
+                            await pageMapTmp.click(childElement.selector);
+                            await pageMapTmp.bringToFront();
+                            await pageMapTmp.hover(childElement.selector)
+                            await pageMapTmp.click(childElement.selector);
+                            await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5)
+                            // Crawl map data
+                            var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
+                            resultKey = childElement.name
+                            resultValue = crawledChildElementsContent[childElement.name]
+                        }
+                    } catch (error) {
+                        console.log("[ERROR] Cannot access map", error);
+                    }
+                    await pageMapTmp.close()
                     break;
                 default:
                     return;

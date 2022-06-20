@@ -263,7 +263,7 @@ const NewAttr = (props) => {
                                         title: "Paragraph",
                                         value: "paragraph"
                                     }
-                                ]
+                                ],
                             },
                             {
                                 title: "Link",
