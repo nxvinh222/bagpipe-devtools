@@ -208,12 +208,18 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     const map = await pageMapTmp.$(childElement.selector);
                     try {
                         if (map) {
-                            await pageMapTmp.hover(childElement.selector)
-                            await pageMapTmp.click(childElement.selector);
                             await pageMapTmp.bringToFront();
                             await pageMapTmp.hover(childElement.selector)
                             await pageMapTmp.click(childElement.selector);
-                            await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5)
+                            await page.waitForTimeout(1000);
+                            await pageMapTmp.hover(childElement.selector)
+                            await pageMapTmp.click(childElement.selector);
+                            await page.waitForTimeout(1000);
+                            try {
+                                await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5)
+                            } catch (error) {
+                                console.log("[WARNING] Google map do not display, checking embeded map...");
+                            }
                             // Crawl map data
                             var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
                             resultKey = childElement.name
