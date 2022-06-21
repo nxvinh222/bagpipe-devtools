@@ -5,7 +5,8 @@ const crawlImageAuto = (childElement) => {
     debugger;
     console.log(childElement.selector);
     crawledElements.forEach((crawledElement, index) => {
-        crawledElementsContent.push(crawledElement.src)
+        if (crawledElement.src != null)
+            crawledElementsContent.push(crawledElement.src)
     })
 
     console.log("images: ", crawledElementsContent);
@@ -13,7 +14,8 @@ const crawlImageAuto = (childElement) => {
         let crawledElements = document.querySelectorAll(childElement.selector + " [src]")
         console.log(childElement.selector);
         crawledElements.forEach((crawledElement, index) => {
-            crawledElementsContent.push(crawledElement.src)
+            if (crawledElement.src != null)
+                crawledElementsContent.push(crawledElement.src)
         })
     }
     debugger;

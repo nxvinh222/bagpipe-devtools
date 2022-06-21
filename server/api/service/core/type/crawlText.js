@@ -12,9 +12,11 @@ const crawlText = (childElement) => {
         crawledText = crawledText.replaceAll("\t", " ");
         // crawledText = crawledText.replace("/\\/g", "\\\\");
         crawledText = crawledText.replace("/\\/g", " ");
-        // crawledText = crawledText.replace(/[&\/\\#,+()$~%.'":;*?<>{}]/g, '');
+        crawledText = crawledText.replace(/[•]/g, '');
+        // crawledText = crawledText.replace(/[&\/\\#,+()$~%.'":;*?<>{}]/g, '');•
 
-        crawledElementsContent.push(crawledText)
+        if (crawledText != null)
+            crawledElementsContent.push(crawledText);
     })
 
     return {

@@ -9,7 +9,8 @@ const crawlParagraph = (childElement) => {
         crawledText = crawledText.replaceAll("\t", " ");
         crawledText = crawledText.replace("/\\/g", " ");
 
-        crawledElementsContent = crawledElementsContent + "\\n" + crawledText
+        if (crawledText != null)
+            crawledElementsContent = crawledElementsContent + "\\\\n" + crawledText
     })
 
     return {
