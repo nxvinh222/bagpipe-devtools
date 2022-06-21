@@ -1,18 +1,26 @@
 const crawlMap = async (childElement, mapSelector) => {
     let crawledElementsContent = []
-    // document.querySelector(childElement.selector).click();
-    // await new Promise(resolve => setTimeout(resolve, 3000));
     let crawledElement = document.querySelector(mapSelector);
-    debugger;
-    crawledElementsContent.push(crawledElement.href)
-    // if (crawledElementsContent[0] == null) {
-    //     let crawledElements = document.querySelectorAll(childElement.selector + " [src]")
-    //     debugger;
-    //     console.log(childElement.selector);
-    //     crawledElements.forEach((crawledElement, index) => {
-    //         crawledElementsContent.push(crawledElement.src)
-    //     })
-    // }
+    // debugger;
+    if (crawledElement.href != null) {
+        const params = new Proxy(new URLSearchParams((new URL(crawledElement.href)).searchParams), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        // example: https://maps.google.com/maps?ll=10.773512,106.695478&z=16&t=m&hl=en-US&gl=US&mapclient=apiv3
+        let location = params.ll;
+        location = location.split(",");
+        crawledElementsContent.push([location[0], location[1]]);
+    }
+    else {
+        const params = new Proxy(new URLSearchParams((new URL(crawledElement.src)).searchParams), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        // example: https://www.google.com/maps/embed/v1/place?key=AIzaSyBAaCzG3gF-9CgHyXApQaVpaQtOANYyRNI&q=21.0034204,105.8070266&zoom=333
+        let location = params.q;
+        location = location.split("&")[0];
+        location = location.split(",");
+        crawledElementsContent.push([location[0], location[1]]);
+    }
 
     return {
         [childElement.name]: crawledElementsContent

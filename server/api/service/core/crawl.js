@@ -199,7 +199,9 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     break;
                 case "map":
                     keyList.push(childElement.name)
-                    const mapSelector = `a[href ^= 'https://maps.google.com/maps?ll']`;
+                    const mapSelectorType1 = `a[href ^= 'https://maps.google.com/maps?ll']`;
+                    const mapSelectorType2 = `iframe[src ^= 'https://www.google.com/maps/embed']`;
+                    let mapSelector = mapSelectorType1;
                     // Open new page to get map
                     let pageMapTmp = await browser.newPage();
                     await pageMapTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
@@ -216,9 +218,11 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                             await pageMapTmp.click(childElement.selector);
                             await page.waitForTimeout(1000);
                             try {
-                                await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5)
+                                await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5);
                             } catch (error) {
                                 console.log("[WARNING] Google map do not display, checking embeded map...");
+                                mapSelector = mapSelectorType2;
+                                await pageMapTmp.waitForSelector(mapSelector, timeout = 1e5);
                             }
                             // Crawl map data
                             var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
