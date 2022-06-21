@@ -4,9 +4,10 @@ const crawlParagraph = (childElement) => {
     let crawledElements = document.querySelectorAll(childElement.selector)
     console.log(childElement.selector);
     crawledElements.forEach((crawledElement, index) => {
-        let crawledText = crawledElement.innerText.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-        crawledText = crawledText.replaceAll("\n", "\\n")
-        crawledText = crawledText.replaceAll("\t", "")
+        let crawledText = crawledElement.innerText
+        crawledText = crawledText.replaceAll("\n", " ");
+        crawledText = crawledText.replaceAll("\t", " ");
+        crawledText = crawledText.replace("/\\/g", " ");
 
         crawledElementsContent = crawledElementsContent + "\\n" + crawledText
     })
