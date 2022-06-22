@@ -21,7 +21,7 @@ const Home = (props) => {
   const nameColumn = 'name';
   const urlColumn = 'start_url';
   const commentColumn = 'note';
-  const { Title } = Typography;
+  const { Title, Paragraph } = Typography;
 
   const getData = () => {
     axios
@@ -63,13 +63,12 @@ const Home = (props) => {
       title: 'Start Url',
       dataIndex: urlColumn,
       key: urlColumn,
-      width: '30%'
-    },
-    {
-      title: 'Note',
-      dataIndex: commentColumn,
-      key: commentColumn,
       width: '30%',
+      render: (text, record) => {
+        return (
+          <Paragraph copyable>{text}</Paragraph>
+        );
+      },
     },
     {
       title: 'Action',
@@ -112,6 +111,12 @@ const Home = (props) => {
           </div>
         )
       },
+    },
+    {
+      title: 'Note',
+      dataIndex: commentColumn,
+      key: commentColumn,
+      width: '30%',
     },
   ];
 

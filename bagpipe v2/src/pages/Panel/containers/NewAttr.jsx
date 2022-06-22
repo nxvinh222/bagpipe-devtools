@@ -218,6 +218,16 @@ const NewAttr = (props) => {
                             required: true,
                             message: 'Please input your name!!',
                         },
+                        {
+                            message: 'Element name must contain only letters (a-z, A-Z), numbers (0-9), or underscores ( _ )',
+                            validator: (_, value) => {
+                                if (/^[a-zA-Z0-9_]+$/.test(value)) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
                     ]}
                 >
                     <Input />

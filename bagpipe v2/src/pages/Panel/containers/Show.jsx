@@ -33,7 +33,7 @@ import axios from './axios';
 import axiosCrawl from './axiosCrawl';
 import ElementTable from './components/ElementTable';
 import CrawlerConfigModal from './components/CrawlerConfigModal';
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 
 const Show = (props) => {
   const idColumn = 'id';
@@ -56,6 +56,7 @@ const Show = (props) => {
   const [breadCrumbList, setBreadCrumbList] = useState([]);
   const [recipeName, setRecipeName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [startUrl, setStartUrl] = useState("");
   const [attrNameChangeWarningMsg, setAttrNameChangeWarningMsg] = useState({
     msg: "",
     status: ""
@@ -93,6 +94,7 @@ const Show = (props) => {
       .get(`/api/v1/recipes/${recipeId}?simple=1`)
       .then((r) => {
         setRecipeName(r.data.data.name);
+        setStartUrl(r.data.data.start_url);
         if (r.data.data.attribute_name_list != null)
           setAttrNameList(r.data.data.attribute_name_list);
         else
@@ -342,7 +344,7 @@ const Show = (props) => {
                 setBreadCrumbList([]);
               }}
             >
-              <b>Recipe: </b>
+              <b>Project: </b>
               {recipeName}
             </Link>
           </Breadcrumb.Item>
@@ -379,6 +381,9 @@ const Show = (props) => {
         </Button>
       </Space>
       <br />
+      <div className='crawl-url'>
+        <div style={{ display: "inline" }}><b>Crawl URL: </b></div><Paragraph style={{ display: "inline" }} copyable>{startUrl}</Paragraph>
+      </div>
       <br />
 
       <ElementTable

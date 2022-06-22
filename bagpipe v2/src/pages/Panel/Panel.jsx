@@ -45,7 +45,7 @@ const Panel = () => {
           <Menu.Item key="1" >
             <UserOutlined />
             <span>My Projects</span>
-            <Link to='/' />
+            <Link to={basePath} />
           </Menu.Item>
         </Menu>
       </Sider>

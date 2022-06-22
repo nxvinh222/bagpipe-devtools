@@ -124,7 +124,7 @@ const New = (props) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Domain"
+                    label="Crawl URL"
                     name={urlColumn}
                     rules={[
                         {
