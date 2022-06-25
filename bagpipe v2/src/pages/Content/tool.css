@@ -1,9 +1,11 @@
 .hova {
   background-color: lightblue !important;
+  border: 2px solid blue !important;
 }
 
 .click-hova {
   background-color: pink !important;
+  border: 2px solid red !important;
 }
 
 
