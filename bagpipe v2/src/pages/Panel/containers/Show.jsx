@@ -11,17 +11,12 @@ import {
 import downloadjs from 'downloadjs';
 import { useParams } from 'react-router-dom';
 import {
-  Table,
   Button,
-  Tag,
-  Modal,
   Form,
-  Input,
-  InputNumber,
   Breadcrumb,
-  Switch,
   Space,
   Typography,
+  Alert
 } from 'antd';
 import { HomeOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -63,6 +58,7 @@ const Show = (props) => {
   });
   const [axiosTimer, setAxiosTimer] = useState('');
   const [backElementShowPath, setBackElementShowPath] = useState("");
+  const [isCrawlWarningVisible, setIsCrawlWarningVisible] = useState(false);
   const [isCrawlResultVisible, setIsCrawlResultVisible] = useState(false);
   const [isCrawlResultFailVisible, setIsCrawlResultFailVisible] =
     useState(false);
@@ -210,16 +206,34 @@ const Show = (props) => {
     seconds = seconds % 60;
     setAxiosTimer(`${minutes} minutes, ${seconds} seconds`);
   }
+
   const scrape = (config) => {
     console.log('Scraping!');
     enterLoading(true);
     setIsCrawlResultVisible(false);
     setIsCrawlResultFailVisible(false);
 
+    const handleCrawlResult = (status, startTime) => {
+      setIsCrawlWarningVisible(false);
+      if (status == true) {
+        setIsCrawlResultVisible(true);
+        setIsCrawlResultFailVisible(false);
+        setIsDownloadButtonDisabled(false);
+        enterLoading(false);
+        axiosTimerFunc(startTime);
+      } else {
+        setIsCrawlResultFailVisible(true);
+        setIsCrawlResultVisible(false);
+        enterLoading(false);
+        axiosTimerFunc(startTime);
+      }
+    }
+
     // Update identifier before crawl
     axios.put(`/api/v1/recipes/${recipeId}`, {
       "identifier_attr": config.identifier_attr,
     }).then((response) => {
+      setIsCrawlWarningVisible(true);
       // Get recipe full information before crawl
       axios.get(`/api/v1/recipes/${recipeId}`).then((response) => {
         // Update identifier state
@@ -242,19 +256,21 @@ const Show = (props) => {
             .post('/advance-sql', elementBody)
             .then((response) => {
               console.log('sql response ', response.data);
-              setIsCrawlResultVisible(true);
-              setIsCrawlResultFailVisible(false);
+              // setIsCrawlResultVisible(true);
+              // setIsCrawlResultFailVisible(false);
+              // setIsDownloadButtonDisabled(false);
+              // enterLoading(false);
+              // axiosTimerFunc(startTime);
               setResultDownloadUrl(response.data.data);
-              setIsDownloadButtonDisabled(false);
-              enterLoading(false);
-              axiosTimerFunc(startTime);
+              handleCrawlResult(true, startTime)
             })
             .catch((err) => {
-              setIsCrawlResultFailVisible(true);
-              setIsCrawlResultVisible(false);
-              enterLoading(false);
-              axiosTimerFunc(startTime);
+              // setIsCrawlResultFailVisible(true);
+              // setIsCrawlResultVisible(false);
+              // enterLoading(false);
+              // axiosTimerFunc(startTime);
               console.log(err);
+              handleCrawlResult(false, startTime)
             });
           return;
         }
@@ -265,19 +281,23 @@ const Show = (props) => {
           axiosCrawl
             .post('/advance?flatten=1', elementBody)
             .then((response) => {
-              console.log('json response ', response.data);
-              setIsCrawlResultVisible(true);
+              // console.log('json response ', response.data);
+              // setIsCrawlResultVisible(true);
+              // setResultDownloadUrl(response.data.data);
+              // setIsDownloadButtonDisabled(false);
+              // enterLoading(false);
+              // axiosTimerFunc(startTime);
               setResultDownloadUrl(response.data.data);
-              setIsDownloadButtonDisabled(false);
-              enterLoading(false);
-              axiosTimerFunc(startTime);
+              handleCrawlResult(true, startTime)
             })
             .catch((err) => {
-              setIsCrawlResultFailVisible(true);
-              setIsCrawlResultVisible(false);
-              enterLoading(false);
-              axiosTimerFunc(startTime);
+              // setIsCrawlResultFailVisible(true);
+              // setIsCrawlResultVisible(false);
+              // enterLoading(false);
+              // axiosTimerFunc(startTime);
+              // console.log(err);
               console.log(err);
+              handleCrawlResult(false, startTime)
             });
           return;
         }
@@ -309,21 +329,44 @@ const Show = (props) => {
     );
   });
 
+  const CrawlMsgWarning = () => (
+    <div className="crawl-result-warning-msg">
+      <Alert
+        message="Crawling!"
+        description="Crawler is running! Don't exit this screen, otherwise the crawl result will be lost."
+        type="warning"
+        showIcon
+      />
+    </div>
+  );
+
   const CrawlMsg = () => (
     <div className="crawl-result-msg">
-      <Text type="success">
+      {/* <Text type="success">
         <b>Crawling finished!</b>
-      </Text>
-      <p>Response time: {axiosTimer}</p>
+      </Text> */}
+      <Alert
+        message="Crawling finished!"
+        description={`Response time: ${axiosTimer}`}
+        type="success"
+        showIcon
+      />
+      {/* <p>Response time: {axiosTimer}</p> */}
     </div>
   );
 
   const CrawlMsgFail = () => (
     <div className="crawl-result-fail-msg">
-      <Text type="danger">
+      {/* <Text type="danger">
         <b>Crawling failed, please try again!</b>
-      </Text>
-      <p>Response time: {axiosTimer}</p>
+      </Text> */}
+      <Alert
+        message="Crawling failed, please try again!"
+        description={`Response time: ${axiosTimer}`}
+        type="error"
+        showIcon
+      />
+      {/* <p>Response time: {axiosTimer}</p> */}
     </div>
   );
 
@@ -370,7 +413,7 @@ const Show = (props) => {
             Back
           </Link>
         </Button> */}
-        <Button type="primary">
+        <Button type="primary" loading={loadings[0]}>
           <Link
             to={{
               pathname: newAttrPathWithQuery,
@@ -398,6 +441,7 @@ const Show = (props) => {
         fatherIdQuery={fatherIdQuery}
         elementIdQuery={elementIdQuery}
         recipeId={recipeId}
+        loading={loadings[0]}
       />
 
       <Space size={8}>
@@ -416,6 +460,9 @@ const Show = (props) => {
           Download result file
         </Button>
       </Space>
+      <br />
+      <br />
+      {isCrawlWarningVisible && <CrawlMsgWarning />}
       {isCrawlResultVisible && <CrawlMsg />}
       {isCrawlResultFailVisible && <CrawlMsgFail />}
 

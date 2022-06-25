@@ -131,6 +131,7 @@ const ElementTable = (props) => {
       rowKey={(row) => row.name}
       dataSource={props.selectors}
       columns={columns}
+      loading={props.loading}
     />
   );
 };
