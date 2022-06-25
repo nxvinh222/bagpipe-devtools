@@ -129,8 +129,29 @@ const New = (props) => {
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your start url!',
+                            message: 'Please enter your crawl url!',
                         },
+                        {
+                            message: 'Please enter an valid url!',
+                            validator: (_, value) => {
+                                function isValidHttpUrl(string) {
+                                    let url;
+
+                                    try {
+                                        url = new URL(string);
+                                    } catch (_) {
+                                        return false;
+                                    }
+
+                                    return url.protocol === "http:" || url.protocol === "https:";
+                                }
+                                if (isValidHttpUrl(value)) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
                     ]}
                 >
                     <Input />

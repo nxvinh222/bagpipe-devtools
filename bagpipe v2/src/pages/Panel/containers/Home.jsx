@@ -42,9 +42,10 @@ const Home = (props) => {
 
   const columns = [
     {
-      title: 'Name',
+      title: 'Project Name',
       dataIndex: nameColumn,
       key: nameColumn,
+      width: '10%',
       sorter: (a, b) => a[nameColumn].localeCompare(b[nameColumn]),
       render: (text, record) => {
         // let urlParams = new URLSearchParams(window.location.search);
@@ -60,10 +61,10 @@ const Home = (props) => {
       },
     },
     {
-      title: 'Start Url',
+      title: 'Crawl Url',
       dataIndex: urlColumn,
       key: urlColumn,
-      width: '30%',
+      width: '50%',
       render: (text, record) => {
         return (
           <Paragraph copyable>{text}</Paragraph>
@@ -112,7 +113,7 @@ const Home = (props) => {
       title: 'Note',
       dataIndex: commentColumn,
       key: commentColumn,
-      width: '30%',
+      width: '20%',
     },
   ];
 
