@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
-import { Table, Button, Popconfirm, Typography, message } from 'antd';
+import { Table, Button, Popconfirm, Typography, message, Input } from 'antd';
 import { AliwangwangOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
@@ -18,6 +18,7 @@ const Home = (props) => {
   //     },
   // ]
   const [crawlers, setCrawlers] = useState([]);
+  const [inputTextProjectSearch, setInputTextProjectSearch] = useState("");
   const nameColumn = 'name';
   const urlColumn = 'start_url';
   const commentColumn = 'note';
@@ -25,7 +26,7 @@ const Home = (props) => {
 
   const getData = () => {
     axios
-      .get('/api/v1/recipes')
+      .get('/api/v1/recipes?limit=100')
       .then((response) => {
         // console.log(response.data.data);
         let recipes = response.data.data.map((recipe) => ({
@@ -34,10 +35,29 @@ const Home = (props) => {
           [urlColumn]: recipe[urlColumn],
           [commentColumn]: recipe[commentColumn],
         }));
-        console.log('recipes: ' + recipes);
+        // console.log('recipes: ' + recipes);
         setCrawlers(recipes);
       })
       .catch((err) => console.log(err));
+  };
+
+  //create a new array by filtering the original array
+  const filteredCrawlerList = crawlers.filter((el) => {
+    //if no input the return the original
+    if (inputTextProjectSearch === '') {
+      return el;
+    }
+    //return the item which contains the user input
+    else {
+      return el[nameColumn].toLowerCase().includes(inputTextProjectSearch)
+    }
+  })
+
+  let inputProjectSearchHandler = (e) => {
+    //convert input text to lower case
+    var lowerCase = e.target.value.toLowerCase();
+    setInputTextProjectSearch(lowerCase);
+    // console.log("enter: ", filteredData);
   };
 
   const columns = [
@@ -135,16 +155,28 @@ const Home = (props) => {
       <Button type="primary">
         <Link to={newRecipePath}>Create New Project</Link>
       </Button>
+      <div className="bagpipe-search-bar">
+        <br />
+        <Input
+          placeholder="Filter Project by Name"
+          size="middle"
+          onChange={inputProjectSearchHandler}
+          style={{
+            width: "50%",
+          }}
+        />
+        <br />
+      </div>
       <Table
         rowKey={(row) => row.id}
-        dataSource={crawlers}
+        dataSource={filteredCrawlerList}
         columns={columns}
         scroll={{
           y: "50%",
         }}
-      // pagination={{
-      //   pageSize: 7,
-      // }}
+        pagination={{
+          pageSize: 5,
+        }}
       />
     </div>
   );
