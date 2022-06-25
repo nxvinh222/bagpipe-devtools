@@ -206,7 +206,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     let pageMapTmp = await browser.newPage();
                     await pageMapTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
                     await pageMapTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
-                    await pageMapTmp.setDefaultTimeout(60000);
+                    // await pageMapTmp.setDefaultTimeout(60000);
                     await pageMapTmp.waitForSelector(childElement.selector)
                     const map = await pageMapTmp.$(childElement.selector);
                     try {
@@ -214,10 +214,9 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                             await pageMapTmp.bringToFront();
                             await pageMapTmp.hover(childElement.selector)
                             await pageMapTmp.click(childElement.selector);
-                            await page.waitForTimeout(1000);
+                            await page.waitForTimeout(3000);
                             await pageMapTmp.hover(childElement.selector)
                             await pageMapTmp.click(childElement.selector);
-                            await page.waitForTimeout(1000);
                             try {
                                 await pageMapTmp.waitForSelector(mapSelector);
                             } catch (error) {
