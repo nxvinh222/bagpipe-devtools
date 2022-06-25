@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from '../axios';
-import { Table, Button, Tag } from 'antd';
+import { Table, Button, Tag, Popconfirm, message } from 'antd';
 import {
   basePath,
   newAttrPath,
@@ -102,19 +102,24 @@ const ElementTable = (props) => {
                 Edit
               </Link>
             </Button>
-            <Button
-              onClick={() => {
+            <Popconfirm
+              title="Are you sure to delete this element?"
+              onConfirm={() => {
                 axios
                   .delete(`/api/v1/elements/${record[props.idColumn]}`)
                   .then((r) => {
                     console.log(r);
                     props.getData(props.fatherId);
+                    message.success('Element deleted!');
                   })
                   .catch((e) => console.log(e));
               }}
+              // onCancel={cancel}
+              okText="Yes"
+              cancelText="No"
             >
-              <a>Delete</a>
-            </Button>
+              <Button><a>Delete</a></Button>
+            </Popconfirm>
           </div>
         );
       },

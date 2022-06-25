@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
-import { Table, Button, Breadcrumb, Typography } from 'antd';
+import { Table, Button, Popconfirm, Typography, message } from 'antd';
 import { AliwangwangOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
@@ -86,28 +86,24 @@ const Home = (props) => {
                 Edit
               </Link>
             </Button>
-            <Button
-              onClick={() => {
+            <Popconfirm
+              title="Are you sure to delete this project?"
+              onConfirm={() => {
                 axios
                   .delete(`/api/v1/recipes/${record[idColumn]}`)
                   .then((r) => {
                     console.log(r);
                     getData();
+                    message.success('Project deleted!');
                   })
                   .catch((e) => console.log(e));
-                // var tempCrawlers = crawlers;
-                // tempCrawlers = tempCrawlers.filter((crawler) => {
-                //     return crawler.id != record.id
-                // })
-
-                // chrome.storage.sync.set({ "crawlers": tempCrawlers }, function () {
-                //     console.log("delete crawler success, new crawler list setted: ", tempCrawlers);
-                //     // setCrawlers(tempCrawlers)
-                // });
               }}
+              // onCancel={cancel}
+              okText="Yes"
+              cancelText="No"
             >
-              <a>Delete</a>
-            </Button>
+              <Button><a>Delete</a></Button>
+            </Popconfirm>
           </div>
         )
       },
