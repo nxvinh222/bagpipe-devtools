@@ -193,7 +193,7 @@ const NewAttr = (props) => {
 
     return (
         <div>
-            <div>Select a new Attribute by clicking "Select Element"</div>
+            <div>Click "Select Element" to start extracting information from the website.</div>
             <Form
                 name="basic"
                 form={form}
@@ -240,6 +240,16 @@ const NewAttr = (props) => {
                         {
                             required: true,
                         },
+                        {
+                            message: 'Root Element must be an Object Element!',
+                            validator: (_, value) => {
+                                if (fatherId == "null" && value != "object") {
+                                    return Promise.reject('Some message here');
+                                } else {
+                                    return Promise.resolve();
+                                }
+                            }
+                        }
                     ]}
                 >
                     {/* <Select
@@ -333,7 +343,7 @@ const NewAttr = (props) => {
                         </Button>
                     </span>
 
-                    <div>Element:
+                    <div>Selected Element's Selector:
                         <div style={{ color: 'crimson' }}>{element}</div>
                     </div>
                 </Form.Item>
