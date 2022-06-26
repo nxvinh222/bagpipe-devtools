@@ -67,13 +67,15 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     }
 
     // Check if there is infinite click element
+    // If it is, get the button
+    let infiniteButton;
     for (let e of element.child_elements) {
         if (e.type == "click-infinity") {
             infiniteLoopStatus = true;
             try {
                 // Wait for hard coded page load
                 await page.waitForSelector(e.selector, timeout = 30000);
-                const infiniteButton = await page.$(e.selector);
+                infiniteButton = await page.$(e.selector);
             } catch (error) {
                 console.log(`[WARNING] cannot get infinite data load button: ${url}\n ---> `, error.message);
                 infiniteLoopStatus = false;
@@ -83,195 +85,277 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     }
     if (root)
         console.log("[INFO] Infinite load status: ", infiniteLoopStatus);
+    else
+        infiniteLoopStatus = false;
 
     // Crawl
-    await Promise.all(element.child_elements.map(async (childElement) => {
-        try {
-            // Wait for hard coded page load
-            if (childElement.type != "object") {
-                await page.waitForSelector(childElement.selector, timeout = 30000)
+    loop: while (true) {
+        // Click infinite button
+        if (infiniteLoopStatus == true) {
+            try {
+                if (infiniteButton) {
+                    await infiniteButton.click();
+                }
+            } catch (error) {
+                console.log("[ERROR] Cannot load more data", error.message);
             }
-            // Crawl
-            resultKey = childElement.name
-            switch (childElement.type) {
-                case "object":
-                    keyList.push(childElement.name)
-                    let newPage = await browser.newPage()
-                    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
-                    resultTmp = await crawlSinglePage(browser, newPage, url, childElement, delayTime)
-                    childObjectResult = resultTmp[0]
-                    nextLinkStack = resultTmp[1]
-                    //-------------
-                    // remove duplicate link
-                    nextLinkStack = [...new Set(nextLinkStack)];
-                    // copy
-                    nextLinkList = nextLinkStack.slice();
-
-                    while (true) {
-                        // console.log("link stack", nextLinkStack);
-                        // get next link
-                        nextLinkTmp = nextLinkStack.pop();
-                        // check if this is an invalid link
-                        if (!isValidHttpUrl(nextLinkTmp)) break;
-                        [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
-                            browser,
-                            newPage,
-                            nextLinkTmp,
-                            element,
-                            delayTime
-                        );
-
-                        // concat value
-                        childObjectResult = childObjectResult.concat(resultInLinkTmp[0][childElement.name]);
-
-                        // push returned link into next link stack
-                        for (const next of returnedNextLink) {
-                            if (!nextLinkList.includes(next)) {
-                                nextLinkStack.push(next);
-                                nextLinkList.push(next);
-                            }
-                        }
-                    }
-                    //------------
-
-                    resultKey = childElement.name
-                    resultValue = childObjectResult
-                    await newPage.close()
-
+            // Check if data loaded, else wait
+            let lastHeight = await page.evaluate('document.body.scrollHeight');
+            let newHeight = await page.evaluate('document.body.scrollHeight');
+            let waitedTimeCount = 0;
+            while (true) {
+                await page.waitForTimeout(1000);
+                waitedTimeCount++;
+                if (newHeight === lastHeight) {
                     break;
-                case "text":
-                    debugger;
-                    keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlText, childElement)
-                    resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
+                }
+                if (waitedTimeCount > 10) {
+                    console.log("[INFO] No more data to be loaded, infinite click stopped!");
+                    infiniteLoopStatus = false;
                     break;
-                case "image":
-                    keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlImage, childElement)
-                    resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
-                    break;
-                case "image-auto":
-                    keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlImageAuto, childElement)
-                    resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name]
-                    break;
-                case "paragraph":
-                    keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlParagraph, childElement)
-                    resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name]
-                    break;
-                case "click":
-                    nextLink = await page.evaluate(crawlClick, childElement)
-                    // Check if there is any link
-                    if (nextLink[0] != '') {
-                        return;
-                    }
-                    // Open new page to get next link
-                    let pageTmp = await browser.newPage();
-                    await pageTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
-                    await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
-                    await pageTmp.waitForSelector(childElement.selector, timeout = 1e5)
-                    const button = await pageTmp.$(childElement.selector);
-                    try {
-                        if (button) {
-                            // await page.waitForNavigation();
-                            // await button.click();
-                            await Promise.all([
-                                pageTmp.waitForNavigation(),
-                                button.click()
-                            ]);
-                            // await page.waitFor(2000);
-                            nextLink = [pageTmp.url()]
-                        }
-                    } catch (error) {
-                        console.log("[ERROR] Cannot click this element", error);
-                    }
-                    await pageTmp.close()
-                    return;
-                case "link-href":
-                    keyList.push(childElement.name)
-                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
-                    resultKey = childElement.name
-                    resultValue = crawledChildElementsContent[childElement.name]
-                    break;
-                case "link":
-                    keyList.push(childElement.name)
-                    // Get all href link from selector
-                    var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
-                    crawledChildElementsContent[childElement.name] = crawledChildElementsContent[childElement.name].slice(0, limit)
-                    // For all href link, evaluate child elements
-                    // Treat this the same as an object type
-                    let crawledGotoResult = []
-                    await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                        let newPage = await browser.newPage()
-                        await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
-                        resultTmp = await crawlSinglePage(browser, newPage, crawledElement, childElement, delayTime * index)
-                        childObjectResult = resultTmp[0]
-                        // Must use element because crawl function will return in correct order
-                        crawledGotoResult[index] = childObjectResult
-                        await newPage.close()
-                    }))
-                    resultKey = childElement.name
-                    resultValue = crawledGotoResult
-                    // crawlResult[childElement.name] = crawledGotoResult
-                    // return
-                    break;
-                case "map":
-                    keyList.push(childElement.name)
-                    const mapSelectorType1 = `a[href ^= 'https://maps.google.com/maps?ll']`;
-                    const mapSelectorType2 = `iframe[src ^= 'https://www.google.com/maps/embed']`;
-                    let mapSelector = mapSelectorType1;
-                    // Open new page to get map
-                    let pageMapTmp = await browser.newPage();
-                    await pageMapTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
-                    await pageMapTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
-                    // await pageMapTmp.setDefaultTimeout(60000);
-                    await pageMapTmp.waitForSelector(childElement.selector)
-                    const map = await pageMapTmp.$(childElement.selector);
-                    try {
-                        if (map) {
-                            await pageMapTmp.bringToFront();
-                            await pageMapTmp.hover(childElement.selector)
-                            await pageMapTmp.click(childElement.selector);
-                            await page.waitForTimeout(3000);
-                            await pageMapTmp.hover(childElement.selector)
-                            await pageMapTmp.click(childElement.selector);
-                            try {
-                                await pageMapTmp.waitForSelector(mapSelector);
-                            } catch (error) {
-                                console.log("[WARNING] Google map do not display, checking embeded map...");
-                                mapSelector = mapSelectorType2;
-                                await pageMapTmp.waitForSelector(mapSelector);
-                            }
-                            // Crawl map data
-                            var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
-                            resultKey = childElement.name
-                            resultValue = crawledChildElementsContent[childElement.name]
-                        }
-                    } catch (error) {
-                        console.log("[ERROR] Cannot access map", error);
-                    }
-                    await pageMapTmp.close()
-                    break;
-                default:
-                    return;
+                }
             }
-
-            if (resultValue.length == 1) {
-                resultValue = resultValue[0]
-            }
-            crawlResult[resultKey] = resultValue
-        } catch (error) {
-            console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error.message);
-            keyList.push(childElement.name);
-            crawlResult[childElement.name] = "";
+            console.log("[INFO] New data loaded by clicking infinite load button!");
         }
-    }))
-    // await page.close()
+
+        // Start Crawling
+        await Promise.all(element.child_elements.map(async (childElement) => {
+            try {
+                // Wait for hard coded page load
+                if (childElement.type != "object") {
+                    await page.waitForSelector(childElement.selector, timeout = 30000)
+                }
+                // Crawl
+                resultKey = childElement.name
+                switch (childElement.type) {
+                    case "object":
+                        keyList.push(childElement.name)
+                        let newPage = await browser.newPage()
+                        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
+                        resultTmp = await crawlSinglePage(browser, newPage, url, childElement, delayTime)
+                        childObjectResult = resultTmp[0]
+                        nextLinkStack = resultTmp[1]
+                        //-------------
+                        // remove duplicate link
+                        nextLinkStack = [...new Set(nextLinkStack)];
+                        // copy
+                        nextLinkList = nextLinkStack.slice();
+
+                        while (true) {
+                            // console.log("link stack", nextLinkStack);
+                            // get next link
+                            nextLinkTmp = nextLinkStack.pop();
+                            // check if this is an invalid link
+                            if (!isValidHttpUrl(nextLinkTmp)) break;
+                            [resultInLinkTmp, returnedNextLink] = await crawlSinglePage(
+                                browser,
+                                newPage,
+                                nextLinkTmp,
+                                element,
+                                delayTime
+                            );
+
+                            // concat value
+                            childObjectResult = childObjectResult.concat(resultInLinkTmp[0][childElement.name]);
+
+                            // push returned link into next link stack
+                            for (const next of returnedNextLink) {
+                                if (!nextLinkList.includes(next)) {
+                                    nextLinkStack.push(next);
+                                    nextLinkList.push(next);
+                                }
+                            }
+                        }
+                        //------------
+
+                        resultKey = childElement.name
+                        resultValue = childObjectResult
+                        await newPage.close()
+
+                        break;
+                    case "text":
+                        var crawledChildElementsContent = await page.evaluate(crawlText, childElement)
+                        // Check if quantity met in infinite load crawl
+                        if (
+                            infiniteLoopStatus == true &&
+                            Array.isArray(crawledChildElementsContent[childElement.name]) &&
+                            crawledChildElementsContent[childElement.name].length < limit
+                        )
+                            break;
+                        else
+                            infiniteLoopStatus = false;
+
+                        // Continue Register result
+                        keyList.push(childElement.name)
+                        resultKey = childElement.name
+                        resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
+                        break;
+                    case "image":
+                        var crawledChildElementsContent = await page.evaluate(crawlImage, childElement)
+                        // Check if quantity met in infinite load crawl
+                        if (
+                            infiniteLoopStatus == true &&
+                            Array.isArray(crawledChildElementsContent[childElement.name]) &&
+                            crawledChildElementsContent[childElement.name].length < limit
+                        )
+                            break;
+                        else
+                            infiniteLoopStatus = false;
+
+                        // Continue Register result
+                        keyList.push(childElement.name)
+                        resultKey = childElement.name
+                        resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
+                        break;
+                    case "image-auto":
+                        keyList.push(childElement.name)
+                        var crawledChildElementsContent = await page.evaluate(crawlImageAuto, childElement)
+                        resultKey = childElement.name
+                        resultValue = crawledChildElementsContent[childElement.name]
+                        break;
+                    case "paragraph":
+                        keyList.push(childElement.name)
+                        var crawledChildElementsContent = await page.evaluate(crawlParagraph, childElement)
+                        resultKey = childElement.name
+                        resultValue = crawledChildElementsContent[childElement.name]
+                        break;
+                    case "click":
+                        nextLink = await page.evaluate(crawlClick, childElement)
+                        // Check if there is any link
+                        if (nextLink[0] != '') {
+                            return;
+                        }
+                        // Open new page to get next link
+                        let pageTmp = await browser.newPage();
+                        await pageTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                        await pageTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                        await pageTmp.waitForSelector(childElement.selector, timeout = 1e5)
+                        const button = await pageTmp.$(childElement.selector);
+                        try {
+                            if (button) {
+                                // await page.waitForNavigation();
+                                // await button.click();
+                                await Promise.all([
+                                    pageTmp.waitForNavigation(),
+                                    button.click()
+                                ]);
+                                // await page.waitFor(2000);
+                                nextLink = [pageTmp.url()]
+                            }
+                        } catch (error) {
+                            console.log("[ERROR] Cannot click this element", error);
+                        }
+                        await pageTmp.close()
+                        return;
+                    case "link-href":
+                        var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
+                        // Check if quantity met in infinite load crawl
+                        if (
+                            infiniteLoopStatus == true &&
+                            Array.isArray(crawledChildElementsContent[childElement.name]) &&
+                            crawledChildElementsContent[childElement.name].length < limit
+                        )
+                            break;
+                        else
+                            infiniteLoopStatus = false;
+
+                        // Continue Register result
+                        keyList.push(childElement.name);
+                        resultKey = childElement.name;
+                        resultValue = crawledChildElementsContent[childElement.name].slice(0, limit);
+                        break;
+                    case "link":
+                        // Get all href link from selector
+                        var crawledChildElementsContent = await page.evaluate(crawlLink, childElement)
+                        // Check if quantity met in infinite load crawl
+                        if (
+                            infiniteLoopStatus == true &&
+                            Array.isArray(crawledChildElementsContent[childElement.name]) &&
+                            crawledChildElementsContent[childElement.name].length < limit
+                        )
+                            break;
+                        else
+                            infiniteLoopStatus = false;
+
+                        // Continue Register result
+                        crawledChildElementsContent[childElement.name] = crawledChildElementsContent[childElement.name].slice(0, limit)
+                        // For all href link, evaluate child elements
+                        // Treat this the same as an object type
+                        let crawledGotoResult = []
+                        await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
+                            let newPage = await browser.newPage()
+                            await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                            resultTmp = await crawlSinglePage(browser, newPage, crawledElement, childElement, delayTime * index)
+                            childObjectResult = resultTmp[0]
+                            // Must use element because crawl function will return in correct order
+                            crawledGotoResult[index] = childObjectResult
+                            await newPage.close()
+                        }))
+                        keyList.push(childElement.name);
+                        resultKey = childElement.name
+                        resultValue = crawledGotoResult
+                        // crawlResult[childElement.name] = crawledGotoResult
+                        // return
+                        break;
+                    case "map":
+                        keyList.push(childElement.name)
+                        const mapSelectorType1 = `a[href ^= 'https://maps.google.com/maps?ll']`;
+                        const mapSelectorType2 = `iframe[src ^= 'https://www.google.com/maps/embed']`;
+                        let mapSelector = mapSelectorType1;
+                        // Open new page to get map
+                        let pageMapTmp = await browser.newPage();
+                        await pageMapTmp.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                        await pageMapTmp.goto(url, { waitUtil: "networkkidle0", timeout: 0 })
+                        // await pageMapTmp.setDefaultTimeout(60000);
+                        await pageMapTmp.waitForSelector(childElement.selector)
+                        const map = await pageMapTmp.$(childElement.selector);
+                        try {
+                            if (map) {
+                                await pageMapTmp.bringToFront();
+                                await pageMapTmp.hover(childElement.selector)
+                                await pageMapTmp.click(childElement.selector);
+                                await page.waitForTimeout(3000);
+                                await pageMapTmp.hover(childElement.selector)
+                                await pageMapTmp.click(childElement.selector);
+                                try {
+                                    await pageMapTmp.waitForSelector(mapSelector);
+                                } catch (error) {
+                                    console.log("[WARNING] Google map do not display, checking embeded map...");
+                                    mapSelector = mapSelectorType2;
+                                    await pageMapTmp.waitForSelector(mapSelector);
+                                }
+                                // Crawl map data
+                                var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
+                                resultKey = childElement.name
+                                resultValue = crawledChildElementsContent[childElement.name]
+                            }
+                        } catch (error) {
+                            console.log("[ERROR] Cannot access map", error);
+                        }
+                        await pageMapTmp.close()
+                        break;
+                    default:
+                        return;
+                }
+
+                // Only register result when infinite load completed
+                if (infiniteLoopStatus == false) {
+                    if (resultValue.length == 1) {
+                        resultValue = resultValue[0]
+                    }
+                    crawlResult[resultKey] = resultValue
+                }
+            } catch (error) {
+                console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error);
+                keyList.push(childElement.name);
+                crawlResult[childElement.name] = "";
+            }
+        }))
+
+        if (infiniteLoopStatus == false)
+            break loop;
+    }
+
 
     let i;
     for (i = 0; i <= keyList.length; i++) {
