@@ -92,6 +92,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     loop: while (true) {
         // Click infinite button
         if (infiniteLoopStatus == true) {
+            let lastHeight = await page.evaluate('document.body.scrollHeight');
             try {
                 if (infiniteButton) {
                     await infiniteButton.click();
@@ -100,22 +101,22 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                 console.log("[ERROR] Cannot load more data", error.message);
             }
             // Check if data loaded, else wait
-            let lastHeight = await page.evaluate('document.body.scrollHeight');
-            let newHeight = await page.evaluate('document.body.scrollHeight');
             let waitedTimeCount = 0;
             while (true) {
                 await page.waitForTimeout(1000);
-                waitedTimeCount++;
-                if (newHeight === lastHeight) {
-                    break;
-                }
+                waitedTimeCount = waitedTimeCount + 1;
+                let newHeight = await page.evaluate('document.body.scrollHeight');
                 if (waitedTimeCount > 10) {
                     console.log("[INFO] No more data to be loaded, infinite click stopped!");
                     infiniteLoopStatus = false;
                     break;
                 }
+                // Break if new data loaded
+                if (newHeight > lastHeight) {
+                    console.log("[INFO] New data loaded by clicking infinite load button!");
+                    break;
+                }
             }
-            console.log("[INFO] New data loaded by clicking infinite load button!");
         }
 
         // Start Crawling
@@ -129,6 +130,9 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                 resultKey = childElement.name
                 switch (childElement.type) {
                     case "object":
+                        // Do nothing if data not load enough
+                        if (infiniteLoopStatus == true) break;
+
                         keyList.push(childElement.name)
                         let newPage = await browser.newPage()
                         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
@@ -208,18 +212,27 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                         resultValue = crawledChildElementsContent[childElement.name].slice(0, limit)
                         break;
                     case "image-auto":
+                        // Do nothing if data not load enough
+                        if (infiniteLoopStatus == true) break;
+
                         keyList.push(childElement.name)
                         var crawledChildElementsContent = await page.evaluate(crawlImageAuto, childElement)
                         resultKey = childElement.name
                         resultValue = crawledChildElementsContent[childElement.name]
                         break;
                     case "paragraph":
+                        // Do nothing if data not load enough
+                        if (infiniteLoopStatus == true) break;
+
                         keyList.push(childElement.name)
                         var crawledChildElementsContent = await page.evaluate(crawlParagraph, childElement)
                         resultKey = childElement.name
                         resultValue = crawledChildElementsContent[childElement.name]
                         break;
                     case "click":
+                        // Do nothing if data not load enough
+                        if (infiniteLoopStatus == true) break;
+
                         nextLink = await page.evaluate(crawlClick, childElement)
                         // Check if there is any link
                         if (nextLink[0] != '') {
@@ -303,6 +316,9 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                         // return
                         break;
                     case "map":
+                        // Do nothing if data not load enough
+                        if (infiniteLoopStatus == true) break;
+
                         keyList.push(childElement.name)
                         const mapSelectorType1 = `a[href ^= 'https://maps.google.com/maps?ll']`;
                         const mapSelectorType2 = `iframe[src ^= 'https://www.google.com/maps/embed']`;
