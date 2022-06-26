@@ -39,7 +39,7 @@ async function SaveSheet(sheetUrl, result) {
     for (let i = 0; i < values.length; i += chunkSize) {
       const chunk = values.slice(i, i + chunkSize);
       await worksheet.addRows(chunk); // Your value is put to the sheet.
-      console.log(`[INFO] ${i + chunkSize} rows pushed to sheet`, sheetId);
+      console.log(`[INFO] ${chunk.length} rows pushed to sheet`, sheetId);
     }
 
     console.log("[INFO] Result data saved to sheet: ", sheetId);
