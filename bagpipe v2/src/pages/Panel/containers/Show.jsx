@@ -419,7 +419,7 @@ const Show = (props) => {
               pathname: newAttrPathWithQuery,
             }}
           >
-            New Selector
+            Create New Element
           </Link>
         </Button>
       </Space>
