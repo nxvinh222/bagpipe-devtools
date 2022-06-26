@@ -355,9 +355,21 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                 // Only register result when infinite load completed
                 if (infiniteLoopStatus == false) {
                     if (resultValue.length == 1) {
-                        resultValue = resultValue[0]
+                        resultValue = resultValue[0];
                     }
-                    crawlResult[resultKey] = resultValue
+                    crawlResult[resultKey] = resultValue;
+
+                    // Add lat long field for map type crawl
+                    if (childElement.type == "map") {
+                        let latName = childElement.name + "_lat";
+                        let longName = childElement.name + "_long";
+                        keyList.push(latName);
+                        keyList.push(longName);
+                        if (Array.isArray(resultValue) && resultValue.length == 2) {
+                            crawlResult[latName] = resultValue[0];
+                            crawlResult[longName] = resultValue[1];
+                        }
+                    }
                 }
             } catch (error) {
                 console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error.message);
