@@ -35,9 +35,9 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     // await page.setDefaultNavigationTimeout(0);
 
     // console.log("e: ", element);
-    console.log("[INFO] waiting: ", url);
+    console.log("[INFO] Waiting: ", url);
     await delay(delayTime);
-    console.log("[INFO] crawling: ", url);
+    console.log("[INFO] Crawling: ", url);
     await page.goto(url, {
         waitUtil: "networkkidle0",
         timeout: 0
@@ -282,15 +282,20 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                         // For all href link, evaluate child elements
                         // Treat this the same as an object type
                         let crawledGotoResult = []
-                        await Promise.all(crawledChildElementsContent[childElement.name].map(async (crawledElement, index) => {
-                            let newPage = await browser.newPage()
-                            await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
-                            resultTmp = await crawlSinglePage(browser, newPage, crawledElement, childElement, delayTime * index)
-                            childObjectResult = resultTmp[0]
-                            // Must use element because crawl function will return in correct order
-                            crawledGotoResult[index] = childObjectResult
-                            await newPage.close()
-                        }))
+                        // Crawl page by batch
+                        const chunkSize = 30;
+                        for (let i = 0; i < crawledChildElementsContent[childElement.name].length; i += chunkSize) {
+                            const chunk = crawledChildElementsContent[childElement.name].slice(i, i + chunkSize);
+                            await Promise.all(chunk.map(async (crawledElement, index) => {
+                                let newPage = await browser.newPage()
+                                await newPage.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36");
+                                resultTmp = await crawlSinglePage(browser, newPage, crawledElement, childElement, delayTime * index)
+                                childObjectResult = resultTmp[0]
+                                // Must use element because crawl function will return in correct order
+                                crawledGotoResult[index + i] = childObjectResult
+                                await newPage.close()
+                            }))
+                        }
                         keyList.push(childElement.name);
                         resultKey = childElement.name
                         resultValue = crawledGotoResult
@@ -346,7 +351,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     crawlResult[resultKey] = resultValue
                 }
             } catch (error) {
-                console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error);
+                console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error.message);
                 keyList.push(childElement.name);
                 crawlResult[childElement.name] = "";
             }
@@ -409,6 +414,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     // if (element.type == "object")
     // console.log(crawlResult);
     // console.log("done handling: ", element.name);
+    console.log("[INFO] Crawled: ", url);
     return [result, nextLink]
 }
 
