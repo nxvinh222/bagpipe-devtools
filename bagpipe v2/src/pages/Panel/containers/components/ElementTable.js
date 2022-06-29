@@ -157,6 +157,8 @@ function getColor(type) {
       return 'blue';
     case 'paragraph':
       return 'green';
+    case 'ignore':
+      return 'gray';
     default:
       return 'yellow';
   }

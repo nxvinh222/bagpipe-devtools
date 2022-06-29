@@ -321,6 +321,10 @@ const NewAttr = (props) => {
                             {
                                 title: "Map",
                                 value: "map",
+                            },
+                            {
+                                title: "Ignore",
+                                value: "ignore",
                             }
                         ]}
                     />
