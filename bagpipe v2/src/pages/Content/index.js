@@ -106,18 +106,18 @@ function handleClick(event) {
         console.log("here: ", event.target.className);
         selected_element.push(event.target)
 
-        // final_element = String(getCssSelector(
-        //     selected_element,
-        //     {
-        //         // combineWithinSelector: true,
-        //         // combineBetweenSelectors: true,
-        //         // includeTag: true,
-        //         // maxCandidates: 10,
-        //         selectors: ['class', 'nthchild'],
-        //     }
-        // ))
+        final_element = String(getCssSelector(
+            selected_element,
+            {
+                // combineWithinSelector: true,
+                // combineBetweenSelectors: true,
+                // includeTag: true,
+                // maxCandidates: 10,
+                selectors: ['class', 'nthchild'],
+            }
+        ))
 
-        final_element = getSingleElement(selected_element[0]);
+        // final_element = getSingleElement(selected_element[0]);
         console.log("aa: ", final_element);
         $(final_element).addClass("click-hova");
     }
