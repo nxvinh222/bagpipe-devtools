@@ -135,7 +135,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
 
                         keyList.push(childElement.name)
                         let newPage = await browser.newPage()
-                        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
+                        await newPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
                         resultTmp = await crawlSinglePage(browser, newPage, url, childElement, delayTime)
                         childObjectResult = resultTmp[0]
                         nextLinkStack = resultTmp[1]
