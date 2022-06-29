@@ -334,25 +334,34 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                             if (map) {
                                 let clickedTimes = 0;
                                 let clickTimesMax = 10;
+                                var mapType1;
+                                var mapType2;
                                 while (clickedTimes < clickTimesMax) {
                                     await pageMapTmp.bringToFront();
                                     await pageMapTmp.hover(childElement.selector);
                                     await pageMapTmp.click(childElement.selector);
                                     await pageMapTmp.waitForTimeout(1000);
 
-                                    let mapType1 = (await pageMapTmp.$(mapSelectorType1)) || "";
-                                    let mapType2 = (await pageMapTmp.$(mapSelectorType2)) || "";
+                                    mapType1 = (await pageMapTmp.$(mapSelectorType1)) || "";
+                                    mapType2 = (await pageMapTmp.$(mapSelectorType2)) || "";
                                     if (mapType1 != "" || mapType2 != "") break;
 
                                     clickedTimes++;
                                 }
-                                try {
-                                    await pageMapTmp.waitForSelector(mapSelector);
-                                } catch (error) {
-                                    console.log("[WARNING] Google map do not display, checking embeded map...");
-                                    mapSelector = mapSelectorType2;
-                                    await pageMapTmp.setDefaultTimeout(30000);
-                                    await pageMapTmp.waitForSelector(mapSelector);
+
+                                // If map dont show, wait for it to load
+                                if (mapType1 == "" && mapType2 == "") {
+                                    try {
+                                        await pageMapTmp.waitForSelector(mapSelector);
+                                    } catch (error) {
+                                        console.log("[WARNING] Google map do not display, checking embeded map...");
+                                        mapSelector = mapSelectorType2;
+                                        await pageMapTmp.setDefaultTimeout(30000);
+                                        await pageMapTmp.waitForSelector(mapSelector);
+                                    }
+                                } else {
+                                    if (mapType2 != "")
+                                        mapSelector = mapSelectorType2;
                                 }
                                 // Crawl map data
                                 var crawledChildElementsContent = await pageMapTmp.evaluate(crawlMap, childElement, mapSelector)
