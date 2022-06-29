@@ -2,6 +2,7 @@ import { printLine } from './modules/print';
 import getCssSelector from './modules/selector-gen/index';
 import { getSimilarElement } from './modules/event-handler/similar';
 import $ from 'jquery';
+import { getSingleElement } from './modules/event-handler/single';
 
 
 var attr_index = 1
@@ -105,16 +106,18 @@ function handleClick(event) {
         console.log("here: ", event.target.className);
         selected_element.push(event.target)
 
-        final_element = String(getCssSelector(
-            selected_element,
-            {
-                // combineWithinSelector: true,
-                // combineBetweenSelectors: true,
-                // includeTag: true,
-                // maxCandidates: 10,
-                selectors: ['class', 'nthchild'],
-            }
-        ))
+        // final_element = String(getCssSelector(
+        //     selected_element,
+        //     {
+        //         // combineWithinSelector: true,
+        //         // combineBetweenSelectors: true,
+        //         // includeTag: true,
+        //         // maxCandidates: 10,
+        //         selectors: ['class', 'nthchild'],
+        //     }
+        // ))
+
+        final_element = getSingleElement(selected_element[0]);
         console.log("aa: ", final_element);
         $(final_element).addClass("click-hova");
     }
