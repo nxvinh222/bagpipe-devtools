@@ -8,6 +8,7 @@ const crawlParagraph = (childElement) => {
         crawledText = crawledText.replaceAll("\n", " ");
         crawledText = crawledText.replaceAll("\t", " ");
         crawledText = crawledText.replace("/\\/g", " ");
+        crawledText = crawledText.replace(/[•“”`!@#$%^&*()_+\-=\[\]{};'"\\|<>?~]/g, '');
 
         if (crawledText != null)
             crawledElementsContent = crawledElementsContent + "\\\\n" + crawledText

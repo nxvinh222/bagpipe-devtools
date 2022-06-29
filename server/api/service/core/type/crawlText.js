@@ -12,7 +12,7 @@ const crawlText = (childElement) => {
         crawledText = crawledText.replaceAll("\t", " ");
         // crawledText = crawledText.replace("/\\/g", "\\\\");
         crawledText = crawledText.replace("/\\/g", " ");
-        crawledText = crawledText.replace(/[•]/g, '');
+        crawledText = crawledText.replace(/[•“”`!@#$%^&*()_+\-=\[\]{};'"\\|<>?~]/g, '');
         // crawledText = crawledText.replace(/[&\/\\#,+()$~%.'":;*?<>{}]/g, '');•
 
         if (crawledText != null)
