@@ -108,14 +108,14 @@ const NewAttr = (props) => {
         document.querySelector('.preview').style.display = "none";
         document.querySelector('.remove-preview').style.display = "inline-block";
         chrome.devtools.inspectedWindow.eval(
-            `$("${element}").addClass("click-hova");`
+            `$('${element}').addClass("click-hova");`
         );
     }
     const removePreview = () => {
         document.querySelector('.preview').style.display = "inline-block";
         document.querySelector('.remove-preview').style.display = "none";
         chrome.devtools.inspectedWindow.eval(
-            `$("${element}").removeClass("click-hova");`
+            `$('.click-hova').removeClass("click-hova");`
         );
     }
 
@@ -164,7 +164,7 @@ const NewAttr = (props) => {
                     let urlParams = new URLSearchParams(window.location.search);
                     urlParams.set(fatherIdQuery, fatherId);
                     let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
-                    navigate(path)
+                    navigate(path);
                 })
                 .catch(err => {
                     setFailMsg(err);
@@ -188,7 +188,10 @@ const NewAttr = (props) => {
     };
 
     const onCancel = () => {
-        navigate(showRecipePath);
+        let urlParams = new URLSearchParams(window.location.search);
+        urlParams.set(fatherIdQuery, fatherId);
+        let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+        navigate(path);
     };
 
     return (
