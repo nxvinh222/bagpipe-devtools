@@ -15,13 +15,16 @@ export function getSingleElement(selected_element) {
 
     outer = selected_element;
     if (selected_element.className != "") {
-        child_classname = '.' + selected_element.className.split(' ').join('.');
+        // child_classname = '.' + selected_element.className.split(' ').join('.');
+        child_classname = `[class="${selected_element.className}"]`;
+        console.log("bbb: ", selected_element.className);
     } else {
         while (outer.className == "") {
             if (outer.parentElement == null) break;
             outer = outer.parentElement;
         }
-        outer_classname = '.' + outer.className.split(' ').join('.');
+        // outer_classname = '.' + outer.className.split(' ').join('.');
+        outer_classname = `[class="${outer.className}"]`;
     }
 
     if (outer_classname == "")
