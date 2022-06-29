@@ -38,8 +38,6 @@ contentScriptLinks.forEach(src => {
 $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     // Append to body
     $(data).appendTo('body');
-    $(".select-panel").css("height", "106px");
-    $(".select-panel").css("width", "396px");
     console.log('injected')
     chrome.storage.sync.set({ "elements": "Selecting........." }, function () {
         console.log("[bagpipe] Selecting element");
@@ -56,11 +54,15 @@ $.get(chrome.runtime.getURL('./tool.html'), function (data) {
     })
 
     $('.bagpipe-scrape-inject').on('click', () => {
-        // Some website may scale this element
-        $(".select-panel").css("height", "106px");
-        $(".select-panel").css("width", "396px");
         // Make panel display
         $(".select-panel").css("display", "block");
+        // Some website may scale this element
+        if (document.querySelectorAll(`.select-panel`)[0].getBoundingClientRect().width <= 396)
+            $(".select-panel").css("width", "396px");
+        if (document.querySelectorAll(`.select-panel`)[0].getBoundingClientRect().height <= 106)
+            $(".select-panel").css("height", "106px");
+
+        // Add mouse over event
         $('body').children().on("mouseover.selectElement", function (e) {
             e.preventDefault();
             if (extension_element.includes(e.target.className)) return false
