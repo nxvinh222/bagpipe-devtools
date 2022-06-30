@@ -47,6 +47,24 @@ async function advanceCrawlService(request) {
   // clear limit if request using exclude feature
   if (request.exclude) isRootElement = false;
 
+  // Update project status to Running
+  var updateCrawlerStatusOptions = {
+    url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+    method: 'PUT',
+    json: {
+      status: 2
+    }
+  }
+  httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // Print out the response body
+      console.log("[INFO]  Update project's status succeed: Running!")
+    } else {
+      console.log("[ERROR] Update project's status failed")
+    }
+  })
+
+  // Start crawl service
   await Promise.all(
     request.elements.map(async (element) => {
       if (element.type == "object") {
@@ -140,12 +158,12 @@ async function advanceCrawlService(request) {
             identifier_list: [],
           };
         }
-        var options = {
+        var updateIdentifierOptions = {
           url: `http://localhost:8080/api/v1/recipes/${recipeId}/identifiers`,
           method: 'POST',
           json: identifierListUpdateBody
         }
-        httpRequest(options, function (error, response, body) {
+        httpRequest(updateIdentifierOptions, function (error, response, body) {
           if (!error && response.statusCode == 200) {
             // Print out the response body
             if (request.exclude)
@@ -160,7 +178,26 @@ async function advanceCrawlService(request) {
   await page.close()
   await browser.close();
 
-  return crawlResult;
+  // Generate file name
+  const generatedFileName = Date.now();
+  // Update project status to Done
+  var updateCrawlerStatusOptions = {
+    url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+    method: 'PUT',
+    json: {
+      status: 3,
+    }
+  }
+  httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // Print out the response body
+      console.log("[INFO]  Update project's status succeed: Finished!")
+    } else {
+      console.log("[ERROR] Update project's status failed")
+    }
+  })
+
+  return [crawlResult, generatedFileName];
 }
 
 function isValidHttpUrl(string) {

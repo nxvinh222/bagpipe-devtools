@@ -3,8 +3,8 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
-import { Table, Button, Popconfirm, Typography, message, Input } from 'antd';
-import { AliwangwangOutlined } from '@ant-design/icons';
+import { Table, Button, Popconfirm, Typography, message, Input, Spin } from 'antd';
+import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
 import axios from './axios';
@@ -22,7 +22,8 @@ const Home = (props) => {
   const nameColumn = 'name';
   const urlColumn = 'start_url';
   const commentColumn = 'note';
-  const { Title, Paragraph } = Typography;
+  const statusColumn = 'status';
+  const { Title, Paragraph, Text } = Typography;
 
   const getData = () => {
     axios
@@ -34,6 +35,7 @@ const Home = (props) => {
           [nameColumn]: recipe[nameColumn],
           [urlColumn]: recipe[urlColumn],
           [commentColumn]: recipe[commentColumn],
+          [statusColumn]: recipe[statusColumn],
         }));
         // console.log('recipes: ' + recipes);
         setCrawlers(recipes);
@@ -84,7 +86,7 @@ const Home = (props) => {
       title: 'Crawl Url',
       dataIndex: urlColumn,
       key: urlColumn,
-      width: '50%',
+      width: '30%',
       render: (text, record) => {
         return (
           <Paragraph copyable>{text}</Paragraph>
@@ -92,8 +94,43 @@ const Home = (props) => {
       },
     },
     {
+      title: 'Status',
+      dataIndex: statusColumn,
+      key: statusColumn,
+      width: '10%',
+      render: (text, record) => {
+        switch (text) {
+          case 1:
+            return (
+              <Text type="strong">Not running</Text>
+            );
+          case 2:
+            const antIcon = (
+              <LoadingOutlined
+                style={{
+                  fontSize: 10,
+                }}
+                spin
+              />
+            );
+            return (
+              <Text type="warning">Running <Spin indicator={antIcon} /></Text>
+            )
+          case 3:
+            return (
+              <Text type="success">Finished <CheckOutlined /></Text>
+            );
+          case 4:
+            return (
+              <Text type="danger">Failed</Text>
+            );
+        }
+      },
+    },
+    {
       title: 'Action',
       key: 'action',
+      width: '10%',
       render: (text, record) => {
         let editPath = editRecipePath + `?${recipeIdQuery}=${record[idColumn]}`
         return (

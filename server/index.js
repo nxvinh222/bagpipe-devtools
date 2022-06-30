@@ -4,6 +4,7 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
 const creds = require("./credentials.json");
+var httpRequest = require('request');
 require("dotenv").config();
 // console.log(process.env);
 
@@ -26,7 +27,24 @@ app.post("/advance", advanceCrawlTransport);
 app.post("/advance-sql", advanceSqlCrawlTransport);
 app.get("/download", function (req, res) {
   const file = `./result/${req.query.filename}`;
+  const recipeId = req.query.recipeId;
   res.download(file); // Set disposition and send it.
+  // Update project status to Finished
+  var updateCrawlerStatusOptions = {
+    url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+    method: 'PUT',
+    json: {
+      status: 1
+    }
+  }
+  httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // Print out the response body
+      console.log("[INFO]  Update project's status succeed: Finished!")
+    } else {
+      console.log("[ERROR] Update project's status failed")
+    }
+  })
 });
 app.get("/test", function (req, res) {
   try {

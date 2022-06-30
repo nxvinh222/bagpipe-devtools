@@ -10,9 +10,11 @@ const { response } = require("express");
 const responseSuccess = require("./response/successResponse");
 const SaveSheet = require("../service/save/saveSheet");
 const SaveJsonResult = require("../service/save/saveJsonResult");
+var httpRequest = require('request');
 // console.log(process.env);
 async function advanceSqlCrawlTransport(req, res) {
   let sheetUrl = req.body.sheet_id;
+  let recipeId = req.body.recipe_id;
   const client = new Client({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -33,8 +35,8 @@ async function advanceSqlCrawlTransport(req, res) {
   }
 
   try {
-    // console.log("Request body sql: ", req.body);
-    let result = await advanceCrawlService(req.body);
+    // Crawl
+    let [result, generatedFileName] = await advanceCrawlService(req.body);
     console.log("[INFO] Scraping done! Saving result!");
 
     try {
@@ -43,15 +45,33 @@ async function advanceSqlCrawlTransport(req, res) {
       console.log("[ERROR] Cannot save to sheet: ", error.message);
     }
 
-    const fileName = `${Date.now()}`;
+    const fileName = `${generatedFileName}`;
     try {
       await SaveResult(client, flatten(result), fileName);
-      responseSuccess(res, `${fileName}.sql`);
+      fileName = `${fileName}.sql`;
     } catch (error) {
       console.log("[ERROR] Cannot save as sql file");
-      await SaveJsonResult(result, `${fileName}.json`);
-      responseSuccess(res, `${fileName}.json`);
+      fileName = `${fileName}.json`;
+      await SaveJsonResult(result, fileName);
     }
+    // Update filename
+    var updateCrawlerStatusOptions = {
+      url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+      method: 'PUT',
+      json: {
+        result_file: fileName,
+      }
+    }
+    httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        // Print out the response body
+        console.log("[INFO]  Update result filename succeed!")
+      } else {
+        console.log("[ERROR] Update result filename failed")
+      }
+    })
+    // Response
+    responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);
     res.status(500).send({

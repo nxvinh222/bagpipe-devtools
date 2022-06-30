@@ -52,6 +52,8 @@ const Show = (props) => {
   const [recipeName, setRecipeName] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [startUrl, setStartUrl] = useState("");
+  const [status, setStatus] = useState(1);
+  const [latestCrawl, setLatestCrawl] = useState("none");
   const [attrNameChangeWarningMsg, setAttrNameChangeWarningMsg] = useState({
     msg: "",
     status: ""
@@ -91,15 +93,38 @@ const Show = (props) => {
       .then((r) => {
         setRecipeName(r.data.data.name);
         setStartUrl(r.data.data.start_url);
+        setStatus(r.data.data.status);
         if (r.data.data.attribute_name_list != null)
           setAttrNameList(r.data.data.attribute_name_list);
         else
           setAttrNameList([]);
-        if (r.data.data.attribute_name_list.includes(r.data.data.identifier_attr))
+        if (r.data.data.attribute_name_list != null && r.data.data.attribute_name_list.includes(r.data.data.identifier_attr))
           setIdentifierAttr(r.data.data.identifier_attr);
         else {
           setIdentifierAttr(null);
         }
+
+        // Set download filename
+        if (r.data.data.result_file != "") {
+          setResultDownloadUrl(r.data.data.result_file);
+          var latestCrawlDate = new Date(parseInt(r.data.data.result_file.split(".")[0]));
+          latestCrawlDate = latestCrawlDate.toLocaleDateString();
+          setLatestCrawl(latestCrawlDate);
+          setIsDownloadButtonDisabled(false);
+        }
+
+        // Update show screen based on project status
+        console.log("status: ", status);
+        switch (r.data.data.status) {
+          case 2:
+            enterLoading(true);
+            setIsCrawlWarningVisible(true);
+            break;
+          case 3:
+            setIsCrawlResultVisible(true);
+            break;
+        }
+
       })
       .catch((e) => console.log("[ERROR] Cannot get Data", e));
 
@@ -152,7 +177,7 @@ const Show = (props) => {
 
   const downloadResult = () => {
     axiosCrawl
-      .get(`/download?filename=${resultDownloadUrl}`, {
+      .get(`/download?filename=${resultDownloadUrl}&recipeId=${recipeId}`, {
         // include your additional POSTed data here
         responseType: 'blob',
       })
@@ -333,7 +358,7 @@ const Show = (props) => {
     <div className="crawl-result-warning-msg">
       <Alert
         message="Crawling!"
-        description="Crawler is running! Don't exit this screen, otherwise the crawl result will be lost."
+        description="Crawler is running!"
         type="warning"
         showIcon
       />
@@ -459,6 +484,7 @@ const Show = (props) => {
         >
           Download result file
         </Button>
+        <div className='latest-crawl'>Latest crawl: {latestCrawl}</div>
       </Space>
       <br />
       <br />
