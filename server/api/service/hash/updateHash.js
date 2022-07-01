@@ -1,9 +1,14 @@
+const getValueByKey = require("../../../utils/objectScan");
+
 function UpdateHash(hashtable, result, identifierAttr) {
     for (let i = 0; i < result.length; i++) {
-        if (hashtable.containsKey(result[i][identifierAttr])) {
+        let value = getValueByKey(result[i], identifierAttr)
+        // result[i][identifierAttr]
+        if (Array.isArray(value)) value = "[" + value.toString() + "]";
+        if (hashtable.containsKey(value)) {
             delete result[i];
         } else {
-            hashtable.put(result[i][identifierAttr]);
+            hashtable.put(value);
         }
     }
 

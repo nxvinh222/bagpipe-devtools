@@ -89,7 +89,12 @@ async function advanceCrawlService(request) {
         // filter crawled data
         if (request.exclude) {
           var hashtable = InitHash(new SimpleHashTable(), identifierList);
-          [hashtable, crawlResult[element.name]] = UpdateHash(hashtable, crawlResult[element.name], identifierAttr);
+          try {
+            [hashtable, crawlResult[element.name]] = UpdateHash(hashtable, crawlResult[element.name], identifierAttr);
+          } catch (error) {
+            console.log("[ERROR] Cannot Update hash table, stop update hash: ", error);
+            request.exclude = false;
+          }
         }
 
         // remove duplicate link
@@ -126,7 +131,12 @@ async function advanceCrawlService(request) {
             returnedNextLink = returnedNextLink.filter(e => e !== request.url);
             // update hash
             if (request.exclude) {
-              [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
+              try {
+                [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
+              } catch (error) {
+                console.log("[ERROR] Cannot Update hash table, stop update hash: ", error);
+                request.exclude = false;
+              }
             }
             // concat value
             crawlResult[element.name] = crawlResult[element.name].concat(result);

@@ -19,7 +19,7 @@ const app = express(); // Initializing Express
 
 // app.use(timeout("1200s"));
 // app.use(haltOnTimedout);
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // Wrapping the Puppeteer browser logic in a GET request
 app.post("/simple", simpleCrawlTransport);
