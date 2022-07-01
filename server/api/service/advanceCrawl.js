@@ -37,15 +37,18 @@ async function advanceCrawlService(request) {
   let size = request.item_limit;
   // next function call limit
   let limit = size;
+  let originalSize = size;
   // for checking if this is root element
   let isRootElement = true;
   let identifierAttr = request.identifier_attr;
   let identifierList = request.identifier_list;
   let recipeId = request.recipe_id;
   if (size == null) size = 10;
+  let infiniteLoopStatus = false;
 
-  // clear limit if request using exclude feature
-  if (request.exclude) isRootElement = false;
+  // Add to limit an amount equal to crawled data length if using excluded feature
+  if (request.exclude)
+    limit += identifierList.length;
 
   // Update project status to Running
   var updateCrawlerStatusOptions = {
@@ -67,6 +70,15 @@ async function advanceCrawlService(request) {
   // Start crawl service
   await Promise.all(
     request.elements.map(async (element) => {
+      // Check infinity status
+      for (let e of element.child_elements) {
+        if (e.type == "click-infinity") {
+          infiniteLoopStatus = true;
+          isRootElement = true;
+          break;
+        }
+      }
+      // Crawl
       if (element.type == "object") {
         [crawlResult[element.name], nextLinkStack] = await crawlSinglePage(
           browser,
@@ -156,7 +168,7 @@ async function advanceCrawlService(request) {
           }
         }
         crawlResult[element.name] = crawlResult[element.name].slice(0, size);
-        console.log("[INFO] result length: ", crawlResult[element.name].length);
+        console.log("[INFO] Result length: ", crawlResult[element.name].length);
 
         // update identifier list
         var identifierListUpdateBody;

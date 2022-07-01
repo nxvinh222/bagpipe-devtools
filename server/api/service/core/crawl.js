@@ -24,6 +24,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
     let nextLinkList = [];
 
     // Check if this is root
+    // If this is not root, dont check limit
     if (root == false) limit = 100000000;
 
     // Infinite Click Status
@@ -60,10 +61,13 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
             lastHeight = newHeight;
         }
     } else {
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.15)');
+        await page.waitForTimeout(1000);
         await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.25)');
-        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.5)');
-        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.75)');
-        await page.evaluate('window.scrollBy(0, document.body.scrollHeight)');
+        await page.waitForTimeout(1000);
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.25)');
+        await page.waitForTimeout(1000);
+        await page.evaluate('window.scrollBy(0, document.body.scrollHeight*0.25)');
     }
 
     // Check if there is infinite click element
@@ -84,9 +88,11 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
         }
     }
     if (root)
-        console.log("[INFO] Infinite load status: ", infiniteLoopStatus);
-    else
+        console.log(`[INFO] Infinite load status of element ${element.name}: `, infiniteLoopStatus);
+    else {
         infiniteLoopStatus = false;
+        // console.log(`[INFO] Infinite load status of element ${element.name} (not root): `, infiniteLoopStatus);
+    }
 
     // Crawl
     loop: while (true) {
@@ -124,7 +130,8 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
             try {
                 // Wait for hard coded page load
                 if (childElement.type != "object") {
-                    await page.waitForSelector(childElement.selector, timeout = 30000)
+                    // await page.setDefaultTimeout(60000);
+                    await page.waitForSelector(childElement.selector, timeout = 60000)
                 }
                 // Crawl
                 resultKey = childElement.name
