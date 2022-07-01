@@ -47,8 +47,10 @@ async function advanceCrawlService(request) {
   let infiniteLoopStatus = false;
 
   // Add to limit an amount equal to crawled data length if using excluded feature
-  if (request.exclude)
+  if (request.exclude) {
     limit += identifierList.length;
+    console.log("[INFO] New crawl limit: ", limit);
+  }
 
   // Update project status to Running
   var updateCrawlerStatusOptions = {

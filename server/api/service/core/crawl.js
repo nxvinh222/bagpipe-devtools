@@ -404,7 +404,7 @@ const crawlSinglePage = async (browser, page, url, element, delayTime, root = fa
                     }
                 }
             } catch (error) {
-                console.log(`[WARNING] cannot extract information from: ${url}\n ---> `, error.message);
+                console.log(`[WARNING] cannot extract information of ${childElement.name} from: ${url}\n ---> `, error.message);
                 keyList.push(childElement.name);
                 crawlResult[childElement.name] = "";
             }
