@@ -39,7 +39,23 @@ async function advanceCrawlTransport(req, res) {
     responseSuccess(res, `${fileName}`);
   } catch (error) {
     console.log("[ERROR] Scrape failed: ", error);
-    res.status(500).send({ error: "Scrape failed, please try again!" });
+    // Update status to failed
+    var updateCrawlerStatusOptions = {
+      url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+      method: 'PUT',
+      json: {
+        status: 4,
+      }
+    }
+    httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        // Print out the response body
+        console.log("[INFO] Update status succeed!: status failed")
+      } else {
+        console.log("[ERROR] Update status failed")
+      }
+      res.status(500).send({ error: "Scrape failed, please try again!" });
+    })
   }
 }
 
