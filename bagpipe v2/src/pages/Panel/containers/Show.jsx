@@ -122,6 +122,7 @@ const Show = (props) => {
             break;
           case 3:
             setIsCrawlResultVisible(true);
+            setAxiosTimer(getCrawlTimeStr(r.data.data.crawl_time));
             break;
         }
 
@@ -231,6 +232,9 @@ const Show = (props) => {
     seconds = seconds % 60;
     setAxiosTimer(`${minutes} minutes, ${seconds} seconds`);
   }
+  const getCrawlTimeStr = (crawlTime) => {
+    return `${Math.floor(crawlTime / 60)} minutes, ${crawlTime % 60} seconds`
+  }
 
   const scrape = (config) => {
     console.log('Scraping!');
@@ -245,12 +249,12 @@ const Show = (props) => {
         setIsCrawlResultFailVisible(false);
         setIsDownloadButtonDisabled(false);
         enterLoading(false);
-        axiosTimerFunc(startTime);
+        // axiosTimerFunc(startTime);
       } else {
         setIsCrawlResultFailVisible(true);
         setIsCrawlResultVisible(false);
         enterLoading(false);
-        axiosTimerFunc(startTime);
+        // axiosTimerFunc(startTime);
       }
     }
 
@@ -281,20 +285,13 @@ const Show = (props) => {
             .post('/advance-sql', elementBody)
             .then((response) => {
               console.log('sql response ', response.data);
-              // setIsCrawlResultVisible(true);
-              // setIsCrawlResultFailVisible(false);
-              // setIsDownloadButtonDisabled(false);
-              // enterLoading(false);
-              // axiosTimerFunc(startTime);
-              setResultDownloadUrl(response.data.data);
+              setResultDownloadUrl(response.data.data.file_name);
+              setAxiosTimer(getCrawlTimeStr(response.data.data.crawl_time));
               handleCrawlResult(true, startTime)
             })
             .catch((err) => {
-              // setIsCrawlResultFailVisible(true);
-              // setIsCrawlResultVisible(false);
-              // enterLoading(false);
-              // axiosTimerFunc(startTime);
               console.log(err);
+              setAxiosTimer(getCrawlTimeStr(response.data.data.crawl_time));
               handleCrawlResult(false, startTime)
             });
           return;
@@ -306,23 +303,14 @@ const Show = (props) => {
           axiosCrawl
             .post('/advance?flatten=1', elementBody)
             .then((response) => {
-              // console.log('json response ', response.data);
-              // setIsCrawlResultVisible(true);
-              // setResultDownloadUrl(response.data.data);
-              // setIsDownloadButtonDisabled(false);
-              // enterLoading(false);
-              // axiosTimerFunc(startTime);
-              setResultDownloadUrl(response.data.data);
-              handleCrawlResult(true, startTime)
+              setResultDownloadUrl(response.data.data.file_name);
+              setAxiosTimer(getCrawlTimeStr(response.data.data.crawl_time));
+              handleCrawlResult(true, startTime);
             })
             .catch((err) => {
-              // setIsCrawlResultFailVisible(true);
-              // setIsCrawlResultVisible(false);
-              // enterLoading(false);
-              // axiosTimerFunc(startTime);
-              // console.log(err);
               console.log(err);
-              handleCrawlResult(false, startTime)
+              setAxiosTimer(getCrawlTimeStr(response.data.data.crawl_time));
+              handleCrawlResult(false, startTime);
             });
           return;
         }

@@ -9,6 +9,7 @@ const SimpleHashTable = require('simple-hashtable');
 const InitHash = require("./hash/initHash");
 const UpdateHash = require("./hash/updateHash");
 const UpdateIdentifierList = require("./hash/updateIdentifierList");
+const getElementSvcRequestOption = require("../../utils/requestBuilder");
 
 async function advanceCrawlService(request) {
   console.log("[INFO] Handling Text Scraping Request!");
