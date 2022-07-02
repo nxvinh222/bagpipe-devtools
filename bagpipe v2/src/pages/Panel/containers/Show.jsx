@@ -375,7 +375,7 @@ const Show = (props) => {
       </Text> */}
       <Alert
         message="Crawling failed, please try again!"
-        description={`Response time: ${axiosTimer}`}
+        // description={`Response time: ${axiosTimer}`}
         type="error"
         showIcon
       />
