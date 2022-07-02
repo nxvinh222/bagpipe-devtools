@@ -124,6 +124,9 @@ const Show = (props) => {
             setIsCrawlResultVisible(true);
             setAxiosTimer(getCrawlTimeStr(r.data.data.crawl_time));
             break;
+          case 4:
+            setIsCrawlResultFailVisible(true);
+            break;
         }
 
       })
@@ -361,6 +364,26 @@ const Show = (props) => {
       <Alert
         message="Crawling finished!"
         description={`Response time: ${axiosTimer}`}
+        action={
+          <Space>
+            <Button
+              size="medium"
+              type="ghost"
+              onClick={() => {
+                axios.
+                  put(`/api/v1/recipes/${recipeId}`, { status: 1 }).
+                  then(response => {
+                    setIsCrawlResultVisible(false);
+                  })
+                  .catch(err => {
+                    console.log("Cannot update project status", err);
+                  })
+              }}
+            >
+              Close message
+            </Button>
+          </Space>
+        }
         type="success"
         showIcon
       />
@@ -375,7 +398,27 @@ const Show = (props) => {
       </Text> */}
       <Alert
         message="Crawling failed, please try again!"
-        // description={`Response time: ${axiosTimer}`}
+        description={`Something wrong happened.`}
+        action={
+          <Space>
+            <Button
+              size="medium"
+              type="ghost"
+              onClick={() => {
+                axios.
+                  put(`/api/v1/recipes/${recipeId}`, { status: 1 }).
+                  then(response => {
+                    setIsCrawlResultFailVisible(false);
+                  })
+                  .catch(err => {
+                    console.log("Cannot update project status", err);
+                  })
+              }}
+            >
+              Close message
+            </Button>
+          </Space>
+        }
         type="error"
         showIcon
       />
