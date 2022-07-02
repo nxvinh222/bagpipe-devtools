@@ -38,7 +38,20 @@ const CrawlerConfigModal = (props) => {
                 onFinishFailed={props.onFinishFailedConfigCrawler}
                 autoComplete="off"
             >
-                <Form.Item label="Crawl item limit" name="item_limit" rules={[]}>
+                <Form.Item label="Crawl records limit" name="item_limit"
+                    rules={[
+                        {
+                            message: 'Crawl records limit must be larger than 0!',
+                            validator: (_, value) => {
+                                if (value > 0) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
+                    ]}
+                >
                     <InputNumber />
                 </Form.Item>
 
