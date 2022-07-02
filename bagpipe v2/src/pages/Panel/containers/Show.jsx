@@ -362,7 +362,7 @@ const Show = (props) => {
         <b>Crawling finished!</b>
       </Text> */}
       <Alert
-        message="Crawling finished!"
+        message={`Crawling finished! (Result type: ${resultDownloadUrl.split(".")[1].toUpperCase()})`}
         description={`Response time: ${axiosTimer}`}
         action={
           <Space>
