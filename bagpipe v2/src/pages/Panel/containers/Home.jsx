@@ -4,7 +4,7 @@ import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
 import { Table, Button, Popconfirm, Typography, message, Input, Spin, Col, Row, Statistic } from 'antd';
-import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
+import { CheckOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
 import axios from './axios';
@@ -240,22 +240,46 @@ const Home = (props) => {
           </Col>
         </Row>
       </div>
-      <br />
-      <Button type="primary">
-        <Link to={newRecipePath}>Create New Project</Link>
-      </Button>
-      <div className="bagpipe-search-bar">
-        <br />
-        <Input
-          placeholder="Filter Project by Name"
-          size="middle"
-          onChange={inputProjectSearchHandler}
-          style={{
-            width: "50%",
-          }}
-        />
-        <br />
+
+      <div className='main-action'>
+        <Row gutter={8} style={{
+          // width: "50%",
+          marginTop: "1%",
+          marginBottom: "1%"
+        }}>
+          <Col>
+            <Button type="primary">
+              <Link to={newRecipePath}>Create New Project</Link>
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              onClick={() => {
+                getData();
+                message.success('Project list reloaded!');
+              }}
+              shape="circle"
+              icon={<ReloadOutlined />}
+            />
+          </Col>
+          <Col span={10}>
+            <div className="bagpipe-search-bar">
+              <Input
+                placeholder="Filter Project by Name"
+                size="middle"
+                onChange={inputProjectSearchHandler}
+                style={{
+                  // width: "50%",
+                  // marginTop: "1%",
+                  // marginBottom: "1%"
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
       </div>
+
+
       <Table
         rowKey={(row) => row.id}
         dataSource={filteredCrawlerList}
