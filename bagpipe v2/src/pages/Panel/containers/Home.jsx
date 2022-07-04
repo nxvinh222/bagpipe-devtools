@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
-import { Table, Button, Popconfirm, Typography, message, Input, Spin } from 'antd';
+import { Table, Button, Popconfirm, Typography, message, Input, Spin, Col, Row, Statistic } from 'antd';
 import { CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
@@ -174,6 +174,15 @@ const Home = (props) => {
     },
   ];
 
+  const getStat = (status) => {
+    let filteredProjectList = crawlers.filter((v) => {
+      return v.status == status;
+    })
+    let projectCount = filteredProjectList.length;
+    console.log(projectCount);
+    return parseInt(projectCount).toString();
+  }
+
   useEffect(() => {
     getData();
   }, []);
@@ -182,13 +191,56 @@ const Home = (props) => {
     <div className="home">
       <Title level={3}>
         Projects list
-        {/* <AliwangwangOutlined /> */}
       </Title>
       {/* <Breadcrumb separator=">">
                 <Breadcrumb.Item href={basePath}>
                     <HomeOutlined />
                 </Breadcrumb.Item>
             </Breadcrumb> */}
+      <div className='summary'>
+        <Row gutter={8}>
+          <Col span={4}>
+            <Statistic
+              title="Total projects"
+              value={crawlers.length}
+            />
+          </Col>
+          <Col span={5}>
+            <Statistic
+              title="Not running"
+              value={getStat(1)}
+            />
+          </Col>
+          <Col span={5}>
+            <Statistic
+              title="Running"
+              valueStyle={{
+                color: "#faad14"
+              }}
+              value={getStat(2)}
+            />
+          </Col>
+          <Col span={5}>
+            <Statistic
+              title="Finished"
+              valueStyle={{
+                color: "#3f8600"
+              }}
+              value={getStat(3)}
+            />
+          </Col>
+          <Col span={5}>
+            <Statistic
+              title="Failed"
+              valueStyle={{
+                color: "red"
+              }}
+              value={getStat(4)}
+            />
+          </Col>
+        </Row>
+      </div>
+      <br />
       <Button type="primary">
         <Link to={newRecipePath}>Create New Project</Link>
       </Button>
