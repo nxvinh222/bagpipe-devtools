@@ -38,18 +38,23 @@ export function getSimilarElement(selected_element) {
   while (true) {
     first_father = first_father.parentElement;
     second_father = second_father.parentElement;
-    if (first_father.isSameNode(second_father)) break;
     if (first_father == undefined || second_father == undefined) {
       console.log("Can't find father element");
       break;
     }
+    if (first_father.isSameNode(second_father)) break;
   }
 
   // calculate closest father classname
-  final_father = first_father.nodeName;
-  father_element = first_father;
-  if (first_father.className.length != 0)
-    final_father += '.' + first_father.className.split(' ').join('.');
+  if (first_father != null) {
+    final_father = first_father.nodeName;
+    father_element = first_father;
+    if (first_father.className.length != 0)
+      final_father += '.' + first_father.className.split(' ').join('.');
+  }
+  else
+    final_father = "";
+
   console.log('FINAL e father selector: ', final_father);
 
   // calculate similar class list between 2 element
