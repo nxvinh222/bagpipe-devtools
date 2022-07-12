@@ -171,6 +171,8 @@ function getColor(type) {
       return 'blue';
     case 'paragraph':
       return 'green';
+    case 'map':
+      return 'pink';
     case 'ignore':
       return 'gray';
     default:
