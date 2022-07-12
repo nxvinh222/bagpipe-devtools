@@ -137,7 +137,20 @@ const ElementTable = (props) => {
 };
 
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  switch (string) {
+    case 'link':
+      return "Navigation"
+    case 'link-href':
+      return 'Link';
+    case 'click':
+      return "Pagination"
+    case 'click-infinity':
+      return 'Infinity CLick';
+    case 'image-auto':
+      return 'Image (Auto scan)';
+    default:
+      return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 }
 
 function getColor(type) {
@@ -147,8 +160,9 @@ function getColor(type) {
     case 'text':
       return 'gold';
     case 'link':
+      return 'black';
     case 'link-href':
-      return 'magenta';
+      return 'yellow';
     case 'click':
     case 'click-infinity':
       return 'purple';
@@ -160,7 +174,7 @@ function getColor(type) {
     case 'ignore':
       return 'gray';
     default:
-      return 'yellow';
+      return 'black';
   }
 }
 

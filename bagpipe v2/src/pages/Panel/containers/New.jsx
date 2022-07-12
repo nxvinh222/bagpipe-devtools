@@ -92,7 +92,7 @@ const New = (props) => {
                 <Breadcrumb.Item href={basePath}>
                     <HomeOutlined />
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>New Recipe</Breadcrumb.Item>
+                <Breadcrumb.Item><b>New Project</b></Breadcrumb.Item>
             </Breadcrumb>
             <Form
                 name="basic"

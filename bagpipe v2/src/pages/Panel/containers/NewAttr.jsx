@@ -214,8 +214,8 @@ const NewAttr = (props) => {
                 autoComplete="off"
             >
                 <Form.Item
-                    label="name"
                     name="name"
+                    label="Name"
                     rules={[
                         {
                             required: true,
@@ -252,6 +252,16 @@ const NewAttr = (props) => {
                                     return Promise.resolve();
                                 }
                             }
+                        },
+                        {
+                            message: 'This is not a type!',
+                            validator: (_, value) => {
+                                if (value == "data" || value == "action") {
+                                    return Promise.reject('Some message here');
+                                } else {
+                                    return Promise.resolve();
+                                }
+                            }
                         }
                     ]}
                 >
@@ -279,48 +289,58 @@ const NewAttr = (props) => {
                                 value: "object",
                             },
                             {
-                                title: "Text",
-                                value: "text",
+                                title: "Data",
+                                value: "data",
                                 children: [
                                     {
-                                        title: "Paragraph",
-                                        value: "paragraph"
-                                    }
+                                        title: "Text",
+                                        value: "text",
+                                        children: [
+                                            {
+                                                title: "Paragraph",
+                                                value: "paragraph"
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        title: "Link",
+                                        value: "link-href"
+                                    },
+                                    {
+                                        title: "Image",
+                                        value: "image",
+                                        children: [
+                                            {
+                                                title: "Image (Auto scan)",
+                                                value: "image-auto"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        title: "Map",
+                                        value: "map",
+                                    },
                                 ],
                             },
                             {
-                                title: "Link",
-                                value: "link",
+                                title: "Action",
+                                value: "action",
                                 children: [
                                     {
-                                        title: "Link (Href Link)",
-                                        value: "link-href"
-                                    }
-                                ]
-                            },
-                            {
-                                title: "Image",
-                                value: "image",
-                                children: [
+                                        title: "Navigation",
+                                        value: "link",
+                                    },
                                     {
-                                        title: "Image (Auto scan)",
-                                        value: "image-auto"
-                                    }
-                                ]
-                            },
-                            {
-                                title: "Click",
-                                value: "click",
-                                children: [
-                                    {
-                                        title: "Click (Infinity click)",
-                                        value: "click-infinity"
-                                    }
-                                ]
-                            },
-                            {
-                                title: "Map",
-                                value: "map",
+                                        title: "Pagination",
+                                        value: "click",
+                                        children: [
+                                            {
+                                                title: "Infinity CLick",
+                                                value: "click-infinity"
+                                            }
+                                        ]
+                                    },
+                                ],
                             },
                             {
                                 title: "Ignore",
