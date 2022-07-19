@@ -27,7 +27,9 @@ const Home = (props) => {
 
   const getData = () => {
     axios
-      .get('/api/v1/recipes?limit=100')
+      .get('/api/v1/recipes?limit=100', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      })
       .then((response) => {
         // console.log(response.data.data);
         let recipes = response.data.data.map((recipe) => ({
@@ -74,7 +76,7 @@ const Home = (props) => {
         // urlParams.set('domain', record.domain);
         // let path = showRecipeBasicPath + text + "?" + urlParams.toString();
         let path = showRecipeBasicPath + record.id;
-        console.log(path);
+        // console.log(path);
         return (
           <Link to={path}>
             <b>{text}</b>
@@ -98,6 +100,21 @@ const Home = (props) => {
       dataIndex: statusColumn,
       key: statusColumn,
       width: '10%',
+      filters: [
+        {
+          text: 'Running',
+          value: 2,
+        },
+        {
+          text: 'Finished',
+          value: '3',
+        },
+        {
+          text: 'Failed',
+          value: '4',
+        },
+      ],
+      onFilter: (value, record) => record.status == value,
       render: (text, record) => {
         switch (text) {
           case 1:
@@ -179,7 +196,7 @@ const Home = (props) => {
       return v.status == status;
     })
     let projectCount = filteredProjectList.length;
-    console.log(projectCount);
+    // console.log(projectCount);
     return parseInt(projectCount).toString();
   }
 
