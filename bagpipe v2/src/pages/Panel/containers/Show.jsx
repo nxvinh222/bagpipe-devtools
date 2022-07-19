@@ -18,7 +18,7 @@ import {
   Typography,
   Alert
 } from 'antd';
-import { HomeOutlined, DownloadOutlined } from '@ant-design/icons';
+import { HomeOutlined, DownloadOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 
 import { data } from './Data/ShowData';
@@ -475,7 +475,7 @@ const Show = (props) => {
               pathname: newAttrPathWithQuery,
             }}
           >
-            Create New Element
+            <PlusCircleOutlined /> Create New Element
           </Link>
         </Button>
       </Space>

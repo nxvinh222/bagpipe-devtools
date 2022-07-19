@@ -8,10 +8,11 @@ import New from './containers/New';
 import Show from './containers/Show';
 import NewAttr from './containers/NewAttr';
 import Login from './containers/Login'
+import Register from './containers/Register';
 
 import mainLogo from "../../assets/img/logo.svg"
 
-import { UploadOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import { FolderOpenOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -27,6 +28,7 @@ const Panel = () => {
   const newAttrPath = myConsts.newAttrPath;
   const editAttrPath = myConsts.editAttrPath;
   const loginPath = myConsts.loginPath;
+  const registerPath = myConsts.registerPath;
 
   const navigate = useNavigate();
 
@@ -56,24 +58,6 @@ const Panel = () => {
     getUserData();
   }, []);
 
-  const MenuItems = () => {
-    if (userData) return (
-      <>
-        <Menu.Item key="1" >
-          <UserOutlined />
-          <span>My Projects</span>
-          <Link to={basePath} />
-        </Menu.Item>
-        <Menu.Item key="2" >
-          <UserOutlined />
-          <span onClick={() => {
-            logout();
-          }}>Logout</span>
-        </Menu.Item>
-      </>
-    )
-    else return <div></div>
-  }
   const FinalPanel = () => {
     // if (!userData) return (<div><Login /></div>)
     // else
@@ -96,8 +80,15 @@ const Panel = () => {
             defaultSelectedKeys={['1']}
           >
             {userData != null ?
-              <Menu.Item key="1" >
+              <Menu.Item key="3" >
                 <UserOutlined />
+                <span>Welcome, {userData.first_name}</span>
+                <Link to={basePath} />
+              </Menu.Item> : ''}
+
+            {userData != null ?
+              <Menu.Item key="1" >
+                <FolderOpenOutlined />
                 <span>My Projects</span>
                 <Link to={basePath} />
               </Menu.Item> : <Menu.Item key="1" >
@@ -107,22 +98,14 @@ const Panel = () => {
               </Menu.Item>}
             {userData != null ?
               <Menu.Item key="2" >
-                <UserOutlined />
-                <span onClick={() => {
-                  // logout();
-                }}>Logout</span>
+                <LogoutOutlined />
+                <span >Logout</span>
                 <Link to={loginPath} />
               </Menu.Item> : <Menu.Item key="2" >
                 <UserOutlined />
                 <span >Register</span>
+                <Link to={registerPath} />
               </Menu.Item>}
-            {userData != null ?
-              <Menu.Item key="3" >
-                <UserOutlined />
-                <span>Welcome {userData.first_name}</span>
-                <Link to={basePath} />
-              </Menu.Item> : ''}
-
           </Menu>
         </Sider>
         <Layout>
@@ -173,6 +156,10 @@ const Panel = () => {
                   <Route
                     path={loginPath}
                     element={<Login setUserData={setUserData} getUserData={getUserData} />}
+                  />
+                  <Route
+                    path={registerPath}
+                    element={<Register setUserData={setUserData} getUserData={getUserData} />}
                   />
                 </Routes>
               </div>

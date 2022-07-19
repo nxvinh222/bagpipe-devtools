@@ -4,7 +4,7 @@ import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
 import { Table, Button, Popconfirm, Typography, message, Input, Spin, Col, Row, Statistic } from 'antd';
-import { CheckOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CheckOutlined, LoadingOutlined, ReloadOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
 import axios from './axios';
@@ -266,7 +266,7 @@ const Home = (props) => {
         }}>
           <Col>
             <Button type="primary">
-              <Link to={newRecipePath}>Create New Project</Link>
+              <Link to={newRecipePath}><PlusCircleOutlined /> Create New Project</Link>
             </Button>
           </Col>
           <Col>

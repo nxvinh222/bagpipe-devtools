@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { useNavigate, Link } from "react-router-dom";
-import { basePath, registerPath } from './constants'
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
+import { basePath, editRecipePath, recipeIdQuery, idColumn } from './constants'
 
 import 'antd/dist/antd.css';
 import { Form, Button, Typography, Input, Col, Row, Space } from 'antd';
@@ -9,7 +9,7 @@ import axios from './axios';
 
 const { Title } = Typography;
 
-const Login = (props) => {
+const Register = (props) => {
     const navigate = useNavigate();
 
     const [form] = Form.useForm();
@@ -25,39 +25,25 @@ const Login = (props) => {
 
     const onFinish = (values) => {
         axios.
-            post(`/api/v1/login`, {
+            post(`/api/v1/register`, {
                 email: values.email,
-                password: values.password
+                password: values.password,
+                first_name: values.first_name,
+                last_name: values.last_name
             }
             ).
             then(response => {
                 localStorage.removeItem("token");
                 localStorage.setItem('token', response.data.data.token);
-                // chrome.storage.sync.set({ token: response.data.data.token });
-                // console.log("token", response.data.token);
-                // axios
-                //     .get("/api/v1/profile", {
-                //         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                //     })
-                //     .then(response => {
-                //         props.setUserData(response.data.data);
-                //         console.log("data", response.data.data);
-                //     }).catch(e => {
-                //         console.log(e);
-                //     })
                 props.getUserData();
                 navigate(basePath);
             })
             .catch(err => {
-                console.log("[Bagpipe] Cannot login: ", err);
+                console.log("[Bagpipe] Cannot register: ", err);
                 form.setFields([
                     {
                         name: 'email',
-                        errors: ['Invalid email or password!'],
-                    },
-                    {
-                        name: 'password',
-                        errors: ['Invalid email or password!'],
+                        errors: ['This email have already exists!'],
                     },
                 ]);
             })
@@ -73,8 +59,7 @@ const Login = (props) => {
     return (
         <div className="login">
             <Row type="flex" justify="center" align="middle" style={{ minHeight: '100vh' }}>
-                <Col span={8}>
-                    <Title level={2}>Welcome to BagpipeScrape!</Title>
+                <Col span={12}>
                     <Space
                         direction="vertical"
                         size="middle"
@@ -82,15 +67,15 @@ const Login = (props) => {
                             display: 'flex',
                         }}
                     >
-                        <div>You need to login or register before using this tool</div>
+                        <Title level={3}>Register New Account</Title>
                         <Form
                             name="basic"
                             form={form}
                             labelCol={{
-                                span: 4,
+                                span: 5,
                             }}
                             wrapperCol={{
-                                span: 16,
+                                span: 15,
                             }}
                             initialValues={{
                                 remember: true,
@@ -120,21 +105,70 @@ const Login = (props) => {
                                         required: true,
                                         message: 'Please input your password!',
                                     },
+                                    {
+                                        message: 'Password must have at least 6 character!',
+                                        validator: (_, value) => {
+                                            if (value.length < 6) {
+                                                return Promise.reject('Some message here');
+                                            } else {
+                                                return Promise.resolve();
+                                            }
+                                        }
+                                    }
                                 ]}
                             >
                                 <Input.Password placeholder="Password" />
                             </Form.Item>
 
-                            {/* <Form.Item
-                            name="remember"
-                            valuePropName="checked"
-                            wrapperCol={{
-                                offset: 8,
-                                span: 16,
-                            }}
-                        >
-                            <Checkbox>Remember me</Checkbox>
-                        </Form.Item> */}
+                            <Form.Item
+                                name="confirm"
+                                label="Confirm Password"
+                                dependencies={['password']}
+                                hasFeedback
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please confirm your password!',
+                                    },
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            if (!value || getFieldValue('password') === value) {
+                                                return Promise.resolve();
+                                            }
+
+                                            return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <Input.Password placeholder="Confirm Password" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="First Name"
+                                name="first_name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your first name!',
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="First Name" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Last Name"
+                                name="last_name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your last name!',
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="Last Name" />
+                            </Form.Item>
 
                             <Form.Item
                                 wrapperCol={{
@@ -143,9 +177,8 @@ const Login = (props) => {
                                 }}
                             >
                                 <Button type="primary" htmlType="submit">
-                                    Login
+                                    Register
                                 </Button>
-                                <span> or <Link to={registerPath} >Register</Link></span>
                             </Form.Item>
                         </Form>
                     </Space>
@@ -157,4 +190,4 @@ const Login = (props) => {
     )
 }
 
-export default Login;
+export default Register;
