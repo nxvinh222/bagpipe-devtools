@@ -33,6 +33,7 @@ const Panel = () => {
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
+  const [selectedKey, setSelectedKey] = useState("1")
   const logout = () => {
     try {
       localStorage.removeItem("token");
@@ -77,7 +78,7 @@ const Panel = () => {
           <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={selectedKey}
           >
             {userData != null ?
               <Menu.Item key="3" >
@@ -87,21 +88,21 @@ const Panel = () => {
               </Menu.Item> : ''}
 
             {userData != null ?
-              <Menu.Item key="1" >
+              <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
                 <FolderOpenOutlined />
                 <span>My Projects</span>
                 <Link to={basePath} />
-              </Menu.Item> : <Menu.Item key="1" >
+              </Menu.Item> : <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
                 <UserOutlined />
                 <span>Login</span>
                 <Link to={loginPath} />
               </Menu.Item>}
             {userData != null ?
-              <Menu.Item key="2" >
+              <Menu.Item key="2" onClick={() => setSelectedKey("1")}>
                 <LogoutOutlined />
                 <span >Logout</span>
                 <Link to={loginPath} />
-              </Menu.Item> : <Menu.Item key="2" >
+              </Menu.Item> : <Menu.Item key="2" onClick={() => setSelectedKey("2")}>
                 <UserOutlined />
                 <span >Register</span>
                 <Link to={registerPath} />
