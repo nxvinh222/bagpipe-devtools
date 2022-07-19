@@ -145,7 +145,7 @@ const Login = (props) => {
                                 <Button type="primary" htmlType="submit">
                                     Login
                                 </Button>
-                                <span> or <Link to={registerPath} >Register</Link></span>
+                                <span> or <Link to={registerPath} onClick={() => { props.setSelectedKey("2"); }}>Register</Link></span>
                             </Form.Item>
                         </Form>
                     </Space>

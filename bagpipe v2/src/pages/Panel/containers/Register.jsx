@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { basePath, editRecipePath, recipeIdQuery, idColumn } from './constants'
+import { basePath, loginPath } from './constants'
 
 import 'antd/dist/antd.css';
 import { Form, Button, Typography, Input, Col, Row, Space } from 'antd';
@@ -18,9 +18,8 @@ const Register = (props) => {
         form.setFieldsValue({
             email: "vinh1@gmail.com",
             password: "123456",
+            confirm: "123456"
         });
-        props.setUserData(null);
-        localStorage.removeItem("token");
     }, []);
 
     const onFinish = (values) => {
@@ -34,9 +33,8 @@ const Register = (props) => {
             ).
             then(response => {
                 localStorage.removeItem("token");
-                localStorage.setItem('token', response.data.data.token);
-                props.getUserData();
-                navigate(basePath);
+                props.setSelectedKey("1");
+                navigate(loginPath);
             })
             .catch(err => {
                 console.log("[Bagpipe] Cannot register: ", err);

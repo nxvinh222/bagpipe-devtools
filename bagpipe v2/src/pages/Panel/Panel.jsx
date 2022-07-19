@@ -156,11 +156,11 @@ const Panel = () => {
                   />
                   <Route
                     path={loginPath}
-                    element={<Login setUserData={setUserData} getUserData={getUserData} />}
+                    element={<Login setUserData={setUserData} getUserData={getUserData} setSelectedKey={setSelectedKey} />}
                   />
                   <Route
                     path={registerPath}
-                    element={<Register setUserData={setUserData} getUserData={getUserData} />}
+                    element={<Register setSelectedKey={setSelectedKey} />}
                   />
                 </Routes>
               </div>
