@@ -287,6 +287,7 @@ const NewAttr = (props) => {
                             {
                                 title: "Object",
                                 value: "object",
+                                disabled: (fatherId != "null")
                             },
                             {
                                 title: "Data",
