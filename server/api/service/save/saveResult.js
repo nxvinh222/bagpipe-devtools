@@ -31,6 +31,9 @@ async function SaveResult(client, result, generatedFileName) {
     });
     break;
   }
+  // Edit tablename
+  tableName = tableName + fileName.split(".")[0];
+
 
   // let data = [{ "price": "7,590,000₫", "duration": "4 ngày" }, { "price": "9,390,000₫", "duration": "5 ngày" }];
   // GET KEY LIST
