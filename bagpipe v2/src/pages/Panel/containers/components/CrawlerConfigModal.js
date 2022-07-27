@@ -20,7 +20,7 @@ const CrawlerConfigModal = (props) => {
             onOk={props.handleOk}
             onCancel={props.handleCancel}
             footer={null}
-            width="60vw"
+        // width="40vw"
         >
             <Form
                 name="basic"
@@ -67,9 +67,9 @@ const CrawlerConfigModal = (props) => {
             <InputNumber />
           </Form.Item> */}
 
-                <Form.Item label="Google Sheet URL" name="sheet_id">
+                {/* <Form.Item label="Google Sheet URL" name="sheet_id">
                     <Input placeholder="leave this blank if you don't want to export to google sheet" />
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item
                     label="Convert to PostgreSQL"

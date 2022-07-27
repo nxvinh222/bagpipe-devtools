@@ -16,7 +16,9 @@ import {
   Breadcrumb,
   Space,
   Typography,
-  Alert
+  Alert,
+  Modal,
+  Input
 } from 'antd';
 import { HomeOutlined, DownloadOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -67,6 +69,7 @@ const Show = (props) => {
   const [resultDownloadUrl, setResultDownloadUrl] = useState('');
   const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] =
     useState(true);
+  const [isSheetModalVisible, setIsSheetModalVisible] = useState(false);
 
   const [crawlConfigForm] = Form.useForm();
   crawlConfigForm.setFieldsValue({
@@ -84,6 +87,18 @@ const Show = (props) => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const showSheetModal = () => {
+    setIsSheetModalVisible(true);
+  };
+
+  const handleSheetOk = () => {
+    setIsSheetModalVisible(false);
+  };
+
+  const handleSheetCancel = () => {
+    setIsSheetModalVisible(false);
   };
 
   const getData = (fatherId) => {
@@ -198,6 +213,17 @@ const Show = (props) => {
       })
       .catch((err) => console.log('download failed: ', err));
   };
+  const exportGoogleSheet = (sheet_url) => {
+    axiosCrawl
+      .post(`/export-sheet`, {
+        filename: resultDownloadUrl,
+        sheet_url: sheet_url
+      })
+      .then((response) => {
+        console.log("[bagpipe] ", response.data.msg);
+      })
+      .catch((err) => console.log('download failed: ', err));
+  };
 
   // new recipe path: /show/newattr?recipeId=1
   let urlParams = new URLSearchParams(window.location.search);
@@ -228,6 +254,15 @@ const Show = (props) => {
     console.log('Failed:', errorInfo);
     setIsModalVisible(false);
   };
+
+  const onFinishConfigSheet = (values) => {
+    exportGoogleSheet(values.sheet_url);
+    setIsSheetModalVisible(false);
+    // console.log('Success:', values);
+    // setIsModalVisible(false);
+    // scrape(values);
+  };
+
   const axiosTimerFunc = (startTime) => {
     let now = Date.now();
     let seconds = Math.floor((now - startTime) / 1000);
@@ -515,6 +550,17 @@ const Show = (props) => {
         >
           Download result file
         </Button>
+
+        <Button
+          type="success"
+          // ghost
+          // icon={<DownloadOutlined />}
+          size="medium"
+          disabled={isDownloadButtonDisabled}
+          onClick={showSheetModal}
+        >
+          Export Result to Google Sheet
+        </Button>
         <div className='latest-crawl'>Latest crawl: {latestCrawl}</div>
       </Space>
       <br />
@@ -536,7 +582,51 @@ const Show = (props) => {
         attrNameChangeWarningMsg={attrNameChangeWarningMsg}
         setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
       />
+      <Modal
+        title="Config Crawler"
+        visible={isSheetModalVisible}
+        onOk={handleSheetOk}
+        onCancel={handleSheetCancel}
+        footer={null}
+      >
+        <Form
+          name="basic"
+          // form={props.crawlConfigForm}
+          labelCol={{
+            span: 8,
+          }}
+          wrapperCol={{
+            span: 16,
+          }}
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinishConfigSheet}
+          // onFinishFailed={props.onFinishFailedConfigCrawler}
+          autoComplete="on"
+        >
 
+          <Form.Item label="Google Sheet URL" name="sheet_url">
+            <Input placeholder="Google Sheet URL you want to export result data to" />
+          </Form.Item>
+
+          <Form.Item
+            wrapperCol={{
+              offset: 8,
+              span: 16,
+            }}
+          >
+            <Space size={8}>
+              <Button type="primary" htmlType="submit">
+                Export
+              </Button>
+              <Button htmlType="button" onClick={handleSheetCancel}>
+                Cancel
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

@@ -12,6 +12,7 @@ const simpleCrawlTransport = require("./api/transport/simpleCrawl.js");
 const advanceCrawlTransport = require("./api/transport/advanceCrawl.js");
 const advanceSqlCrawlTransport = require("./api/transport/advanceSqlCrawl.js");
 const responseSuccess = require("./api/transport/response/successResponse.js");
+const exportSheet = require("./api/transport/exportSheet");
 
 process.setMaxListeners(Infinity);
 
@@ -25,6 +26,7 @@ app.use(express.json({ limit: '50mb' }));
 app.post("/simple", simpleCrawlTransport);
 app.post("/advance", advanceCrawlTransport);
 app.post("/advance-sql", advanceSqlCrawlTransport);
+app.post("/export-sheet", exportSheet);
 app.get("/download", function (req, res) {
   const file = `./result/${req.query.filename}`;
   const recipeId = req.query.recipeId;
@@ -53,10 +55,6 @@ app.get("/test", function (req, res) {
     console.error("dump failed: ", error.stack);
   }
   responseSuccess(res, null);
-});
-
-app.get("/test-sheet", async function (req, res) {
-  res.send("Successfully submitted! Thank you!");
 });
 
 // Making Express listen on port 7000
