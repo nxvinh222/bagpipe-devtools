@@ -63,118 +63,124 @@ const Panel = () => {
     // if (!userData) return (<div><Login /></div>)
     // else
     return (
-      <Layout>
-        <Sider
-          breakpoint="lg"
-          collapsedWidth="0"
-          onBreakpoint={(broken) => {
-            console.log(broken);
-          }}
-          onCollapse={(collapsed, type) => {
-            console.log(collapsed, type);
-          }}
-        >
-          <div className="main-logo" ><img src={mainLogo} alt="fireSpot" /></div>
-          <Menu
-            theme="dark"
-            mode="inline"
-            defaultSelectedKeys={selectedKey}
+      <div className='container'>
+        <Layout style={{
+          // height: "100vh"
+        }}>
+          <Sider
+            breakpoint="lg"
+            collapsedWidth="0"
+            onBreakpoint={(broken) => {
+              console.log(broken);
+            }}
+            onCollapse={(collapsed, type) => {
+              console.log(collapsed, type);
+            }}
           >
-            {userData != null ?
-              <Menu.Item key="3" >
-                <UserOutlined />
-                <span>Welcome, {userData.first_name}</span>
-                <Link to={basePath} />
-              </Menu.Item> : ''}
+            <div className="main-logo" ><img src={mainLogo} alt="fireSpot" /></div>
+            <Menu
+              theme="dark"
+              mode="inline"
+              defaultSelectedKeys={selectedKey}
+            >
+              {userData != null ?
+                <Menu.Item key="3" >
+                  <UserOutlined />
+                  <span>Welcome, {userData.first_name}</span>
+                  <Link to={basePath} />
+                </Menu.Item> : ''}
 
-            {userData != null ?
-              <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
-                <FolderOpenOutlined />
-                <span>My Projects</span>
-                <Link to={basePath} />
-              </Menu.Item> : <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
-                <UserOutlined />
-                <span>Login</span>
-                <Link to={loginPath} />
-              </Menu.Item>}
-            {userData != null ?
-              <Menu.Item key="2" onClick={() => setSelectedKey("1")}>
-                <LogoutOutlined />
-                <span >Logout</span>
-                <Link to={loginPath} />
-              </Menu.Item> : <Menu.Item key="2" onClick={() => setSelectedKey("2")}>
-                <UserOutlined />
-                <span >Register</span>
-                <Link to={registerPath} />
-              </Menu.Item>}
-          </Menu>
-        </Sider>
-        <Layout>
-          {/* <Header
+              {userData != null ?
+                <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
+                  <FolderOpenOutlined />
+                  <span>My Projects</span>
+                  <Link to={basePath} />
+                </Menu.Item> : <Menu.Item key="1" onClick={() => setSelectedKey("1")}>
+                  <UserOutlined />
+                  <span>Login</span>
+                  <Link to={loginPath} />
+                </Menu.Item>}
+              {userData != null ?
+                <Menu.Item key="2" onClick={() => setSelectedKey("1")}>
+                  <LogoutOutlined />
+                  <span >Logout</span>
+                  <Link to={loginPath} />
+                </Menu.Item> : <Menu.Item key="2" onClick={() => setSelectedKey("2")}>
+                  <UserOutlined />
+                  <span >Register</span>
+                  <Link to={registerPath} />
+                </Menu.Item>}
+            </Menu>
+          </Sider>
+          <Layout>
+            {/* <Header
             className="site-layout-sub-header-background"
             style={{
               padding: 0,
             }}
           /> */}
-          <Content
-            style={{
-              margin: '24px 16px 0',
-            }}
-          >
-            <div
-              className="site-layout-background"
+            <Content
               style={{
-                padding: 24,
-                minHeight: 600,
+                margin: '24px 16px 0',
+                minHeight: "30vh",
+                // maxHeight: "120vh"
               }}
             >
-              <div className='bagpipe-root'>
-                <Routes>
-                  <Route
-                    path={basePath}
-                    element={<Home />}
-                  />
-                  <Route
-                    path={newRecipePath}
-                    element={<New />}
-                  />
-                  <Route
-                    path={editRecipePath}
-                    element={<New />}
-                  />
-                  <Route
-                    path={showRecipePath}
-                    element={<Show />}
-                  />
-                  <Route
-                    path={newAttrPath}
-                    element={<NewAttr />}
-                  />
-                  <Route
-                    path={editAttrPath}
-                    element={<NewAttr />}
-                  />
-                  <Route
-                    path={loginPath}
-                    element={<Login setUserData={setUserData} getUserData={getUserData} setSelectedKey={setSelectedKey} />}
-                  />
-                  <Route
-                    path={registerPath}
-                    element={<Register setSelectedKey={setSelectedKey} />}
-                  />
-                </Routes>
+              <div
+                className="site-layout-background"
+                style={{
+                  padding: 24,
+                }}
+              >
+                <div className='bagpipe-root'>
+                  <Routes>
+                    <Route
+                      path={basePath}
+                      element={<Home />}
+                    />
+                    <Route
+                      path={newRecipePath}
+                      element={<New />}
+                    />
+                    <Route
+                      path={editRecipePath}
+                      element={<New />}
+                    />
+                    <Route
+                      path={showRecipePath}
+                      element={<Show />}
+                    />
+                    <Route
+                      path={newAttrPath}
+                      element={<NewAttr />}
+                    />
+                    <Route
+                      path={editAttrPath}
+                      element={<NewAttr />}
+                    />
+                    <Route
+                      path={loginPath}
+                      element={<Login setUserData={setUserData} getUserData={getUserData} setSelectedKey={setSelectedKey} />}
+                    />
+                    <Route
+                      path={registerPath}
+                      element={<Register setSelectedKey={setSelectedKey} />}
+                    />
+                  </Routes>
+                </div>
               </div>
-            </div>
-          </Content>
-          <Footer
-            style={{
-              textAlign: 'center',
-            }}
-          >
-            Bagpipe Scraper ©2022 Created by Vinh
-          </Footer>
+            </Content>
+            <Footer
+              style={{
+                textAlign: 'center',
+              }}
+            >
+              Bagpipe Scraper ©2022 Created by Vinh
+            </Footer>
+          </Layout>
         </Layout>
-      </Layout>
+      </div>
+
     );
   }
 
