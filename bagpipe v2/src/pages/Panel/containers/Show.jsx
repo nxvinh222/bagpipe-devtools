@@ -210,9 +210,10 @@ const Show = (props) => {
     }
   };
 
-  const downloadResult = () => {
+  const downloadResult = (ext) => {
+    const downloadFilename = resultDownloadUrl.split(".")[0] + ext;
     axiosCrawl
-      .get(`/download?filename=${resultDownloadUrl}&recipeId=${recipeId}`, {
+      .get(`/download?filename=${downloadFilename}&recipeId=${recipeId}`, {
         // include your additional POSTed data here
         responseType: 'blob',
       })
@@ -222,12 +223,18 @@ const Show = (props) => {
         link.href = url;
         link.setAttribute(
           'download',
-          `data.${resultDownloadUrl.split('.')[1]}`
+          `data${ext}`
         );
         document.body.appendChild(link);
         link.click();
+        handleDownloadOk();
+        message.success('Result file downloaded!');
       })
-      .catch((err) => console.log('download failed: ', err));
+      .catch((err) => {
+        console.log('download failed: ', err);
+        handleDownloadOk();
+        message.error('Some error occured, cannot download result file!');
+      });
   };
   const exportGoogleSheet = (sheet_url) => {
     setIsSheetLoading(true);
@@ -299,6 +306,7 @@ const Show = (props) => {
 
   const scrape = (config) => {
     console.log('Scraping!');
+    config.is_sql = true;
     enterLoading(true);
     setIsCrawlResultVisible(false);
     setIsCrawlResultFailVisible(false);
@@ -563,7 +571,8 @@ const Show = (props) => {
             icon={<DownloadOutlined />}
             size="medium"
             disabled={isDownloadButtonDisabled}
-            onClick={downloadResult}
+            // onClick={downloadResult}
+            onClick={showDownloadModal}
           >
             Download result file
           </Button>
@@ -587,20 +596,21 @@ const Show = (props) => {
       {isCrawlResultVisible && <CrawlMsg />}
       {isCrawlResultFailVisible && <CrawlMsgFail />}
 
+      <CrawlerConfigModal
+        isModalVisible={isModalVisible}
+        handleOk={handleOk}
+        handleCancel={handleCancel}
+        crawlConfigForm={crawlConfigForm}
+        onFinishConfigCrawler={onFinishConfigCrawler}
+        onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
+        attrNameList={attrNameList}
+        identifierAttr={identifierAttr}
+        setIdentifierAttr={setIdentifierAttr}
+        attrNameChangeWarningMsg={attrNameChangeWarningMsg}
+        setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
+      />
+
       <div className='sheet-export-modal'>
-        <CrawlerConfigModal
-          isModalVisible={isModalVisible}
-          handleOk={handleOk}
-          handleCancel={handleCancel}
-          crawlConfigForm={crawlConfigForm}
-          onFinishConfigCrawler={onFinishConfigCrawler}
-          onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
-          attrNameList={attrNameList}
-          identifierAttr={identifierAttr}
-          setIdentifierAttr={setIdentifierAttr}
-          attrNameChangeWarningMsg={attrNameChangeWarningMsg}
-          setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
-        />
         <Modal
           title="Config Sheet Export"
           visible={isSheetModalVisible}
@@ -645,6 +655,25 @@ const Show = (props) => {
               </Space>
             </Form.Item>
           </Form>
+        </Modal>
+      </div>
+
+      <div className='download-config-modal'>
+        <Modal
+          title="Choose Download Type"
+          visible={isDownloadModalVisible}
+          onOk={handleDownloadOk}
+          onCancel={handleDownloadCancel}
+          footer={null}
+        >
+          <Space size={8}>
+            <Button type="primary" htmlType="submit" onClick={() => { downloadResult(".json") }}>
+              Download Result as JSON (.json)
+            </Button>
+            <Button htmlType="button" onClick={() => { downloadResult(".sql") }}>
+              Download Result as SQL (.sql)
+            </Button>
+          </Space>
         </Modal>
       </div>
     </div>

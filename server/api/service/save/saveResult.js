@@ -90,7 +90,7 @@ async function SaveResult(client, result, generatedFileName) {
       console.log("[INFO] Insert crawl result into DB succesully!")
     )
     .catch((e) => {
-      console.error("add failed: ", e.stack);
+      console.error("[ERROR] Cannot execute convert query: ", e);
       throws(e);
     });
   await client.end();

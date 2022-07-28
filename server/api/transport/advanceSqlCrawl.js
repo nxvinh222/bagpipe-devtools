@@ -49,13 +49,12 @@ async function advanceSqlCrawlTransport(req, res) {
     }
 
     let fileName = `${generatedFileName}`;
+    await SaveJsonResult(result, `${fileName}.json`);
     try {
       await SaveResult(client, flatten(result), fileName);
       fileName = `${fileName}.sql`;
     } catch (error) {
       console.log("[ERROR] Cannot save as sql file");
-      fileName = `${fileName}.json`;
-      await SaveJsonResult(result, fileName);
     }
     // Update filename
     // Get crawl time 

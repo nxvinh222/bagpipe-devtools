@@ -71,13 +71,13 @@ const CrawlerConfigModal = (props) => {
                     <Input placeholder="leave this blank if you don't want to export to google sheet" />
                 </Form.Item> */}
 
-                <Form.Item
+                {/* <Form.Item
                     label="Convert to PostgreSQL"
                     valuePropName="checked"
                     name="is_sql"
                 >
                     <Switch />
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item
                     label="Exclude crawled data"
