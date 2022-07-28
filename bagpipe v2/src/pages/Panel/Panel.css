@@ -22,3 +22,9 @@
 [data-theme="dark"] .site-layout-sub-header-background {
   background: #141414;
 }
+
+@media only screen and (min-height: 600px) {
+  .site-layout-background {
+    height: 91vh
+  }
+}
