@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from '../axios';
-import { Table, Button, Tag, Popconfirm, message } from 'antd';
+import { Table, Button, Tag, Popconfirm, message, Popover } from 'antd';
 import {
   basePath,
   newAttrPath,
@@ -91,17 +91,34 @@ const ElementTable = (props) => {
         let path =
           editAttrPathWithQuery +
           `&${props.elementIdQuery}=${record[props.idColumn]}`;
+        const instructionEdit = (
+          <div>
+            Edit this Element.
+          </div>
+        );
+        const instructionDelete = (
+          <div>
+            Delete this Element.
+          </div>
+        );
         return (
           <div>
-            <Button>
-              <Link
-                to={{
-                  pathname: path,
-                }}
-              >
-                Edit
-              </Link>
-            </Button>
+            <Popover
+              content={instructionEdit}
+              // title="Title" 
+              trigger="hover"
+            >
+              <Button>
+                <Link
+                  to={{
+                    pathname: path,
+                  }}
+                >
+                  Edit
+                </Link>
+              </Button>
+            </Popover>
+
             <Popconfirm
               title="Are you sure to delete this element?"
               onConfirm={() => {
@@ -118,7 +135,12 @@ const ElementTable = (props) => {
               okText="Yes"
               cancelText="No"
             >
-              <Button><a>Delete</a></Button>
+              <Popover
+                content={instructionDelete}
+                trigger="hover"
+              >
+                <Button><a>Delete</a></Button>
+              </Popover>
             </Popconfirm>
           </div>
         );

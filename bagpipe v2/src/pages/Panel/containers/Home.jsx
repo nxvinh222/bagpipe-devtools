@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './css/Home.css';
 import { basePath, newRecipePath, showRecipeBasicPath, editRecipePath, recipeIdQuery, idColumn } from './constants';
 
-import { Table, Button, Popconfirm, Typography, message, Input, Spin, Col, Row, Statistic } from 'antd';
+import { Table, Button, Popconfirm, Typography, message, Input, Spin, Col, Row, Statistic, Popover } from 'antd';
 import { CheckOutlined, LoadingOutlined, ReloadOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { data } from './Data/HomeData';
@@ -147,20 +147,36 @@ const Home = (props) => {
     {
       title: 'Action',
       key: 'action',
-      width: '10%',
+      width: '15%',
       render: (text, record) => {
         let editPath = editRecipePath + `?${recipeIdQuery}=${record[idColumn]}`
+        const instructionEdit = (
+          <div>
+            Edit Project's name, URL and note.
+          </div>
+        );
+        const instructionDelete = (
+          <div>
+            Delete this Project.
+          </div>
+        );
         return (
           <div>
-            <Button>
-              <Link
-                to={{
-                  pathname: editPath,
-                }}
-              >
-                Edit
-              </Link>
-            </Button>
+            <Popover
+              content={instructionEdit}
+              trigger="hover"
+            >
+              <Button>
+                <Link
+                  to={{
+                    pathname: editPath,
+                  }}
+                >
+                  Edit
+                </Link>
+              </Button>
+            </Popover>
+
             <Popconfirm
               title="Are you sure to delete this project?"
               onConfirm={() => {
@@ -177,7 +193,14 @@ const Home = (props) => {
               okText="Yes"
               cancelText="No"
             >
-              <Button><a>Delete</a></Button>
+
+              <Popover
+                content={instructionDelete}
+                // title="Title" 
+                trigger="hover"
+              >
+                <Button><a>Delete</a></Button>
+              </Popover>
             </Popconfirm>
           </div>
         )
@@ -187,7 +210,7 @@ const Home = (props) => {
       title: 'Note',
       dataIndex: commentColumn,
       key: commentColumn,
-      width: '20%',
+      width: '15%',
     },
   ];
 
@@ -296,6 +319,7 @@ const Home = (props) => {
         </Row>
       </div>
 
+      <div className='tips'>Tips: Click Project's name to view project's detail.</div>
 
       <Table
         rowKey={(row) => row.id}
