@@ -55,6 +55,8 @@ const New = (props) => {
                     [nameColumn]: values[nameColumn],
                     [urlColumn]: values[urlColumn],
                     [noteColumn]: values[noteColumn],
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 }
                 ).
                 then(response => {
@@ -68,6 +70,8 @@ const New = (props) => {
                     [nameColumn]: values[nameColumn],
                     [urlColumn]: values[urlColumn],
                     [noteColumn]: values[noteColumn],
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 }
                 ).
                 then(response => {
