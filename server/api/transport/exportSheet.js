@@ -20,6 +20,7 @@ async function exportSheet(req, res) {
         } catch (error) {
             console.log("[ERROR] Cannot save to sheet: ", error.message);
         }
+        responseSuccess(res, null)
     } catch (error) {
         console.log("[ERROR] Cannot export result to Google Sheet: ", error);
         res.status(500).send({ error: "Cannot export result to Google Sheet" })

@@ -18,9 +18,10 @@ import {
   Typography,
   Alert,
   Modal,
-  Input
+  Input,
+  message
 } from 'antd';
-import { HomeOutlined, DownloadOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { HomeOutlined, DownloadOutlined, PlusCircleOutlined, ExportOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 
 import { data } from './Data/ShowData';
@@ -69,7 +70,10 @@ const Show = (props) => {
   const [resultDownloadUrl, setResultDownloadUrl] = useState('');
   const [isDownloadButtonDisabled, setIsDownloadButtonDisabled] =
     useState(true);
+  const [isSheetLoading, setIsSheetLoading] =
+    useState(false);
   const [isSheetModalVisible, setIsSheetModalVisible] = useState(false);
+  const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
 
   const [crawlConfigForm] = Form.useForm();
   crawlConfigForm.setFieldsValue({
@@ -99,6 +103,18 @@ const Show = (props) => {
 
   const handleSheetCancel = () => {
     setIsSheetModalVisible(false);
+  };
+
+  const showDownloadModal = () => {
+    setIsDownloadModalVisible(true);
+  };
+
+  const handleDownloadOk = () => {
+    setIsDownloadModalVisible(false);
+  };
+
+  const handleDownloadCancel = () => {
+    setIsDownloadModalVisible(false);
   };
 
   const getData = (fatherId) => {
@@ -214,6 +230,7 @@ const Show = (props) => {
       .catch((err) => console.log('download failed: ', err));
   };
   const exportGoogleSheet = (sheet_url) => {
+    setIsSheetLoading(true);
     axiosCrawl
       .post(`/export-sheet`, {
         filename: resultDownloadUrl,
@@ -221,8 +238,14 @@ const Show = (props) => {
       })
       .then((response) => {
         console.log("[bagpipe] ", response.data.msg);
+        message.success('Data exported to Google Sheet!');
+        setIsSheetLoading(false);
       })
-      .catch((err) => console.log('download failed: ', err));
+      .catch((err) => {
+        console.log('download failed: ', err);
+        message.error('Cannot export data to Google Sheet!');
+        setIsSheetLoading(false);
+      });
   };
 
   // new recipe path: /show/newattr?recipeId=1
@@ -393,11 +416,9 @@ const Show = (props) => {
 
   const CrawlMsg = () => (
     <div className="crawl-result-msg">
-      {/* <Text type="success">
-        <b>Crawling finished!</b>
-      </Text> */}
       <Alert
-        message={`Crawling finished! (Result type: ${resultDownloadUrl.split(".")[1].toUpperCase()})`}
+        // message={`Crawling finished! (Result type: ${resultDownloadUrl.split(".")[1].toUpperCase()})`}
+        message={`Crawling finished!`}
         description={`Response time: ${axiosTimer}`}
         action={
           <Space>
@@ -422,15 +443,11 @@ const Show = (props) => {
         type="success"
         showIcon
       />
-      {/* <p>Response time: {axiosTimer}</p> */}
     </div>
   );
 
   const CrawlMsgFail = () => (
     <div className="crawl-result-fail-msg">
-      {/* <Text type="danger">
-        <b>Crawling failed, please try again!</b>
-      </Text> */}
       <Alert
         message="Crawling failed, please try again!"
         description={`Something wrong happened.`}
@@ -457,7 +474,6 @@ const Show = (props) => {
         type="error"
         showIcon
       />
-      {/* <p>Response time: {axiosTimer}</p> */}
     </div>
   );
 
@@ -535,98 +551,102 @@ const Show = (props) => {
         loading={loadings[0]}
       />
 
-      <Space size={8}>
-        <Button type="primary" loading={loadings[0]} onClick={showModal}>
-          Start Crawling!
-        </Button>
+      <div className='result-button'>
+        <Space size={8}>
+          <Button type="primary" loading={loadings[0]} onClick={showModal}>
+            Start Crawling!
+          </Button>
 
-        <Button
-          type="primary"
-          ghost
-          icon={<DownloadOutlined />}
-          size="medium"
-          disabled={isDownloadButtonDisabled}
-          onClick={downloadResult}
-        >
-          Download result file
-        </Button>
+          <Button
+            type="primary"
+            ghost
+            icon={<DownloadOutlined />}
+            size="medium"
+            disabled={isDownloadButtonDisabled}
+            onClick={downloadResult}
+          >
+            Download result file
+          </Button>
 
-        <Button
-          type="success"
-          // ghost
-          // icon={<DownloadOutlined />}
-          size="medium"
-          disabled={isDownloadButtonDisabled}
-          onClick={showSheetModal}
-        >
-          Export Result to Google Sheet
-        </Button>
-        <div className='latest-crawl'>Latest crawl: {latestCrawl}</div>
-      </Space>
+          <Button
+            type="success"
+            icon={<ExportOutlined />}
+            size="medium"
+            disabled={isDownloadButtonDisabled}
+            loading={isSheetLoading}
+            onClick={showSheetModal}
+          >
+            Export Result to Google Sheet
+          </Button>
+          <div className='latest-crawl'>Latest crawl: {latestCrawl}</div>
+        </Space>
+      </div>
       <br />
       <br />
       {isCrawlWarningVisible && <CrawlMsgWarning />}
       {isCrawlResultVisible && <CrawlMsg />}
       {isCrawlResultFailVisible && <CrawlMsgFail />}
 
-      <CrawlerConfigModal
-        isModalVisible={isModalVisible}
-        handleOk={handleOk}
-        handleCancel={handleCancel}
-        crawlConfigForm={crawlConfigForm}
-        onFinishConfigCrawler={onFinishConfigCrawler}
-        onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
-        attrNameList={attrNameList}
-        identifierAttr={identifierAttr}
-        setIdentifierAttr={setIdentifierAttr}
-        attrNameChangeWarningMsg={attrNameChangeWarningMsg}
-        setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
-      />
-      <Modal
-        title="Config Crawler"
-        visible={isSheetModalVisible}
-        onOk={handleSheetOk}
-        onCancel={handleSheetCancel}
-        footer={null}
-      >
-        <Form
-          name="basic"
-          // form={props.crawlConfigForm}
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 16,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={onFinishConfigSheet}
-          // onFinishFailed={props.onFinishFailedConfigCrawler}
-          autoComplete="on"
+      <div className='sheet-export-modal'>
+        <CrawlerConfigModal
+          isModalVisible={isModalVisible}
+          handleOk={handleOk}
+          handleCancel={handleCancel}
+          crawlConfigForm={crawlConfigForm}
+          onFinishConfigCrawler={onFinishConfigCrawler}
+          onFinishFailedConfigCrawler={onFinishFailedConfigCrawler}
+          attrNameList={attrNameList}
+          identifierAttr={identifierAttr}
+          setIdentifierAttr={setIdentifierAttr}
+          attrNameChangeWarningMsg={attrNameChangeWarningMsg}
+          setAttrNameChangeWarningMsg={setAttrNameChangeWarningMsg}
+        />
+        <Modal
+          title="Config Sheet Export"
+          visible={isSheetModalVisible}
+          onOk={handleSheetOk}
+          onCancel={handleSheetCancel}
+          footer={null}
         >
-
-          <Form.Item label="Google Sheet URL" name="sheet_url">
-            <Input placeholder="Google Sheet URL you want to export result data to" />
-          </Form.Item>
-
-          <Form.Item
+          <Form
+            name="basic"
+            // form={props.crawlConfigForm}
+            labelCol={{
+              span: 8,
+            }}
             wrapperCol={{
-              offset: 8,
               span: 16,
             }}
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={onFinishConfigSheet}
+            // onFinishFailed={props.onFinishFailedConfigCrawler}
+            autoComplete="on"
           >
-            <Space size={8}>
-              <Button type="primary" htmlType="submit">
-                Export
-              </Button>
-              <Button htmlType="button" onClick={handleSheetCancel}>
-                Cancel
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
+
+            <Form.Item label="Google Sheet URL" name="sheet_url">
+              <Input placeholder="Google Sheet URL you want to export result data to" />
+            </Form.Item>
+
+            <Form.Item
+              wrapperCol={{
+                offset: 8,
+                span: 16,
+              }}
+            >
+              <Space size={8}>
+                <Button type="primary" htmlType="submit">
+                  Export
+                </Button>
+                <Button htmlType="button" onClick={handleSheetCancel}>
+                  Cancel
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
     </div>
   );
 };
