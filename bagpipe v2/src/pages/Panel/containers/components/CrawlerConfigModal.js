@@ -90,7 +90,7 @@ const CrawlerConfigModal = (props) => {
                 </Form.Item>
                 <Form.Item
                     name="identifier_attr"
-                    label="Identifier attribute"
+                    label="Choose ID Element"
                     rules={[
                         {
                             required: false,
