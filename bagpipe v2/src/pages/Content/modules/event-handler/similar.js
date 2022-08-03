@@ -81,6 +81,7 @@ export function getSimilarElement(selected_element) {
       second_outer.parentElement == undefined
     )
       break;
+    if (final_classlist[0].length != 0) break;
     first_outer = first_outer.parentElement;
     second_outer = second_outer.parentElement;
   }
@@ -112,7 +113,7 @@ export function getSimilarElement(selected_element) {
   if (no_class_flag) {
     // outer nodename and classname
     if (final_classlist[0].length != 0)
-      final_child = first_outer.nodeName + ' .' + final_classlist.join('.');
+      final_child = first_outer.nodeName + '.' + final_classlist.join('.');
     else final_child = first_outer.nodeName;
 
     final_attr = '';
