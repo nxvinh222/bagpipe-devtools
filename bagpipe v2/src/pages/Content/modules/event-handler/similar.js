@@ -115,6 +115,7 @@ export function getSimilarElement(selected_element) {
       final_child = first_outer.nodeName + ' .' + final_classlist.join('.');
     else final_child = first_outer.nodeName;
 
+    final_attr = '';
     final_child += ' ' + selected_element[0].nodeName + final_attr;
   }
   // else
