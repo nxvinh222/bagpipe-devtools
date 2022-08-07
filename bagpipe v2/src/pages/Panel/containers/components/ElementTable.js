@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from '../axios';
-import { Table, Button, Tag } from 'antd';
+import { Table, Button, Tag, Popconfirm, message, Popover } from 'antd';
 import {
   basePath,
   newAttrPath,
@@ -91,30 +91,57 @@ const ElementTable = (props) => {
         let path =
           editAttrPathWithQuery +
           `&${props.elementIdQuery}=${record[props.idColumn]}`;
+        const instructionEdit = (
+          <div>
+            Edit this Element.
+          </div>
+        );
+        const instructionDelete = (
+          <div>
+            Delete this Element.
+          </div>
+        );
         return (
           <div>
-            <Button>
-              <Link
-                to={{
-                  pathname: path,
-                }}
-              >
-                Edit
-              </Link>
-            </Button>
-            <Button
-              onClick={() => {
+            <Popover
+              content={instructionEdit}
+              // title="Title" 
+              trigger="hover"
+            >
+              <Button>
+                <Link
+                  to={{
+                    pathname: path,
+                  }}
+                >
+                  Edit
+                </Link>
+              </Button>
+            </Popover>
+
+            <Popconfirm
+              title="Are you sure to delete this element?"
+              onConfirm={() => {
                 axios
                   .delete(`/api/v1/elements/${record[props.idColumn]}`)
                   .then((r) => {
                     console.log(r);
                     props.getData(props.fatherId);
+                    message.success('Element deleted!');
                   })
                   .catch((e) => console.log(e));
               }}
+              // onCancel={cancel}
+              okText="Yes"
+              cancelText="No"
             >
-              <a>Delete</a>
-            </Button>
+              <Popover
+                content={instructionDelete}
+                trigger="hover"
+              >
+                <Button><a>Delete</a></Button>
+              </Popover>
+            </Popconfirm>
           </div>
         );
       },
@@ -126,12 +153,26 @@ const ElementTable = (props) => {
       rowKey={(row) => row.name}
       dataSource={props.selectors}
       columns={columns}
+      loading={props.loading}
     />
   );
 };
 
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  switch (string) {
+    case 'link':
+      return "Navigation"
+    case 'link-href':
+      return 'Link';
+    case 'click':
+      return "Pagination"
+    case 'click-infinity':
+      return 'Infinity CLick';
+    case 'image-auto':
+      return 'Image (Auto scan)';
+    default:
+      return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 }
 
 function getColor(type) {
@@ -141,15 +182,23 @@ function getColor(type) {
     case 'text':
       return 'gold';
     case 'link':
-      return 'magenta';
+      return 'black';
+    case 'link-href':
+      return 'yellow';
     case 'click':
+    case 'click-infinity':
       return 'purple';
     case 'image':
+    case 'image-auto':
       return 'blue';
     case 'paragraph':
       return 'green';
+    case 'map':
+      return 'pink';
+    case 'ignore':
+      return 'gray';
     default:
-      return 'yellow';
+      return 'black';
   }
 }
 

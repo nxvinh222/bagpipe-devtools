@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
-import { basePath } from './constants'
+import { useLocation, useNavigate } from "react-router-dom";
+import { basePath, editRecipePath, recipeIdQuery, idColumn } from './constants'
 
 import 'antd/dist/antd.css';
 import { Form, Input, Button, Breadcrumb } from 'antd';
@@ -8,30 +8,86 @@ import { HomeOutlined } from '@ant-design/icons';
 import axios from './axios';
 
 const New = (props) => {
+    const navigate = useNavigate();
+    const useQuery = () => new URLSearchParams(useLocation().search);
+    let query = useQuery();
+
     const nameColumn = "name"
     const urlColumn = "start_url"
     const noteColumn = "note"
 
+    // Check if this is an edit form
+    let isEdit = false;
+    if (window.location.href.toString().split(window.location.host)[1].startsWith(editRecipePath)) {
+        isEdit = true;
+        console.log("This is edit recipe form!");
+    }
+
+    const recipeId = query.get(recipeIdQuery);
     var showRecipePath = basePath + "/show/"
-    const navigate = useNavigate();
+
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (isEdit) {
+            let url = `/api/v1/recipes/${recipeId}`
+
+            axios.
+                get(url).
+                then(response => {
+                    // console.log(response.data.data);
+
+                    form.setFieldsValue({
+                        name: response.data.data.name,
+                        start_url: response.data.data.start_url,
+                        note: response.data.data.note,
+                    });
+
+                })
+                .catch(err => console.log("[Bagpipe] Cannot get recipe info: ", err))
+        }
+    }, []);
 
     const onFinish = (values) => {
-        axios.
-            post(`/api/v1/recipes`, {
-                [nameColumn]: values[nameColumn],
-                [urlColumn]: values[urlColumn],
-                [noteColumn]: values[noteColumn],
-            }
-            ).
-            then(response => {
-                console.log(response);
-                navigate(basePath)
-            })
-            .catch(err => console.log(err))
+        if (isEdit) {
+            axios.
+                put(`/api/v1/recipes/${recipeId}`, {
+                    [nameColumn]: values[nameColumn],
+                    [urlColumn]: values[urlColumn],
+                    [noteColumn]: values[noteColumn],
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                }
+                ).
+                then(response => {
+                    console.log(response);
+                    navigate(basePath)
+                })
+                .catch(err => console.log("[Bagpipe] Cannot update recipe: ", err))
+        } else {
+            axios.
+                post(`/api/v1/recipes`, {
+                    [nameColumn]: values[nameColumn],
+                    [urlColumn]: values[urlColumn],
+                    [noteColumn]: values[noteColumn],
+                }, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                }
+                ).
+                then(response => {
+                    console.log(response);
+                    navigate(basePath)
+                })
+                .catch(err => console.log("[Bagpipe] Cannot create new recipe: ", err))
+        }
     };
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
+    };
+
+    const onCancel = () => {
+        navigate(basePath);
     };
 
     return (
@@ -40,10 +96,11 @@ const New = (props) => {
                 <Breadcrumb.Item href={basePath}>
                     <HomeOutlined />
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>New Recipe</Breadcrumb.Item>
+                <Breadcrumb.Item><b>New Project</b></Breadcrumb.Item>
             </Breadcrumb>
             <Form
                 name="basic"
+                form={form}
                 labelCol={{
                     span: 3,
                 }}
@@ -71,13 +128,34 @@ const New = (props) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Domain"
+                    label="Crawl URL"
                     name={urlColumn}
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your start url!',
+                            message: 'Please enter your crawl url!',
                         },
+                        {
+                            message: 'Please enter an valid url!',
+                            validator: (_, value) => {
+                                function isValidHttpUrl(string) {
+                                    let url;
+
+                                    try {
+                                        url = new URL(string);
+                                    } catch (_) {
+                                        return false;
+                                    }
+
+                                    return url.protocol === "http:" || url.protocol === "https:";
+                                }
+                                if (isValidHttpUrl(value)) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
                     ]}
                 >
                     <Input />
@@ -106,6 +184,9 @@ const New = (props) => {
                 >
                     <Button type="primary" htmlType="submit">
                         Submit
+                    </Button>
+                    <Button type="danger" htmlType="button" onClick={onCancel}>
+                        Cancel
                     </Button>
                 </Form.Item>
             </Form>

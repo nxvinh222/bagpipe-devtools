@@ -1,23 +1,26 @@
 .hova {
   background-color: lightblue !important;
+  border: 1px solid blue !important;
 }
 
 .click-hova {
   background-color: pink !important;
+  border: 2px solid red !important;
 }
 
 
 .select-panel {
   background: transparent;
-  background-color: white !important;
-  border: none;
+  background-color: #F4F4ED !important;
+  border: 5px solid #363732;
   position: fixed;
   left: 10px;
   bottom: 10px;
-  height: 50px;
-  width: 620px;
-  z-index: 9999;
+  height: 60px;
+  width: 350px;
+  z-index: 2147483647;
   padding: 1%;
+  margin: 0.5%;
 }
 
 .select-panel {
@@ -43,7 +46,7 @@
   font-family: "RM Neue", sans-serif;
   font-size: 100%;
   line-height: 1.15;
-  margin: 0;
+  margin: 5px;
   padding: 10px 21px;
   text-align: center;
   text-transform: none;

@@ -20,7 +20,7 @@ const CrawlerConfigModal = (props) => {
             onOk={props.handleOk}
             onCancel={props.handleCancel}
             footer={null}
-            width="60vw"
+        // width="40vw"
         >
             <Form
                 name="basic"
@@ -38,7 +38,20 @@ const CrawlerConfigModal = (props) => {
                 onFinishFailed={props.onFinishFailedConfigCrawler}
                 autoComplete="off"
             >
-                <Form.Item label="Crawl item limit" name="item_limit" rules={[]}>
+                <Form.Item label="Crawl records limit" name="item_limit"
+                    rules={[
+                        {
+                            message: 'Crawl records limit must be larger than 0!',
+                            validator: (_, value) => {
+                                if (value > 0) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
+                    ]}
+                >
                     <InputNumber />
                 </Form.Item>
 
@@ -54,17 +67,17 @@ const CrawlerConfigModal = (props) => {
             <InputNumber />
           </Form.Item> */}
 
-                <Form.Item label="Google Sheet URL" name="sheet_id">
+                {/* <Form.Item label="Google Sheet URL" name="sheet_id">
                     <Input placeholder="leave this blank if you don't want to export to google sheet" />
-                </Form.Item>
+                </Form.Item> */}
 
-                <Form.Item
+                {/* <Form.Item
                     label="Convert to PostgreSQL"
                     valuePropName="checked"
                     name="is_sql"
                 >
                     <Switch />
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item
                     label="Exclude crawled data"
@@ -77,7 +90,7 @@ const CrawlerConfigModal = (props) => {
                 </Form.Item>
                 <Form.Item
                     name="identifier_attr"
-                    label="Identifier attribute"
+                    label="Choose ID Element"
                     rules={[
                         {
                             required: false,

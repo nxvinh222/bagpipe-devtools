@@ -1,8 +1,12 @@
+const getValueByKey = require("../../../utils/objectScan");
+
 function UpdateIdentifierList(hashtable, result, identifierAttr, identifierList) {
     for (let i = 0; i < result.length; i++) {
-        if (!hashtable.containsKey(result[i][identifierAttr])) {
-            hashtable.put(result[i][identifierAttr]);
-            identifierList.push(result[i][identifierAttr]);
+        let value = getValueByKey(result[i], identifierAttr);
+        if (Array.isArray(value)) value = "[" + value.toString() + "]";
+        if (!hashtable.containsKey(value)) {
+            hashtable.put(value);
+            identifierList.push(value);
         }
     }
 

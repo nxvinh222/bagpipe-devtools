@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { showRecipeBasicPath, editAttrPath } from './constants'
 
-import { Form, Input, Button, Select, Typography } from 'antd';
+import { Form, Input, Button, Select, Typography, TreeSelect } from 'antd';
 
 import axios from './axios';
 import { data } from './Data/ShowData';
@@ -108,14 +108,14 @@ const NewAttr = (props) => {
         document.querySelector('.preview').style.display = "none";
         document.querySelector('.remove-preview').style.display = "inline-block";
         chrome.devtools.inspectedWindow.eval(
-            `$("${element}").addClass("click-hova");`
+            `$('${element}').addClass("click-hova");`
         );
     }
     const removePreview = () => {
         document.querySelector('.preview').style.display = "inline-block";
         document.querySelector('.remove-preview').style.display = "none";
         chrome.devtools.inspectedWindow.eval(
-            `$("${element}").removeClass("click-hova");`
+            `$('.click-hova').removeClass("click-hova");`
         );
     }
 
@@ -164,7 +164,7 @@ const NewAttr = (props) => {
                     let urlParams = new URLSearchParams(window.location.search);
                     urlParams.set(fatherIdQuery, fatherId);
                     let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
-                    navigate(path)
+                    navigate(path);
                 })
                 .catch(err => {
                     setFailMsg(err);
@@ -188,12 +188,15 @@ const NewAttr = (props) => {
     };
 
     const onCancel = () => {
-        navigate(showRecipePath);
+        let urlParams = new URLSearchParams(window.location.search);
+        urlParams.set(fatherIdQuery, fatherId);
+        let path = showRecipeBasicPath + `${recipeId}` + "?" + urlParams.toString();
+        navigate(path);
     };
 
     return (
         <div>
-            <div>Select a new Attribute by clicking "Select Element"</div>
+            <div>Click "Select Element" to start extracting information from the website.</div>
             <Form
                 name="basic"
                 form={form}
@@ -211,13 +214,23 @@ const NewAttr = (props) => {
                 autoComplete="off"
             >
                 <Form.Item
-                    label="name"
                     name="name"
+                    label="Name"
                     rules={[
                         {
                             required: true,
                             message: 'Please input your name!!',
                         },
+                        {
+                            message: 'Element name must contain only letters (a-z, A-Z), numbers (0-9), or underscores ( _ )',
+                            validator: (_, value) => {
+                                if (/^[a-zA-Z0-9_]+$/.test(value)) {
+                                    return Promise.resolve();
+                                } else {
+                                    return Promise.reject('Some message here');
+                                }
+                            }
+                        }
                     ]}
                 >
                     <Input />
@@ -230,9 +243,29 @@ const NewAttr = (props) => {
                         {
                             required: true,
                         },
+                        {
+                            message: 'Root Element must be an Object Element!',
+                            validator: (_, value) => {
+                                if (fatherId == "null" && value != "object") {
+                                    return Promise.reject('Some message here');
+                                } else {
+                                    return Promise.resolve();
+                                }
+                            }
+                        },
+                        {
+                            message: 'This is not a type!',
+                            validator: (_, value) => {
+                                if (value == "data" || value == "action") {
+                                    return Promise.reject('Some message here');
+                                } else {
+                                    return Promise.resolve();
+                                }
+                            }
+                        }
                     ]}
                 >
-                    <Select
+                    {/* <Select
                         placeholder="Select type of data you want to scrape"
                         onChange={(value) => {
                             setCurrentType(value)
@@ -248,11 +281,74 @@ const NewAttr = (props) => {
                         <Option value="image-auto">Image <b>(Auto scan)</b></Option>
                         <Option value="paragraph">Paragraph</Option>
                         <Option value="click">Click <b>(Action)</b></Option>
-                        {/* <Option value="popup-link">Popup Link</Option>
-                        <Option value="table">Table</Option>
-                        <Option value="html">Html</Option>
-                        <Option value="attribute">Attribute Tag</Option> */}
-                    </Select>
+                    </Select> */}
+                    <TreeSelect
+                        treeData={[
+                            {
+                                title: "Object",
+                                value: "object",
+                                disabled: (fatherId != "null")
+                            },
+                            {
+                                title: "Data",
+                                value: "data",
+                                children: [
+                                    {
+                                        title: "Text",
+                                        value: "text",
+                                        children: [
+                                            {
+                                                title: "Paragraph",
+                                                value: "paragraph"
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        title: "Link",
+                                        value: "link-href"
+                                    },
+                                    {
+                                        title: "Image",
+                                        value: "image",
+                                        children: [
+                                            {
+                                                title: "Image (Auto scan)",
+                                                value: "image-auto"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        title: "Map",
+                                        value: "map",
+                                    },
+                                ],
+                            },
+                            {
+                                title: "Action",
+                                value: "action",
+                                children: [
+                                    {
+                                        title: "Navigation",
+                                        value: "link",
+                                    },
+                                    {
+                                        title: "Pagination",
+                                        value: "click",
+                                        children: [
+                                            {
+                                                title: "Infinity CLick",
+                                                value: "click-infinity"
+                                            }
+                                        ]
+                                    },
+                                ],
+                            },
+                            {
+                                title: "Ignore",
+                                value: "ignore",
+                            }
+                        ]}
+                    />
                 </Form.Item>
 
                 <Form.Item
@@ -275,7 +371,7 @@ const NewAttr = (props) => {
                         </Button>
                     </span>
 
-                    <div>Element:
+                    <div>Selected Element's Selector:
                         <div style={{ color: 'crimson' }}>{element}</div>
                     </div>
                 </Form.Item>

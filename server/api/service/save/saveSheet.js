@@ -34,10 +34,18 @@ async function SaveSheet(sheetUrl, result) {
     await worksheet.updateProperties({ title: key });
 
     await worksheet.setHeaderRow(Object.keys(values[0])); // This is the header row.
-    await worksheet.addRows(values); // Your value is put to the sheet.
+    // Push data to sheet by chunk
+    const chunkSize = 100;
+    for (let i = 0; i < values.length; i += chunkSize) {
+      const chunk = values.slice(i, i + chunkSize);
+      await worksheet.addRows(chunk); // Your value is put to the sheet.
+      console.log(`[INFO] ${chunk.length} rows pushed to sheet`, sheetId);
+    }
+
     console.log("[INFO] Result data saved to sheet: ", sheetId);
   } catch (error) {
     console.log("[ERROR] Cannot save to sheet");
+    throw error;
   }
 }
 

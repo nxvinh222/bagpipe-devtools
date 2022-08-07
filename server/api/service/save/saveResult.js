@@ -2,6 +2,7 @@ const path = require("path");
 var fs = require("fs");
 const { PostgreSql } = require("@shagital/db-dumper");
 const { log } = require("console");
+const { throws } = require("assert");
 
 async function SaveResult(client, result, generatedFileName) {
   const json = JSON.stringify(result);
@@ -30,6 +31,8 @@ async function SaveResult(client, result, generatedFileName) {
     });
     break;
   }
+  // Edit tablename
+  tableName = tableName + fileName.split("/").slice(-1)[0].split(".")[0];
 
   // let data = [{ "price": "7,590,000₫", "duration": "4 ngày" }, { "price": "9,390,000₫", "duration": "5 ngày" }];
   // GET KEY LIST
@@ -85,7 +88,10 @@ async function SaveResult(client, result, generatedFileName) {
     .then((res) =>
       console.log("[INFO] Insert crawl result into DB succesully!")
     )
-    .catch((e) => console.error("add failed: ", e.stack));
+    .catch((e) => {
+      console.error("[ERROR] Cannot execute convert query: ", e);
+      throws(e);
+    });
   await client.end();
 
   let dumpLocation = path.resolve(

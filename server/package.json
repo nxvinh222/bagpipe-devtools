@@ -24,9 +24,14 @@
     "node-fetch": "^3.2.4",
     "pg": "^8.7.3",
     "puppeteer": "^12.0.1",
+    "puppeteer-extra-plugin-adblocker": "^2.13.0",
+    "puppeteer-extra-plugin-recaptcha": "^3.6.0",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "random-useragent": "^0.5.0",
     "request": "^2.88.2",
     "simple-hashtable": "^1.0.1",
-    "sql": "^0.78.0"
+    "sql": "^0.78.0",
+    "user-agents": "^1.0.1062"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

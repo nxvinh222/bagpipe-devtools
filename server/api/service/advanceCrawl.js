@@ -1,23 +1,32 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker')
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 var httpRequest = require('request');
 const crawlSinglePage = require("./core/crawl");
 const SimpleHashTable = require('simple-hashtable');
 const InitHash = require("./hash/initHash");
 const UpdateHash = require("./hash/updateHash");
 const UpdateIdentifierList = require("./hash/updateIdentifierList");
+const getElementSvcRequestOption = require("../../utils/requestBuilder");
 
 async function advanceCrawlService(request) {
-  console.log("Handling Text Scraping Request!");
+  console.log("[INFO] Handling Text Scraping Request!");
 
   let crawlResult = {};
   let delayTime = request.request_interval;
 
   let browser = await puppeteer.launch({
     headless: true,
-    // devtools: true,
+    devtools: false,
     defaultViewport: null,
-    args: ["--start-maximized"],
+    args: ["--window-size=1920,1080", "--no-sandbox"],
   });
+  // Create new page
+  let page = await browser.newPage()
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
+  await page.setDefaultNavigationTimeout(0);
 
   // list of link to go next
   let nextLinkStack;
@@ -25,26 +34,82 @@ async function advanceCrawlService(request) {
   let nextLinkList = [];
   let returnedNextLink;
   let nextLink;
+  // full data limit
   let size = request.item_limit;
+  // next function call limit
+  let limit = size;
+  let originalSize = size;
+  // for checking if this is root element
+  let isRootElement = true;
   let identifierAttr = request.identifier_attr;
   let identifierList = request.identifier_list;
   let recipeId = request.recipe_id;
-  if (size == null) size = 5;
+  if (size == null) size = 10;
+  let infiniteLoopStatus = false;
 
+  // Add to limit an amount equal to crawled data length if using excluded feature
+  if (request.exclude) {
+    limit += identifierList.length;
+    console.log("[INFO] New crawl limit: ", limit);
+  }
+
+  // Update project status to Running
+  var updateCrawlerStatusOptions = {
+    url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+    method: 'PUT',
+    json: {
+      status: 2
+    }
+  }
+  httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // Print out the response body
+      console.log("[INFO]  Update project's status succeed: Running!")
+    } else {
+      console.log("[ERROR] Update project's status failed")
+    }
+  })
+
+  // Start crawl service
   await Promise.all(
     request.elements.map(async (element) => {
+      // Check infinity status
+      for (let e of element.child_elements) {
+        if (e.type == "click-infinity") {
+          infiniteLoopStatus = true;
+          isRootElement = true;
+          break;
+        }
+      }
+      // Crawl
       if (element.type == "object") {
         [crawlResult[element.name], nextLinkStack] = await crawlSinglePage(
           browser,
+          page,
           request.url,
           element,
-          delayTime
+          delayTime,
+          root = isRootElement,
+          limit = limit,
+          autoScroll = true
         );
+        console.log(`[INFO] Crawled ${element.name} object's length: `, crawlResult[element.name].length);
+        // update limit
+        if (crawlResult[element.name].length <= limit)
+          limit = limit - crawlResult[element.name].length;
+
+        //remove request url
+        nextLinkStack = nextLinkStack.filter(e => e !== request.url);
 
         // filter crawled data
         if (request.exclude) {
           var hashtable = InitHash(new SimpleHashTable(), identifierList);
-          [hashtable, crawlResult[element.name]] = UpdateHash(hashtable, crawlResult[element.name], identifierAttr);
+          try {
+            [hashtable, crawlResult[element.name]] = UpdateHash(hashtable, crawlResult[element.name], identifierAttr);
+          } catch (error) {
+            console.log("[ERROR] Cannot Update hash table, stop update hash: ", error);
+            request.exclude = false;
+          }
         }
 
         // remove duplicate link
@@ -54,38 +119,59 @@ async function advanceCrawlService(request) {
 
         // crawl next link one by one
         while (crawlResult[element.name].length < size) {
-          console.log("crawled link list: ", nextLinkStack);
+          // console.log("crawled link list: ", nextLinkStack);
           // get next link
           nextLink = nextLinkStack.pop();
-          console.log("next link: ", nextLink);
+          // console.log("next link: ", nextLink);
           // check if this is an invalid link
           if (!isValidHttpUrl(nextLink)) break;
-          let result;
-          // crawl with this link
-          [result, returnedNextLink] = await crawlSinglePage(
-            browser,
-            nextLink,
-            element,
-            delayTime
-          );
-          // update hash
-          if (request.exclude) {
-            [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
-          }
-          // concat value
-          crawlResult[element.name] = crawlResult[element.name].concat(result);
-
-          // push returned link into next link stack
-          for (const next of returnedNextLink) {
-            if (!nextLinkList.includes(next)) {
-              nextLinkStack.push(next);
-              nextLinkList.push(next);
+          try {
+            let result;
+            // crawl with this link
+            console.log("[INFO] navigating to", [nextLink]);
+            [result, returnedNextLink] = await crawlSinglePage(
+              browser,
+              page,
+              nextLink,
+              element,
+              delayTime,
+              root = isRootElement,
+              limit = limit,
+              autoScroll = true
+            );
+            // update limit
+            if (result.length <= limit)
+              limit = limit - result.length;
+            //remove request url
+            returnedNextLink = returnedNextLink.filter(e => e !== request.url);
+            // update hash
+            if (request.exclude) {
+              try {
+                [hashtable, result] = UpdateHash(hashtable, result, identifierAttr);
+              } catch (error) {
+                console.log("[ERROR] Cannot Update hash table, stop update hash: ", error);
+                request.exclude = false;
+              }
             }
+            // concat value
+            crawlResult[element.name] = crawlResult[element.name].concat(result);
+            console.log(`[INFO] Crawled ${element.name} object's length: `, crawlResult[element.name].length);
+
+            // push returned link into next link stack
+            for (const next of returnedNextLink) {
+              if (!nextLinkList.includes(next)) {
+                nextLinkStack.push(next);
+                nextLinkList.push(next);
+              }
+            }
+          } catch (error) {
+            console.log("[ERROR] Cannot crawl ", [nextLink]);
+            console.log("[ERROR] Error occured ", error);
+            break;
           }
         }
-
         crawlResult[element.name] = crawlResult[element.name].slice(0, size);
-        console.log("[INFO] result length: ", crawlResult[element.name].length);
+        console.log("[INFO] Result length: ", crawlResult[element.name].length);
 
         // update identifier list
         var identifierListUpdateBody;
@@ -97,15 +183,16 @@ async function advanceCrawlService(request) {
             identifier_list: [],
           };
         }
-        var options = {
+        var updateIdentifierOptions = {
           url: `http://localhost:8080/api/v1/recipes/${recipeId}/identifiers`,
           method: 'POST',
           json: identifierListUpdateBody
         }
-        httpRequest(options, function (error, response, body) {
+        httpRequest(updateIdentifierOptions, function (error, response, body) {
           if (!error && response.statusCode == 200) {
             // Print out the response body
-            console.log("[INFO] Update recipe succeed")
+            if (request.exclude)
+              console.log("[INFO] Update recipe succeed")
           } else {
             console.log("[ERROR] Update recipe failed")
           }
@@ -113,10 +200,29 @@ async function advanceCrawlService(request) {
       }
     })
   );
-
+  await page.close()
   await browser.close();
 
-  return crawlResult;
+  // Generate file name
+  const generatedFileName = Date.now();
+  // Update project status to Done
+  var updateCrawlerStatusOptions = {
+    url: `http://localhost:8080/api/v1/recipes/${recipeId}`,
+    method: 'PUT',
+    json: {
+      status: 3,
+    }
+  }
+  httpRequest(updateCrawlerStatusOptions, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      // Print out the response body
+      console.log("[INFO]  Update project's status succeed: Finished!")
+    } else {
+      console.log("[ERROR] Update project's status failed")
+    }
+  })
+
+  return [crawlResult, generatedFileName];
 }
 
 function isValidHttpUrl(string) {
